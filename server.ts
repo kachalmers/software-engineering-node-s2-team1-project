@@ -14,7 +14,7 @@ app.get('/add/:a/:b', (req, res) => {
 })
 
 mongoose.connect('mongodb+srv://kchalmers:DBCS5500@cluster0.6gwsm.mongodb.net/myFirstDatabase?retryWrites=true&w=majority');
-mongoose.connect('mongodb://localhost:27017/tuiter');
+//mongoose.connect('mongodb://localhost:27017/tuiter');
 
 app.use(bodyParser.json())
 
