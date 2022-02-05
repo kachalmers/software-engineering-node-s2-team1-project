@@ -26,7 +26,7 @@ export default class TuitController implements TuitControllerI {
        TuitController.tuitDao.findTuitById(req.params.tid)
            .then(tuit => res.json(tuit));
    findTuitsByUser = (req: Request, res: Response) =>
-       TuitController.tuitDao.findTuitsByUser(req.params.userid)
+       TuitController.tuitDao.findTuitsByUser(req.params.uid)
            .then(tuits => res.json(tuits));
    createTuit = (req: Request, res: Response) =>
        TuitController.tuitDao.createTuit(req.body)
