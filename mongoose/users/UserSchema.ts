@@ -10,11 +10,12 @@ const UserSchema = new mongoose.Schema<User>({
     headerImage: String,
     biography: String,
     dateOfBirth: Date,
-    accountType: {type: String, enum: ["PERSONAL", "ACADEMIC", "PROFESSIONAL"]},
+    accountType: {type: String, default: 'PERSONAL', enum: ["PERSONAL", "ACADEMIC", "PROFESSIONAL"]},
     maritalStatus: {type: String, enum: ["MARRIED", "SINGLE", "WIDOWED"]},
+    joined: {type: Date, default: Date.now},
     location: {
-        latitude: Number,
-        longitude: Number
+        latitude: {type: Number, default: 0.0},
+        longitude: {type: Number, default: 0.0},
     },
     salary: {type: Number, default: 50000}
 }, {collection: "users"});

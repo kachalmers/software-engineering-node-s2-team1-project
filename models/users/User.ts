@@ -16,6 +16,7 @@ export default interface User {
     dateOfBirth?: Date,
     accountType?: AccountType,
     maritalStatus?: MaritalStatus,
+    joined?: Date,
     location?: Location,
     salary?: number
 };
