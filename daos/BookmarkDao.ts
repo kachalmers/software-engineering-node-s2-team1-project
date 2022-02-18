@@ -11,6 +11,9 @@ export default class BookmarkDao implements BookmarkDaoI {
     }
     private constructor() {}
 
+    findAllBookmarks = async (): Promise<Bookmark[]> =>
+        BookmarkModel.find();
+
     findAllTuitsBookmarkedByUser = async (uid: string): Promise<Bookmark[]> =>
         BookmarkModel
             .find({bookmarkedBy:uid})

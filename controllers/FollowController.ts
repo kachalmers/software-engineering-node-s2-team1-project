@@ -4,6 +4,7 @@
 import {Express, Request, Response} from "express";
 import FollowDao from "../daos/FollowDao";
 import FollowControllerI from "../interfaces/FollowControllerI";
+import Follow from "../models/follows/Follow";
 
 /**
  * @class UserController Implements RESTful Web service API for follows resource.
@@ -16,7 +17,7 @@ import FollowControllerI from "../interfaces/FollowControllerI";
  *     <li>POST /api/users/:uid/follows/:uid to record that a user follows a user
  *     </li>
  *     <li>DELETE /api/users/:uid/unfollows/:uid to record that a user
- *     no londer follows a user</li>
+ *     no longer follows a user</li>
  * </ul>
  * @property {FollowDao} followDao Singleton DAO implementing follows CRUD operations
  * @property {FollowController} FollowController Singleton controller implementing
@@ -34,8 +35,9 @@ export default class FollowController implements FollowControllerI {
     public static getInstance = (app: Express): FollowController => {
         if(FollowController.followController === null) {
             FollowController.followController = new FollowController();
+            app.get("/api/follows", FollowController.followController.findAllFollows);
             app.get("/api/users/:uid/follows", FollowController.followController.findAllUsersFollowedByUser);
-            app.get("/api/users/:uid/follows", FollowController.followController.findAllUsersFollowingUser);
+            app.get("/api/follows/:uid", FollowController.followController.findAllUsersFollowingUser);
             app.post("/api/users/:uid/follows/:ouid", FollowController.followController.userFollowsUser);
             app.delete("/api/users/:uid/unfollows/:ouid", FollowController.followController.userUnfollowsUser);
         }
@@ -43,6 +45,16 @@ export default class FollowController implements FollowControllerI {
     }
 
     private constructor() {}
+
+    /**
+     * Retrieves all follows from the database and returns an array of follows.
+     * @param {Request} req Represents request from client
+     * @param {Response} res Represents response to client, including the
+     * body formatted as JSON arrays containing the follow objects
+     */
+    findAllFollows = (req: Request, res: Response) =>
+        FollowController.followDao.findAllFollows()
+            .then((follows: Follow[]) => res.json(follows));
 
     /**
      * Retrieves all users that followed a user from the database

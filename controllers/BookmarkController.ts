@@ -4,6 +4,7 @@
 import {Express, Request, Response} from "express";
 import BookmarkDao from "../daos/BookmarkDao";
 import BookmarkControllerI from "../interfaces/BookmarkControllerI";
+import Bookmark from "../models/bookmarks/Bookmark"
 
 /**
  * @class TuitController Implements RESTful Web service API for bookmarks resource.
@@ -34,6 +35,7 @@ export default class BookmarkController implements BookmarkControllerI {
     public static getInstance = (app: Express): BookmarkController => {
         if(BookmarkController.bookmarkController === null) {
             BookmarkController.bookmarkController = new BookmarkController();
+            app.get("/api/bookmarks", BookmarkController.bookmarkController.findAllBookmarks);
             app.get("/api/users/:uid/bookmarks", BookmarkController.bookmarkController.findAllTuitsBookmarkedByUser);
             app.get("/api/tuits/:tid/bookmarks", BookmarkController.bookmarkController.findAllUsersThatBookmarkedTuit);
             app.post("/api/users/:uid/bookmarks/:tid", BookmarkController.bookmarkController.userBookmarksTuit);
@@ -45,11 +47,21 @@ export default class BookmarkController implements BookmarkControllerI {
     private constructor() {}
 
     /**
+     * Retrieves all bookmarks from the database and returns an array of bookmarks.
+     * @param {Request} req Represents request from client
+     * @param {Response} res Represents response to client, including the
+     * body formatted as JSON arrays containing the bookmark objects
+     */
+    findAllBookmarks = (req: Request, res: Response) =>
+        BookmarkController.bookmarkDao.findAllBookmarks()
+            .then((bookmarks: Bookmark[]) => res.json(bookmarks));
+
+    /**
      * Retrieves all users that bookmarked a tuit from the database
      * @param {Request} req Represents request from client, including the path
      * parameter tid representing the bookmarked tuit
      * @param {Response} res Represents response to client, including the
-     * body formatted as JSON arrays containing the user objects
+     * body formatted as JSON arrays containing the user objects that bookmarked the tuit
      */
     findAllUsersThatBookmarkedTuit = (req: Request, res: Response) =>
         BookmarkController.bookmarkDao.findAllUsersThatBookmarkedTuit(req.params.tid)
