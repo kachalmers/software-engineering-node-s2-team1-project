@@ -1,3 +1,7 @@
+/**
+ * @file implements the structure of the data (schema) being stored in the
+ * database. Used to validate the data before being stored.
+ */
 import mongoose from "mongoose";
 import User from "../../models/users/User";
 const UserSchema = new mongoose.Schema<User>({

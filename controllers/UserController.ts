@@ -1,5 +1,7 @@
 /**
- * @file Controller RESTful Web service API for users resource
+ * @file Controller RESTful Web service API for users resource; implements the
+ * controller mapping various HTTP requests to functions that process the
+ * requests and generate a response.
  */
 import UserDao from "../daos/UserDao";
 import User from "../models/users/User";
