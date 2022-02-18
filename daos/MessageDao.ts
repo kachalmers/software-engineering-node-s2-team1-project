@@ -14,6 +14,9 @@ export default class MessageDao implements MessageDaoI {
     private constructor() {
     }
 
+    findAllMessages = async (): Promise<Message[]> =>
+        MessageModel.find();
+
     findAllMessagesSentByUser = async (uid: string): Promise<Message[]> =>
         MessageModel
             .find({from: uid})
@@ -34,7 +37,7 @@ export default class MessageDao implements MessageDaoI {
     userDeletesMessage = async (mid: string): Promise<any> =>
         MessageModel.deleteOne({_id: mid});
 
-    userMessagesUser = async (uid: string, ouid: string, message: Message): Promise<any> =>
+    userMessagesUser = async (uid: string, ouid: string, message: Message): Promise<Message> =>
         MessageModel.create({...message, from: uid, to: ouid});
 }
 
