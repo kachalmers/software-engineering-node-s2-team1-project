@@ -22,8 +22,8 @@ import mongoose from "mongoose";
 // build the connection string
 const PROTOCOL = "mongodb+srv";
 const DB_USERNAME = "kchalmers";
-const DB_PASSWORD = "DBCS5500";
-const HOST = "cluster0.6gwsm.mongodb.net";
+const DB_PASSWORD = "CS5500A2KAC";
+const HOST = "cluster0.lskpe.mongodb.net";
 const DB_NAME = "tuiter";
 const DB_QUERY = "retryWrites=true&w=majority";
 const connectionString = `${PROTOCOL}://${DB_USERNAME}:${DB_PASSWORD}@${HOST}/${DB_NAME}?${DB_QUERY}`;
