@@ -1,5 +1,5 @@
 /**
- * @file declares API for Messages related data access object methods.
+ * @file Declares API for Messages related data access object methods.
  */
 import Message from "../models/messages/Message";
 
