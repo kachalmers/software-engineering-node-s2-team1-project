@@ -69,6 +69,7 @@ export default class TuitController implements TuitControllerI {
             .then((tuits: Tuit[]) => res.json(tuits));
 
     /**
+     * Retrieves tuit by the primary key of the tuit.
      * @param {Request} req Represents request from client, including path
      * parameter tid identifying the primary key of the tuit to be retrieved
      * @param {Response} res Represents response to client, including the

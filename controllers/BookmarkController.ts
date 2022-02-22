@@ -7,16 +7,17 @@ import BookmarkControllerI from "../interfaces/BookmarkControllerI";
 import Bookmark from "../models/bookmarks/Bookmark"
 
 /**
- * @class TuitController Implements RESTful Web service API for bookmarks resource.
+ * @class BookmarkController Implements RESTful Web service API for bookmarks resource.
  * Defines the following HTTP endpoints:
  * <ul>
- *     <li>GET /api/users/:uid/bookmarks to retrieve all the tuits bookmarked by a user
- *     </li>
- *     <li>GET /api/tuits/:tid/bookmarks to retrieve all users that bookmarked a tuit
- *     </li>
- *     <li>POST /api/users/:uid/bookmarks/:tid to record that a user bookmarks a tuit
- *     </li>
- *     <li>DELETE /api/users/:uid/unbookmarks/:tid to record that a user
+ *     <li>GET /api/bookmarks to retrieve all bookmarks</li>
+ *     <li>GET /api/users/:uid/bookmarks to retrieve all the tuits bookmarked
+ *     by a user </li>
+ *     <li>GET /api/tuits/:tid/bookmarks to retrieve all users that bookmarked
+ *     a tuit</li>
+ *     <li>POST /api/users/:uid/bookmarks/:tid to record that a user bookmarks
+ *     a tuit</li>
+ *     <li>DELETE /api/users/:uid/bookmarks/:tid to record that a user
  *     no longer bookmarks a tuit</li>
  * </ul>
  * @property {BookmarkDao} bookmarkDao Singleton DAO implementing bookmarks CRUD operations
@@ -70,7 +71,7 @@ export default class BookmarkController implements BookmarkControllerI {
     /**
      * Retrieves all tuits bookmarked by a user from the database
      * @param {Request} req Represents request from client, including the path
-     * parameter uid representing the user bookmarked the tuits
+     * parameter uid representing the user that bookmarked the tuits
      * @param {Response} res Represents response to client, including the
      * body formatted as JSON arrays containing the tuit objects that were bookmarked
      */

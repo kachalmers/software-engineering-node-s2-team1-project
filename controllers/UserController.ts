@@ -74,7 +74,7 @@ export default class UserController implements UserControllerI {
             .then((users: User[]) => res.json(users));
 
     /**
-     * Retrieves the user by their primary key
+     * Retrieves the user by their primary key.
      * @param {Request} req Represents request from client, including path
      * parameter uid identifying the primary key of the user to be retrieved
      * @param {Response} res Represents response to client, including the
@@ -85,7 +85,7 @@ export default class UserController implements UserControllerI {
             .then((user: User) => res.json(user));
 
     /**
-     * Creates a new user instance
+     * Creates a new user instance.
      * @param {Request} req Represents request from client, including body
      * containing the JSON object for the new user to be inserted in the
      * database
@@ -120,7 +120,7 @@ export default class UserController implements UserControllerI {
             .then((status) => res.send(status));
 
     /**
-     * Removes all user instances from the database. Useful for testing
+     * Removes all user instances from the database. Useful for testing.
      * @param {Request} req Represents request from client
      * @param {Response} res Represents response to client, including status
      * on whether deleting all users was successful or not
@@ -129,12 +129,24 @@ export default class UserController implements UserControllerI {
         UserController.userDao.deleteAllUsers()
             .then((status) => res.send(status));
 
+    /**
+     * Retrieve user by credentials.
+     * @param {Request} req Represents request from client
+     * @param {Response} res Represents response to client, including the
+     * body formatted as JSON containing the user that was retrieves from the
+     * database
+     */
     login = (req: Request, res: Response) =>
         UserController.userDao.findUserByCredentials(req.body.username, req.body.password)
             .then(user => {
                 res.json(user)
             });
 
+    /**
+     * Retrieves user by username.
+     * @param {Request} req Represents request from client
+     * @param {Response} res Represents response to client
+     */
     register = (req: Request, res: Response) =>
         UserController.userDao.findUserByUsername(req.body.username)
             .then(user => {

@@ -60,6 +60,20 @@ export default class FollowDao implements FollowDaoI{
             .exec();
 
     /**
+     * Uses FollowModel to retrieve follow of user by user given the two uids.
+     * @param {string} uid Primary key of user following other user
+     * @param {string} ouid Primary key of user being followed
+     * @returns Promise To be notified when the follow is retrieved from the
+     * database
+     */
+    findFollowByUsers = async (uid: string, ouid: string): Promise<Follow[]> =>
+        FollowModel
+            .find({userFollowing: uid, userFollowed: ouid})
+            .populate("userFollowing")  // fill in information about follower
+            .populate("userFollowed")   // fill in information about followee
+            .exec();
+
+    /**
      * Inserts follow instance into the database.
      * @param {string} uid Primary key of user following other user
      * @param {string} ouid Primary key of user to be followed

@@ -51,12 +51,33 @@ export default class MessageDao implements MessageDaoI {
      * Uses MessageModel to retrieve all message documents received by user
      * provided.
      * @param {string} uid Primary key of user that received the messages
+     * @returns Promise To be notified when messages are retrieved from the database
      */
     findAllMessagesSentToUser = async (uid: string): Promise<Message[]> =>
         MessageModel
             .find({to: uid})
             .populate("message")
             .exec();
+
+    /**
+     * Uses MessageModel to retrieve message by its primary key.
+     * @param {string} mid Primary key of user that received the messages
+     * @returns Promise To be notified when message is retrieved from the database
+     */
+    findMessageById = async (mid: string): Promise<Message[]> =>
+        MessageModel
+            .find({_id: mid});
+
+    /**
+     * Updates message with new values in database.
+     * @param {string} mid
+     * @param {Message} message Message object containing properties and their new values
+     * @returns Promise To be notified when message is updated
+     */
+    updateMessage = async (mid: string, message: Message): Promise<any> =>
+        MessageModel.updateOne(
+            {_id: mid},
+            {$set: message});
 
     /**
      * Removes message from the database.
