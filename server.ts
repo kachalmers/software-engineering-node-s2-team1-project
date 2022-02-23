@@ -21,8 +21,8 @@ import mongoose from "mongoose";
 
 // build the connection string
 const PROTOCOL = "mongodb+srv";
-const DB_USERNAME = "kchalmers";
-const DB_PASSWORD = "CS5500A2KAC";
+const DB_USERNAME = process.env.DB_USERNAME;
+const DB_PASSWORD = process.env.DB_PASSWORD;
 const HOST = "cluster0.lskpe.mongodb.net";
 const DB_NAME = "tuiter";
 const DB_QUERY = "retryWrites=true&w=majority";
