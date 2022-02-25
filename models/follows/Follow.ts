@@ -7,10 +7,10 @@ import User from "../users/User";
 /**
  * @typedef Follow Represents follows relationship between a user and another
  * user, as in a user follows another user.
- * @property {User} userFollowed User being followed by userFollowing
- * @property {User} userFollowing User following userFollowed
+ * @property {User} followee User being followed by follower
+ * @property {User} follower User following followee
  */
 export default interface Follow {
-    userFollowed: User,
-    userFollowing: User
+    followee: User,
+    follower: User
 };

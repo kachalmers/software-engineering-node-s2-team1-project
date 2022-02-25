@@ -33,19 +33,19 @@ export default class LikeDao implements LikeDaoI {
      * @returns Promise To be notified when the users are retreived from
      * database
      */
-    findAllUsersThatLikedTuit = async (tid: string): Promise<Like[]> =>
+    findLikesOfTuitByUsers = async (tid: string): Promise<Like[]> =>
         LikeModel
             .find({tuit: tid})
             .populate("likedBy")
             .exec();
 
     /**
-     * Uses LikeModel to retrieve all tuits that were liked by a user.
+     * Uses LikeModel to retrieve all likes of tuits by a user.
      * @param {string} uid Primary key of user that liked tuits
      * @returns Promise To be notified when the tuits are retreived from
      * database
      */
-    findAllTuitsLikedByUser = async (uid: string): Promise<Like[]> =>
+    findLikesOfTuitsByUser = async (uid: string): Promise<Like[]> =>
         LikeModel
             .find({likedBy: uid})
             .populate("tuit")

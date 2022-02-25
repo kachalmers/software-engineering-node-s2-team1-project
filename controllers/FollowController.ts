@@ -10,17 +10,21 @@ import Follow from "../models/follows/Follow";
  * @class UserController Implements RESTful Web service API for follows resource.
  * Defines the following HTTP endpoints:
  * <ul>
- *     <li>GET /api/follows to retrieve all follows</li>
- *     <li>GET /api/users/:uid/follows to retrieve all the users followed by a
+ *     <li>POST /api/users/:uid/followees/:ouid to record that a user follows a
  *     user</li>
- *     <li>GET /api/follows/:uid to retrieve all users that followed a user
+ *     <li>DELETE /api/users/:uid/followees/:ouid to record that a user
+ *     no longer follows a user</li>
+ *     <li>GET /api/users/:uid/followees to retrieve all the users followed by a
+ *     user</li>
+ *     <li>GET /api/users/:uid/followers to retrieve all users that follow a user
  *     </li>
+ *     <li>GET /api/follows to retrieve all follows</li>
  *     <li>GET /api/users/:uid/follows/:ouid to retrieve the follow of a user
  *     by another user</li>
- *     <li>POST /api/users/:uid/follows/:ouid to record that a user follows a
- *     user</li>
- *     <li>DELETE /api/users/:uid/follows/:ouid to record that a user
- *     no longer follows a user</li>
+ *     <li>GET /api/follows/users/:uid/followees to retrieve all follows of
+ *     followees by user</li>
+ *     <li>GET /api/follows/users/:uid/followers to retrieve all follows of
+ *     user by followers</li>
  * </ul>
  * @property {FollowDao} followDao Singleton DAO implementing follows CRUD operations
  * @property {FollowController} FollowController Singleton controller implementing
@@ -31,7 +35,7 @@ export default class FollowController implements FollowControllerI {
     private static followController: FollowController | null = null;
 
     /**
-     * Creates singleton controller instance
+     * Creates singleton controller instance.
      * @param {Express} app Express instance to declare the RESTful Web service
      * API
      * @return UserController
@@ -39,12 +43,14 @@ export default class FollowController implements FollowControllerI {
     public static getInstance = (app: Express): FollowController => {
         if(FollowController.followController === null) {
             FollowController.followController = new FollowController();
+            app.post("/api/users/:uid/followees/:ouid", FollowController.followController.userFollowsUser);
+            app.delete("/api/users/:uid/followees/:ouid", FollowController.followController.userUnfollowsUser);
+            app.get("/api/users/:uid/followees", FollowController.followController.findUsersFollowedByUser);
+            app.get("/api/users/:uid/followers", FollowController.followController.findUsersFollowingUser);
             app.get("/api/follows", FollowController.followController.findAllFollows);
-            app.get("/api/users/:uid/follows", FollowController.followController.findAllUsersFollowedByUser);
-            app.get("/api/follows/:uid", FollowController.followController.findAllUsersFollowingUser);
-            app.get("/api/users/:uid/follows/:ouid", FollowController.followController.findFollowByUsers);
-            app.post("/api/users/:uid/follows/:ouid", FollowController.followController.userFollowsUser);
-            app.delete("/api/users/:uid/follows/:ouid", FollowController.followController.userUnfollowsUser);
+            app.get("/api/users/:uid/followees/:ouid", FollowController.followController.findFollowByUsers);
+            app.get("/api/follows/users/:uid/followees", FollowController.followController.findFollowsByFollower);
+            app.get("/api/follows/users/:uid/followers", FollowController.followController.findFollowsByFollowee);
         }
         return FollowController.followController;
     }
@@ -62,26 +68,49 @@ export default class FollowController implements FollowControllerI {
             .then((follows: Follow[]) => res.json(follows));
 
     /**
-     * Retrieves all users that followed a user from the database.
+     * Retrieves follows of a user by other users from the database.
      * @param {Request} req Represents request from client, including the path
-     * parameter uid representing the followed by users
+     * parameter uid representing the user followed by other users
+     * @param {Response} res Represents response to client, including the
+     * body formatted as JSON arrays containing the follow objects
+     */
+    findFollowsByFollowee = (req: Request, res: Response) =>
+        FollowController.followDao.findFollowsByFollowee(req.params.uid)
+            .then(follows => res.json(follows));
+
+    /**
+     * Retrieves follows of users by a user from the database.
+     * @param {Request} req Represents request from client, including the path
+     * parameter uid representing the user following the users
+     * @param {Response} res Represents response to client, including the
+     * body formatted as JSON arrays containing the follow objects
+     */
+    findFollowsByFollower = (req: Request, res: Response) =>
+        FollowController.followDao.findFollowsByFollower(req.params.uid)
+            .then(follows => res.json(follows));
+
+    /**
+     * Retrieves all users following a user from the database.
+     * @param {Request} req Represents request from client, including the path
+     * parameter uid representing the user followed by users
      * @param {Response} res Represents response to client, including the
      * body formatted as JSON arrays containing the user objects
      */
-    findAllUsersFollowingUser = (req: Request, res: Response) =>
-        FollowController.followDao.findAllUsersFollowingUser(req.params.uid)
-            .then(follows => res.json(follows));
+    findUsersFollowingUser = (req: Request, res: Response) =>
+        FollowController.followDao.findFollowsByFollowee(req.params.uid)
+            .then(follows => res.json(follows.map(follow => follow.follower)));
 
     /**
      * Retrieves all users followed by a user from the database.
      * @param {Request} req Represents request from client, including the path
      * parameter uid representing the user following the users
      * @param {Response} res Represents response to client, including the
-     * body formatted as JSON arrays containing the user objects that were followed
+     * body formatted as JSON arrays containing the user objects that were
+     * followed
      */
-    findAllUsersFollowedByUser = (req: Request, res: Response) =>
-        FollowController.followDao.findAllUsersFollowedByUser(req.params.uid)
-            .then(follows => res.json(follows));
+    findUsersFollowedByUser = (req: Request, res: Response) =>
+        FollowController.followDao.findFollowsByFollower(req.params.uid)
+            .then(follows => res.json(follows.map(follow => follow.followee)));
 
     /**
      * Retrieves follow of user by a user from the database.

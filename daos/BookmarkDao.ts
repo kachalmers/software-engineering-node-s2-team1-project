@@ -35,22 +35,26 @@ export default class BookmarkDao implements BookmarkDaoI {
         BookmarkModel.find();
 
     /**
-     * Uses BookmarkModel to retrieve all bookmark documents bookmarked by user
-     * provided.
+     * Uses BookmarkModel to retrieve all bookmark documents representing
+     * bookmarks of tuits by a user.
      * @param {string} uid Primary key of user that bookmarked tuit
+     * @returns Promise to be notified when bookmarks are retrieved from the
+     * database
      */
-    findAllTuitsBookmarkedByUser = async (uid: string): Promise<Bookmark[]> =>
+    findBookmarksOfTuitsByUser = async (uid: string): Promise<Bookmark[]> =>
         BookmarkModel
             .find({bookmarkedBy:uid})
             .populate("tuit")
             .exec();
 
     /**
-     * Uses BookmarkModel to retrieve all users that bookmarked the tuit.
+     * Uses BookmarkModel to retrieve all bookmark documents representing
+     * bookmarks of a tuit by users.
      * @param {string} tid Primary key of tuit bookmarked by users
-     * @returns Promise to be notified when users are retrieved from the database
+     * @returns Promise to be notified when bookmarks are retrieved from the
+     * database
      */
-    findAllUsersThatBookmarkedTuit = async (tid: string): Promise<Bookmark[]> =>
+    findBookmarksOfTuitByUsers = async (tid: string): Promise<Bookmark[]> =>
         BookmarkModel
             .find({tuit: tid})
             .populate("bookmarkedBy")

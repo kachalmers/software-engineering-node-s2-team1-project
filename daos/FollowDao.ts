@@ -36,27 +36,27 @@ export default class FollowDao implements FollowDaoI{
         FollowModel.find();
 
     /**
-     * Uses FollowModel to retrieve all users followed by a given user.
+     * Uses FollowModel to retrieve all follows by a user (follower).
      * @param {string} uid Primary key of user following other users
      * @returns Promise To be notified when the users being followed are
      * retrieved from the database
      */
-    findAllUsersFollowedByUser = async (uid: string): Promise<Follow[]> =>
+    findFollowsByFollower = async (uid: string): Promise<Follow[]> =>
         FollowModel
-            .find({userFollowing: uid})
-            .populate("userFollowed")
+            .find({follower: uid})
+            .populate("followee")
             .exec();
 
     /**
-     * Uses FollowModel to retrieve all users following a given user.
+     * Uses FollowModel to retrieve all follows of a user (followee).
      * @param {string} uid Primary key of user followed by other users
      * @returns Promise To be notified when the users following the given user
      * are retrieved from the database
      */
-    findAllUsersFollowingUser = async (uid: string): Promise<Follow[]> =>
+    findFollowsByFollowee = async (uid: string): Promise<Follow[]> =>
         FollowModel
-            .find({userFollowed: uid}) // find follows where uid is being followed
-            .populate("userFollowing") // fill in information about follower
+            .find({followee: uid}) // find follows where uid is being followed
+            .populate("follower") // fill in information about follower
             .exec();
 
     /**
@@ -68,9 +68,9 @@ export default class FollowDao implements FollowDaoI{
      */
     findFollowByUsers = async (uid: string, ouid: string): Promise<Follow[]> =>
         FollowModel
-            .find({userFollowing: uid, userFollowed: ouid})
-            .populate("userFollowing")  // fill in information about follower
-            .populate("userFollowed")   // fill in information about followee
+            .find({follower: uid, followee: ouid})
+            .populate("follower")  // fill in information about follower
+            .populate("followee")   // fill in information about followee
             .exec();
 
     /**
@@ -79,7 +79,7 @@ export default class FollowDao implements FollowDaoI{
      * @param {string} ouid Primary key of user to be followed
      */
     userFollowsUser = async (uid: string, ouid: string): Promise<Follow> =>
-        FollowModel.create({userFollowing: uid, userFollowed: ouid});
+        FollowModel.create({follower: uid, followee: ouid});
 
     /**
      * Removes follow from the database.
@@ -87,7 +87,7 @@ export default class FollowDao implements FollowDaoI{
      * @param {string} ouid Primary key of user to be unfollowed
      */
     userUnfollowsUser = async (uid: string, ouid: string): Promise<any> =>
-        FollowModel.deleteOne({userFollowing: uid, userFollowed: ouid});
+        FollowModel.deleteOne({follower: uid, followee: ouid});
 
 
 }
