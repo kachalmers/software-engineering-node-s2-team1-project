@@ -1,9 +1,10 @@
 /**
- * @file implements the structure of the data (schema) being stored in the
+ * @file Implements the structure of the data (schema) being stored in the
  * database. Used to validate the data before being stored.
  */
 import mongoose from "mongoose";
 import User from "../../models/users/User";
+
 const UserSchema = new mongoose.Schema<User>({
     username: {type: String, required: true, default: `testusername${Date.now()}`},
     password: {type: String, required: true, default: `testpassword${Date.now()}`},

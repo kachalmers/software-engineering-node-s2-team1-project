@@ -1,5 +1,5 @@
 /**
- * @file Implements DAO managing data storage of likes. Uses mongoode LikeModel
+ * @file Implements DAO managing data storage of likes. Uses mongoose LikeModel
  * to integrate with MongoDB.
  */
 import LikeDaoI from "../interfaces/LikeDaoI";
@@ -16,7 +16,7 @@ export default class LikeDao implements LikeDaoI {
 
     /**
      * Creates singleton DAO instance.
-     * @returns LikeDao
+     * @returns {LikeDao} LikeDao
      */
     public static getInstance = (): LikeDao => {
         if(LikeDao.likeDao === null) {
@@ -28,9 +28,9 @@ export default class LikeDao implements LikeDaoI {
     private constructor() {}
 
     /**
-     * Uses LikeModel to retrieve all users that liked a tuit.
+     * Uses LikeModel to retrieve all likes of a tuit by users.
      * @param {string} tid Primary key of tuit liked by users
-     * @returns Promise To be notified when the users are retreived from
+     * @returns {Promise} Promise to be notified when the likes are retrieved from
      * database
      */
     findLikesOfTuitByUsers = async (tid: string): Promise<Like[]> =>
@@ -42,7 +42,7 @@ export default class LikeDao implements LikeDaoI {
     /**
      * Uses LikeModel to retrieve all likes of tuits by a user.
      * @param {string} uid Primary key of user that liked tuits
-     * @returns Promise To be notified when the tuits are retreived from
+     * @return {Promise} Promise to be notified when the likes are retrieved from
      * database
      */
     findLikesOfTuitsByUser = async (uid: string): Promise<Like[]> =>
@@ -55,7 +55,7 @@ export default class LikeDao implements LikeDaoI {
      * Inserts like instance into the database.
      * @param {string} uid Primary key of user to like tuit
      * @param {string} tid Primary key of tuit to be liked
-     * @returns Promise To be notified when like is inserted into the database
+     * @return {Promise} Promise to be notified when like is inserted into the database
      */
     userLikesTuit = async (uid: string, tid: string): Promise<any> =>
         LikeModel.create({tuit: tid, likedBy: uid});
@@ -64,7 +64,7 @@ export default class LikeDao implements LikeDaoI {
      * Removes like from the database.
      * @param {string} uid Primary key of user to unlike tuit
      * @param {string} tid Primary key of tuit to be unliked
-     * @returns Promise To be notified when like is removed from database
+     * @return {Promise} Promise to be notified when like is removed from database
      */
     userUnlikesTuit = async (uid: string, tid: string): Promise<any> =>
         LikeModel.deleteOne({tuit: tid, likedBy: uid});

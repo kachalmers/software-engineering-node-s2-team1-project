@@ -30,7 +30,7 @@ export default class UserController implements UserControllerI {
      * Creates singleton controller instance
      * @param {Express} app Express instance to declare the RESTful Web service
      * API
-     * @returns UserController
+     * @returns {UserController} UserController
      */
     public static getInstance = (app: Express): UserController => {
         if(UserController.userController === null) {
@@ -98,7 +98,7 @@ export default class UserController implements UserControllerI {
             .then((user: User) => res.json(user));
 
     /**
-     * Modifies an existing user instance
+     * Modifies an existing user instance.
      * @param {Request} req Represents request from client, including path
      * parameter uid identifying the primary key of the user to be modified
      * @param {Response} res Represents response to client, including status
@@ -109,7 +109,7 @@ export default class UserController implements UserControllerI {
             .then((status) => res.send(status));
 
     /**
-     * Removes a user instance from the database
+     * Removes a user instance from the database.
      * @param {Request} req Represents request from client, including path
      * parameter uid identifying the primary key of the user to be removed
      * @param {Response} res Represents response to client, including status

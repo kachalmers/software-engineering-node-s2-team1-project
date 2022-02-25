@@ -16,7 +16,7 @@ export default class BookmarkDao implements BookmarkDaoI {
 
     /**
      * Creates singleton DAO instance.
-     * @returns BookmarkDao
+     * @returns {BookmarkDao} BookmarkDao
      */
     public static getInstance = (): BookmarkDao => {
         if(BookmarkDao.bookmarkDao === null) {
@@ -24,12 +24,14 @@ export default class BookmarkDao implements BookmarkDaoI {
         }
         return BookmarkDao.bookmarkDao;
     }
+
     private constructor() {}
 
     /**
-     * Uses BookmarkModel to retrieve all bookmark documents from bookmarks collection.
-     * @returns Promise To be notified when the bookmarks are retrieved from
-     * database
+     * Uses BookmarkModel to retrieve all bookmark documents from bookmarks
+     * collection.
+     * @returns {Promise} Promise to be notified when the bookmarks are
+     * retrieved from database
      */
     findAllBookmarks = async (): Promise<Bookmark[]> =>
         BookmarkModel.find();
@@ -38,8 +40,8 @@ export default class BookmarkDao implements BookmarkDaoI {
      * Uses BookmarkModel to retrieve all bookmark documents representing
      * bookmarks of tuits by a user.
      * @param {string} uid Primary key of user that bookmarked tuit
-     * @returns Promise to be notified when bookmarks are retrieved from the
-     * database
+     * @returns {Promise} Promise to be notified when bookmarks are retrieved
+     * from the database
      */
     findBookmarksOfTuitsByUser = async (uid: string): Promise<Bookmark[]> =>
         BookmarkModel
@@ -51,8 +53,8 @@ export default class BookmarkDao implements BookmarkDaoI {
      * Uses BookmarkModel to retrieve all bookmark documents representing
      * bookmarks of a tuit by users.
      * @param {string} tid Primary key of tuit bookmarked by users
-     * @returns Promise to be notified when bookmarks are retrieved from the
-     * database
+     * @returns {Promise} Promise to be notified when bookmarks are retrieved
+     * from the database
      */
     findBookmarksOfTuitByUsers = async (tid: string): Promise<Bookmark[]> =>
         BookmarkModel
@@ -64,16 +66,17 @@ export default class BookmarkDao implements BookmarkDaoI {
      * Inserts bookmark instance into the database.
      * @param {string} uid Primary key of user to bookmark tuit
      * @param {string} tid Primary key of tuit to be bookmarked
-     * @returns Promise to be notified when bookmark is inserted into the database
+     * @returns {Promise} Promise to be notified when bookmark is inserted
+     * into the database
      */
     userBookmarksTuit = async (uid: string, tid: string): Promise<any> =>
         BookmarkModel.create({tuit: tid, bookmarkedBy: uid});
 
     /**
      * Removes bookmark from the database.
-     * @param {string} uid Primary key of user removing tuit
-     * @param {string} tid Primary key of tuit to be removed
-     * @returns Promise to be notified when tuit is removed from the database
+     * @param {string} uid Primary key of user unbookmarking tuit
+     * @param {string} tid Primary key of tuit to be unbookmarked
+     * @returns {Promise} Promise to be notified when bookmark is removed from the database
      */
     userUnbookmarksTuit = async (uid: string, tid: string): Promise<any> =>
         BookmarkModel.deleteOne({tuit: tid, bookmarkedBy: uid});

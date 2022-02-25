@@ -1,5 +1,5 @@
 /**
- * @file Controller RESTful Web service API for tuits resource
+ * @file Controller RESTful Web service API for tuits resource.
  */
 import TuitDao from "../daos/TuitDao";
 import Tuit from "../models/tuits/Tuit";
@@ -13,9 +13,9 @@ import TuitControllerI from "../interfaces/TuitControllerI";
  *     <li>POST /api/users/:uid/tuits to create a new tuit instance for
  *     a given user</li>
  *     <li>GET /api/tuits to retrieve all the tuit instances</li>
- *     <li>GET /api/tuits/:tid to retrieve a particular tuit instances</li>
- *     <li>GET /api/users/:uid/tuits to retrieve tuits for a given user </li>
- *     <li>PUT /api/tuits/:tid to modify an individual tuit instance </li>
+ *     <li>GET /api/tuits/:tid to retrieve a particular tuit instance</li>
+ *     <li>GET /api/users/:uid/tuits to retrieve tuits for a given user</li>
+ *     <li>PUT /api/tuits/:tid to modify an individual tuit instance</li>
  *     <li>DELETE /api/tuits/:tid to remove a particular tuit instance</li>
  * </ul>
  * @property {TuitDao} tuitDao Singleton DAO implementing tuit CRUD operations
@@ -30,7 +30,7 @@ export default class TuitController implements TuitControllerI {
      * Creates singleton controller instance
      * @param {Express} app Express instance to declare the RESTful Web service
      * API
-     * @return TuitController
+     * @return {TuitController} TuitController
      */
     public static getInstance = (app: Express): TuitController => {
         if(TuitController.tuitController === null) {

@@ -16,7 +16,7 @@ export default class MessageDao implements MessageDaoI {
 
     /**
      * Creates singleton DAO instance.
-     * @returns MessageDao
+     * @returns {MessageDao} MessageDao
      */
     public static getInstance = (): MessageDao => {
         if (MessageDao.messageDao === null) {
@@ -30,7 +30,7 @@ export default class MessageDao implements MessageDaoI {
     /**
      * Uses MessageModel to retrieve all message documents from messages
      * collection.
-     * @returns Promise To be notified when the messagesare retrieved from
+     * @returns {Promise} Promise to be notified when the messages are retrieved from
      * the database
      */
     findAllMessages = async (): Promise<Message[]> =>
@@ -40,6 +40,7 @@ export default class MessageDao implements MessageDaoI {
      * Uses MessageModel to retrieve all message documents sent by user
      * provided.
      * @param {string} uid Primary key of user that sent the messages
+     * @returns {Promise} Promise to be notified when messages are retrieved from the database
      */
     findAllMessagesSentByUser = async (uid: string): Promise<Message[]> =>
         MessageModel
@@ -51,7 +52,7 @@ export default class MessageDao implements MessageDaoI {
      * Uses MessageModel to retrieve all message documents received by user
      * provided.
      * @param {string} uid Primary key of user that received the messages
-     * @returns Promise To be notified when messages are retrieved from the database
+     * @returns {Promise} Promise to be notified when messages are retrieved from the database
      */
     findAllMessagesSentToUser = async (uid: string): Promise<Message[]> =>
         MessageModel
@@ -62,7 +63,7 @@ export default class MessageDao implements MessageDaoI {
     /**
      * Uses MessageModel to retrieve message by its primary key.
      * @param {string} mid Primary key of user that received the messages
-     * @returns Promise To be notified when message is retrieved from the database
+     * @returns {Promise} Promise to be notified when message is retrieved from the database
      */
     findMessageById = async (mid: string): Promise<Message[]> =>
         MessageModel
@@ -72,7 +73,7 @@ export default class MessageDao implements MessageDaoI {
      * Updates message with new values in database.
      * @param {string} mid
      * @param {Message} message Message object containing properties and their new values
-     * @returns Promise To be notified when message is updated
+     * @returns {Promise} Promise to be notified when message is updated
      */
     updateMessage = async (mid: string, message: Message): Promise<any> =>
         MessageModel.updateOne(
@@ -82,7 +83,7 @@ export default class MessageDao implements MessageDaoI {
     /**
      * Removes message from the database.
      * @param {string} mid Primary key of message to be removed
-     * @returns Promise to be notified when message is removed from the database
+     * @returns {Promise} Promise to be notified when message is removed from the database
      */
     userDeletesMessage = async (mid: string): Promise<any> =>
         MessageModel.deleteOne({_id: mid});
@@ -92,6 +93,7 @@ export default class MessageDao implements MessageDaoI {
      * @param {string} uid Primary key of user sending the message
      * @param {string} ouid Primary key of user receiving the message
      * @param {string} message Message body to send from one user to the other
+     * @returns {Promise} Promise to be notified when message is created in the database
      */
     userMessagesUser = async (uid: string, ouid: string, message: Message): Promise<Message> =>
         MessageModel.create({...message, from: uid, to: ouid});

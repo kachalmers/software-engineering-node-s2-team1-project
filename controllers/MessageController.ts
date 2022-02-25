@@ -27,10 +27,10 @@ export default class MessageController implements MessageControllerI {
     private static messageDao: MessageDao = MessageDao.getInstance();
     private static messageController: MessageController | null = null;
     /**
-     * Creates singleton controller instance
+     * Creates singleton controller instance.
      * @param {Express} app Express instance to declare the RESTful Web service
      * API
-     * @return UserController
+     * @return {MessageController} MessageController
      */
     public static getInstance = (app: Express): MessageController => {
         if(MessageController.messageController === null) {
@@ -59,22 +59,22 @@ export default class MessageController implements MessageControllerI {
             .then(messages => res.json(messages));
 
     /**
-     * Retrieves all messages sent by a user from the database
+     * Retrieves all messages sent by a user from the database.
      * @param {Request} req Represents request from client, including the path
-     representing the messaged tuit
+     * parameter uid representing the user who sent the messages
      * @param {Response} res Represents response to client, including the
-     * body formatted as JSON arrays containing the user objects
+     * body formatted as JSON arrays containing the message objects
      */
     findAllMessagesSentByUser = (req: Request, res: Response) =>
         MessageController.messageDao.findAllMessagesSentByUser(req.params.uid)
             .then(messages => res.json(messages));
 
     /**
-     * Retrieves all messages sent to a user from the database
+     * Retrieves all messages sent to a user from the database.
      * @param {Request} req Represents request from client, including the path
-     * parameter uid representing the user messaged the tuits
+     * parameter uid representing the user that received the messages
      * @param {Response} res Represents response to client, including the
-     * body formatted as JSON arrays containing the tuit objects that were messaged
+     * body formatted as JSON arrays containing the message objects
      */
     findAllMessagesSentToUser = (req: Request, res: Response) =>
         MessageController.messageDao.findAllMessagesSentToUser(req.params.uid)
@@ -105,8 +105,9 @@ export default class MessageController implements MessageControllerI {
     /**
      * Creates message from one user to another.
      * @param {Request} req Represents request from client, including the
-     * path parame representing the user that is messaging the tuit
-     * and the tuit being messaged
+     * path parameters representing the user that is messaging the other user,
+     * the user being messaged, and body containing the JSON object for the new
+     * message
      * @param {Response} res Represents response to client, including the
      * body formatted as JSON containing the new messages that was inserted in the
      * database

@@ -16,7 +16,7 @@ export default class FollowDao implements FollowDaoI{
 
     /**
      * Creates singleton DAO instance
-     * @returns FollowDao
+     * @returns {FollowDao} FollowDao
      */
     public static getInstance = (): FollowDao => {
         if (FollowDao.followDao === null) {
@@ -29,7 +29,7 @@ export default class FollowDao implements FollowDaoI{
 
     /**
      * Uses FollowModel to retrieve all follow documents from follows collection.
-     * @returns Promise To be notified when the follows are retrieved from
+     * @returns {Promise} Promise to be notified when the follows are retrieved from
      * database
      */
     findAllFollows = async (): Promise<Follow[]> =>
@@ -38,7 +38,7 @@ export default class FollowDao implements FollowDaoI{
     /**
      * Uses FollowModel to retrieve all follows by a user (follower).
      * @param {string} uid Primary key of user following other users
-     * @returns Promise To be notified when the users being followed are
+     * @returns {Promise} Promise to be notified when the users being followed are
      * retrieved from the database
      */
     findFollowsByFollower = async (uid: string): Promise<Follow[]> =>
@@ -50,7 +50,7 @@ export default class FollowDao implements FollowDaoI{
     /**
      * Uses FollowModel to retrieve all follows of a user (followee).
      * @param {string} uid Primary key of user followed by other users
-     * @returns Promise To be notified when the users following the given user
+     * @returns {Promise} Promise to be notified when the users following the given user
      * are retrieved from the database
      */
     findFollowsByFollowee = async (uid: string): Promise<Follow[]> =>
@@ -63,7 +63,7 @@ export default class FollowDao implements FollowDaoI{
      * Uses FollowModel to retrieve follow of user by user given the two uids.
      * @param {string} uid Primary key of user following other user
      * @param {string} ouid Primary key of user being followed
-     * @returns Promise To be notified when the follow is retrieved from the
+     * @returns {Promise} Promise to be notified when the follow is retrieved from the
      * database
      */
     findFollowByUsers = async (uid: string, ouid: string): Promise<Follow[]> =>
@@ -77,6 +77,8 @@ export default class FollowDao implements FollowDaoI{
      * Inserts follow instance into the database.
      * @param {string} uid Primary key of user following other user
      * @param {string} ouid Primary key of user to be followed
+     * @return {Promise} Promise to be notified when follow is added to
+     * database
      */
     userFollowsUser = async (uid: string, ouid: string): Promise<Follow> =>
         FollowModel.create({follower: uid, followee: ouid});
@@ -85,6 +87,8 @@ export default class FollowDao implements FollowDaoI{
      * Removes follow from the database.
      * @param {string} uid Primary key of user to unfollow other user
      * @param {string} ouid Primary key of user to be unfollowed
+     * @return {Promise} Promise to be notified when follow is removed from
+     * database
      */
     userUnfollowsUser = async (uid: string, ouid: string): Promise<any> =>
         FollowModel.deleteOne({follower: uid, followee: ouid});

@@ -1,5 +1,6 @@
 /**
- * @file implements the types of accounts a user can have such as personal or academic accounts
+ * @file Implements the types of accounts a user can have such as personal or
+ * academic accounts.
  */
 
 enum AccountType {

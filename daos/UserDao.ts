@@ -16,7 +16,7 @@ export default class UserDao implements UserDaoI {
 
     /**
      * Creates singleton DAO instance
-     * @returns UserDao
+     * @returns {UserDao} UserDao
      */
     public static getInstance = (): UserDao => {
         if(UserDao.userDao === null) {
@@ -29,7 +29,7 @@ export default class UserDao implements UserDaoI {
 
     /**
      * Uses UserModel to retrieve all user documents from users collection.
-     * @returns Promise To be notified when the users are retrieved from
+     * @returns {Promise} Promise to be notified when the users are retrieved from
      * database
      */
     findAllUsers = async (): Promise<User[]> =>
@@ -38,7 +38,7 @@ export default class UserDao implements UserDaoI {
     /**
      * Uses UserModel to retrieve single user document from users collection.
      * @param {string} uid Primary key of user
-     * @returns Promise to be notified when user is retrieved from the database
+     * @returns {Promise} Promise to be notified when user is retrieved from the database
      */
     findUserById = async (uid: string): Promise<any> =>
         UserModel.findById(uid);
@@ -46,7 +46,7 @@ export default class UserDao implements UserDaoI {
     /**
      * Inserts user instance into the database.
      * @param {User} user instance to be inserted into the database
-     * @returns Promise to be notified when user is inserted into the database
+     * @returns {Promise} Promise to be notified when user is inserted into the database
      */
     createUser = async (user: User): Promise<User> =>
         UserModel.create(user);
@@ -55,7 +55,7 @@ export default class UserDao implements UserDaoI {
      * Updates user with new values in database.
      * @param {string} uid Primary key of user to be modified
      * @param {User} user User object containing properties and their new values
-     * @returns Promise to be notified when user is updated in the database
+     * @returns {Promise} Promise to be notified when user is updated in the database
      */
     updateUser = async (uid: string, user: User): Promise<any> =>
         UserModel.updateOne(
@@ -64,9 +64,9 @@ export default class UserDao implements UserDaoI {
 
     /**
      * Updates user salary with new value in database.
-     * @param username of user
-     * @param salary of user
-     * @returns Promise to be notified when user salary is updated
+     * @param {string} username of user
+     * @param {string} salary of user
+     * @returns {Promise} Promise to be notified when user salary is updated
      */
     updateUserSalaryByUsername = async (username: string, salary: number): Promise<any> =>
         UserModel.updateOne(
@@ -76,14 +76,14 @@ export default class UserDao implements UserDaoI {
     /**
      * Removes user from the database.
      * @param {string} uid Primary key of user to be removed
-     * @returns Promise to be notified when user is removed from the database
+     * @returns {Promise} Promise to be notified when user is removed from the database
      */
     deleteUser = async (uid: string): Promise<any> =>
         UserModel.deleteOne({_id: uid});
 
     /**
      * Removes all users from the database. Useful for testing.
-     * @returns Promise to be notified when all users are removed from the
+     * @returns {Promise} Promise to be notified when all users are removed from the
      * database
      */
     deleteAllUsers = async (): Promise<any> =>
@@ -92,9 +92,9 @@ export default class UserDao implements UserDaoI {
     /**
      * Uses UserModel to retrieve single user document from users collection
      * from a username and password.
-     * @param username user uses to be identified
-     * @param password user uses to log into their account
-     * @returns Promise to be notified when user is retrieved from the database
+     * @param {string} username user uses to be identified
+     * @param {string} password user uses to log into their account
+     * @returns {Promise} Promise to be notified when user is retrieved from the database
      */
     findUserByCredentials = async (username: string, password: string): Promise<any> =>
         UserModel.findOne({username: username, password: password});
@@ -102,8 +102,8 @@ export default class UserDao implements UserDaoI {
     /**
      * Uses UserModel to retrieve single user document from users collection
      * from a username.
-     * @param username user uses to be identified
-     * @returns Promise to be notified when user is retrieved from the database
+     * @param {string} username user uses to be identified
+     * @returns {Promise} Promise to be notified when user is retrieved from the database
      */
     findUserByUsername = async (username: string): Promise<any> =>
         UserModel.findOne({username});

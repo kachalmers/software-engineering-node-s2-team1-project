@@ -8,7 +8,7 @@ import TuitDaoI from "../interfaces/TuitDaoI";
 
 /**
  * @class TuitDao Implements Data Access Object managing data storage
- * of Tuits.
+ * of Tuits
  * @property {TuitDao} tuitDao Private single instance of TuitDao
  */
 export default class TuitDao implements TuitDaoI{
@@ -29,7 +29,7 @@ export default class TuitDao implements TuitDaoI{
 
     /**
      * Uses TuitModel to retrieve all tuit documents from tuits collection.
-     * @returns Promise To be notified when the tuits are retrieved from
+     * @returns Promise to be notified when the tuits are retrieved from
      * database
      */
     findAllTuits = async (): Promise<Tuit[]> =>
@@ -39,15 +39,15 @@ export default class TuitDao implements TuitDaoI{
      * Uses TuitModel to retrieve all tuit documents posted by user
      * provided.
      * @param {string} uid Primary key of user
-     * @returns Promise To be notified when user is retrieved from the database
+     * @returns Promise to be notified when user is retrieved from the database
      */
     findAllTuitsByUser = async (uid: string): Promise<Tuit[]> =>
         TuitModel.find({postedBy: uid});
 
     /**
      * Uses TuitModel to retrieve single tuit document from tuits collection.
-     * @param {string} tid Primary key of tuit
-     * @returns Promise To be notified when tuit is retrieved from the database
+     * @param {string} uid Primary key of user
+     * @returns Promise to be notified when tuit is retrieved from the database
      */
     findTuitById = async (uid: string): Promise<any> =>
         TuitModel.findById(uid)
@@ -58,7 +58,7 @@ export default class TuitDao implements TuitDaoI{
      * Inserts tuit instance into the database posted by user provided.
      * @param {string} uid Primary key of user posting new tuit
      * @param {Tuit} tuit instance to be inserted into the database
-     * @returns Promise To be notified when tuit is inserted into the database
+     * @returns Promise to be notified when tuit is inserted into the database
      */
     createTuitByUser = async (uid: string, tuit: Tuit): Promise<Tuit> =>
         TuitModel.create({...tuit, postedBy: uid});
@@ -67,7 +67,7 @@ export default class TuitDao implements TuitDaoI{
      * Updates tuit with new values in database.
      * @param {string} uid User object by which tuit is posted
      * @param {Tuit} tuit Tuit object containing properties and their new values
-     * @returns Promise To be notified when tuit is updated in the database
+     * @returns Promise to be notified when tuit is updated in the database
      */
     updateTuit = async (uid: string, tuit: Tuit): Promise<any> =>
         TuitModel.updateOne(
