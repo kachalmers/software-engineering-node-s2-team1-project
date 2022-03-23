@@ -1,11 +1,7 @@
-/**
- * @file Implements the marital status of a user such as whether they are
- * married or single.
- */
-enum AccountType {
-    Personal = "PERSONAL",
-    Academic = "ACADEMIC",
-    Professional = "PROFESSIONAL"
-}
+enum MaritalStatus {
+    Married = "MARRIED",
+    Single = "SINGLE",
+    Widowed = "WIDOWED"
+};
 
-export default AccountType;
+export default MaritalStatus;

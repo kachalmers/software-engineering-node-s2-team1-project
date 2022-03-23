@@ -1,5 +1,5 @@
 /**
- * @file Controller RESTful Web service API for tuits resource.
+ * @file Controller RESTful Web service API for tuits resource
  */
 import TuitDao from "../daos/TuitDao";
 import Tuit from "../models/tuits/Tuit";
@@ -13,9 +13,9 @@ import TuitControllerI from "../interfaces/TuitControllerI";
  *     <li>POST /api/users/:uid/tuits to create a new tuit instance for
  *     a given user</li>
  *     <li>GET /api/tuits to retrieve all the tuit instances</li>
- *     <li>GET /api/tuits/:tid to retrieve a particular tuit instance</li>
- *     <li>GET /api/users/:uid/tuits to retrieve tuits for a given user</li>
- *     <li>PUT /api/tuits/:tid to modify an individual tuit instance</li>
+ *     <li>GET /api/tuits/:tid to retrieve a particular tuit instances</li>
+ *     <li>GET /api/users/:uid/tuits to retrieve tuits for a given user </li>
+ *     <li>PUT /api/tuits/:tid to modify an individual tuit instance </li>
  *     <li>DELETE /api/tuits/:tid to remove a particular tuit instance</li>
  * </ul>
  * @property {TuitDao} tuitDao Singleton DAO implementing tuit CRUD operations
@@ -30,7 +30,7 @@ export default class TuitController implements TuitControllerI {
      * Creates singleton controller instance
      * @param {Express} app Express instance to declare the RESTful Web service
      * API
-     * @return {TuitController} TuitController
+     * @return TuitController
      */
     public static getInstance = (app: Express): TuitController => {
         if(TuitController.tuitController === null) {
@@ -39,8 +39,8 @@ export default class TuitController implements TuitControllerI {
             app.get("/api/users/:uid/tuits", TuitController.tuitController.findAllTuitsByUser);
             app.get("/api/tuits/:uid", TuitController.tuitController.findTuitById);
             app.post("/api/users/:uid/tuits", TuitController.tuitController.createTuitByUser);
-            app.put("/api/tuits/:tid", TuitController.tuitController.updateTuit);
-            app.delete("/api/tuits/:tid", TuitController.tuitController.deleteTuit);
+            app.put("/api/tuits/:uid", TuitController.tuitController.updateTuit);
+            app.delete("/api/tuits/:uid", TuitController.tuitController.deleteTuit);
         }
         return TuitController.tuitController;
     }
@@ -56,20 +56,8 @@ export default class TuitController implements TuitControllerI {
     findAllTuits = (req: Request, res: Response) =>
         TuitController.tuitDao.findAllTuits()
             .then((tuits: Tuit[]) => res.json(tuits));
-
+    
     /**
-     * Retrieves all tuits from the database for a particular user and returns
-     * an array of tuits.
-     * @param {Request} req Represents request from client
-     * @param {Response} res Represents response to client, including the
-     * body formatted as JSON arrays containing the tuit objects
-     */
-    findAllTuitsByUser = (req: Request, res: Response) =>
-        TuitController.tuitDao.findAllTuitsByUser(req.params.uid)
-            .then((tuits: Tuit[]) => res.json(tuits));
-
-    /**
-     * Retrieves tuit by the primary key of the tuit.
      * @param {Request} req Represents request from client, including path
      * parameter tid identifying the primary key of the tuit to be retrieved
      * @param {Response} res Represents response to client, including the
@@ -80,6 +68,22 @@ export default class TuitController implements TuitControllerI {
             .then((tuit: Tuit) => res.json(tuit));
 
     /**
+     * Retrieves all tuits from the database for a particular user and returns
+     * an array of tuits.
+     * @param {Request} req Represents request from client
+     * @param {Response} res Represents response to client, including the
+     * body formatted as JSON arrays containing the tuit objects
+     */
+    findAllTuitsByUser = (req: Request, res: Response) => {
+        // @ts-ignore
+        let userId = req.params.uid === "my" && req.session['profile'] ?
+            // @ts-ignore
+            req.session['profile']._id : req.params.uid;
+        TuitController.tuitDao.findAllTuitsByUser(userId)
+            .then((tuits: Tuit[]) => res.json(tuits));
+    }
+
+    /**
      * @param {Request} req Represents request from client, including body
      * containing the JSON object for the new tuit to be inserted in the
      * database
@@ -87,9 +91,17 @@ export default class TuitController implements TuitControllerI {
      * body formatted as JSON containing the new tuit that was inserted in the
      * database
      */
-    createTuitByUser = (req: Request, res: Response) =>
-        TuitController.tuitDao.createTuitByUser(req.params.uid, req.body)
+    createTuitByUser = (req: Request, res: Response) => {
+        // @ts-ignore
+        let userId = req.params.uid === "my" && req.session['profile'] ?
+            // @ts-ignore
+            req.session['profile']._id : req.params.uid;
+
+        console.log(userId);
+        
+        TuitController.tuitDao.createTuitByUser(userId, req.body)
             .then((tuit: Tuit) => res.json(tuit));
+    }
 
     /**
      * @param {Request} req Represents request from client, including path
@@ -98,7 +110,7 @@ export default class TuitController implements TuitControllerI {
      * on whether updating a tuit was successful or not
      */
     updateTuit = (req: Request, res: Response) =>
-        TuitController.tuitDao.updateTuit(req.params.tid, req.body)
+        TuitController.tuitDao.updateTuit(req.params.uid, req.body)
             .then((status) => res.send(status));
 
     /**
@@ -108,6 +120,6 @@ export default class TuitController implements TuitControllerI {
      * on whether deleting a user was successful or not
      */
     deleteTuit = (req: Request, res: Response) =>
-        TuitController.tuitDao.deleteTuit(req.params.tid)
+        TuitController.tuitDao.deleteTuit(req.params.uid)
             .then((status) => res.send(status));
 };
