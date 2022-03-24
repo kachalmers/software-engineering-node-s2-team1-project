@@ -4,15 +4,14 @@ import mongoose from "mongoose";
 const userDao: UserDao = UserDao.getInstance();
 
 const PROTOCOL = "mongodb+srv";
-const DB_USERNAME = "giuseppi";//process.env.DB_USERNAME;
-const DB_PASSWORD = "supersecretpassword";//process.env.DB_PASSWORD;
-const HOST = "cluster0.m8jeh.mongodb.net";
-const DB_NAME = "myFirstDatabase";
+const DB_USERNAME = process.env.DB_USERNAME; //const DB_USERNAME = "giuseppi";//process.env.DB_USERNAME;
+const DB_PASSWORD = process.env.DB_PASSWORD; //const DB_PASSWORD = "supersecretpassword";//process.env.DB_PASSWORD;
+const HOST = "cluster0.txaig.mongodb.net"; //const HOST = "cluster0.m8jeh.mongodb.net";
+const DB_NAME = "tuiter"; //const DB_NAME = "myFirstDatabase";
 const DB_QUERY = "retryWrites=true&w=majority";
 const connectionString = `${PROTOCOL}://${DB_USERNAME}:${DB_PASSWORD}@${HOST}/${DB_NAME}?${DB_QUERY}`;
 // connect to the database
 mongoose.connect(connectionString);
-
 
 export const login = (u: string, p: string) =>
   userDao.findUserByCredentials(u, p)
@@ -80,8 +79,8 @@ export const giveRaise = (raise: number) => {
 // register('alice008', 'alice234', 'alice234@gmail.com')
 //   .then(user => console.log(user))
 //
-login('alice008', 'alice234')
-  .then(user => console.log(user))
+//login('alice008', 'alice234')
+//  .then(user => console.log(user))
 
 // userDao.findAllUsers()
 //   .then(users => console.log(users));
