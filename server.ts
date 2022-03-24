@@ -68,9 +68,10 @@ const courseController = new CourseController(app);
 const userController = UserController.getInstance(app);
 const tuitController = TuitController.getInstance(app);
 const likesController = LikeController.getInstance(app);
-SessionController(app);
-AuthenticationController(app);
-GroupController(app);
+SessionController(app);  // Pass controller an express instance
+AuthenticationController(app);  // Pass controller an express instance
+GroupController(app);  // Pass controller an express instance
+
 /**
  * Start a server listening at port 4000 locally
  * but use environment variable PORT on Heroku if available.
