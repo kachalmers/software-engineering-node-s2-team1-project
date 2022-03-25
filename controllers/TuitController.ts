@@ -76,11 +76,13 @@ export default class TuitController implements TuitControllerI {
      */
     findAllTuitsByUser = (req: Request, res: Response) => {
         // @ts-ignore
+        // If user id is "my" and there's a logged in user...
         let userId = req.params.uid === "my" && req.session['profile'] ?
             // @ts-ignore
+            // ... then get user id from logged in user. Otherwise, use param
             req.session['profile']._id : req.params.uid;
-        TuitController.tuitDao.findAllTuitsByUser(userId)
-            .then((tuits: Tuit[]) => res.json(tuits));
+        TuitController.tuitDao.findAllTuitsByUser(userId)   // retrieve all tuits posted by user
+            .then((tuits: Tuit[]) => res.json(tuits));  // respond with tuits posted by user
     }
 
     /**
@@ -93,14 +95,16 @@ export default class TuitController implements TuitControllerI {
      */
     createTuitByUser = (req: Request, res: Response) => {
         // @ts-ignore
+        // If user id is "my" and there's a logged in user...
         let userId = req.params.uid === "my" && req.session['profile'] ?
             // @ts-ignore
+            // ... then get user id from logged in user. Otherwise, use param
             req.session['profile']._id : req.params.uid;
 
         console.log(userId);
         
-        TuitController.tuitDao.createTuitByUser(userId, req.body)
-            .then((tuit: Tuit) => res.json(tuit));
+        TuitController.tuitDao.createTuitByUser(userId, req.body)   // insert tuit into database
+            .then((tuit: Tuit) => res.json(tuit));  // respond with inserted tuit
     }
 
     /**
