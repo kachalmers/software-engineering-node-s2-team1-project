@@ -90,27 +90,29 @@ export default class LikeController implements LikeControllerI {
     userTogglesTuitLikes = async (req: Request, res: Response) => {
         const likeDao = LikeController.likeDao;
         const tuitDao = LikeController.tuitDao;
-        const uid = req.params.uid;
-        const tid = req.params.tid;
+        const uid = req.params.uid; // retrieve user ID from request parameter
+        const tid = req.params.tid; // retrieve tuit ID from request parameter
         // @ts-ignore
-        const profile = req.session['profile'];
-        const userId = uid === "me" && profile ?
-            profile._id : uid;
+        const profile = req.session['profile']; // get logged in profile from session
+        const userId = uid === "me" && profile ?    // if logged in, get ID from profile
+            profile._id : uid;  // otherwise, use parameter
         try {
-            const userAlreadyLikedTuit = await likeDao.findUserLikesTuit(userId, tid);
-            const howManyLikedTuit = await likeDao.countHowManyLikedTuit(tid);
-            let tuit = await tuitDao.findTuitById(tid);
-            if (userAlreadyLikedTuit) {
-                await likeDao.userUnlikesTuit(userId, tid);
-                tuit.stats.likes = howManyLikedTuit - 1;
-            } else {
-                await LikeController.likeDao.userLikesTuit(userId, tid);
-                tuit.stats.likes = howManyLikedTuit + 1;
+            const userAlreadyLikedTuit = await likeDao
+                .findUserLikesTuit(userId, tid);    // check if user already liked tuit
+            const howManyLikedTuit = await likeDao
+                .countHowManyLikedTuit(tid);    // Count how many like this tuit
+            let tuit = await tuitDao.findTuitById(tid); // Get the tuit to get current stats
+            if (userAlreadyLikedTuit) { // If already liked...
+                await likeDao.userUnlikesTuit(userId, tid); // unlike tuit
+                tuit.stats.likes = howManyLikedTuit - 1;    // decrement likes count
+            } else {    // If not already liked...
+                await LikeController.likeDao.userLikesTuit(userId, tid);    // like the tuit
+                tuit.stats.likes = howManyLikedTuit + 1;    // increment likes count
             };
-            await tuitDao.updateLikes(tid, tuit.stats);
-            res.sendStatus(200);
-        } catch (e) {
-            res.sendStatus(404);
+            await tuitDao.updateLikes(tid, tuit.stats); // update likes count
+            res.sendStatus(200);    // respond success
+        } catch (e) {   // if there's an error
+            res.sendStatus(404);    // respond with error status
         }
     }
 };
