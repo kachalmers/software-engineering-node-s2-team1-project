@@ -41,6 +41,7 @@ export default class DislikeController implements DislikeControllerI {
             app.get("/api/users/:uid/dislikes", DislikeController.dislikeController.findAllTuitsDislikedByUser);
             app.get("/api/tuits/:tid/dislikes", DislikeController.dislikeController.findAllUsersThatDislikedTuit);
             app.put("/api/users/:uid/dislikes/:tid", DislikeController.dislikeController.userTogglesTuitDislikes);
+            app.get("/api/users/:uid/dislikes/:tid", DislikeController.dislikeController.findUserDislikesTuit);
         }
         return DislikeController.dislikeController;
     }
@@ -127,5 +128,22 @@ export default class DislikeController implements DislikeControllerI {
         } catch (e) {   // if there's an error
             res.sendStatus(404);    // respond with error status
         }
+    }
+
+    /**
+     * Find dislike of user that disliked a tuit.
+     * @param req
+     * @param res
+     */
+    findUserDislikesTuit = (req: Request, res: Response) => {
+        const uid = req.params.uid;
+        const tid = req.params.tid;
+        // @ts-ignore
+        const profile = req.session['profile'];
+        const userId = uid === "me" && profile ?
+            profile._id : uid;
+
+        DislikeController.dislikeDao.findUserDislikesTuit(userId, tid)
+            .then(dislike => res.json(dislike));
     }
 };
