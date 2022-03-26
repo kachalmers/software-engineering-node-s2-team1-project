@@ -38,7 +38,8 @@ mongoose.connect(connectionString);
 const app = express();
 app.use(cors({
     credentials: true,
-    origin: 'https://kac-cs5500-02-sp22-a4.netlify.app' //'https://kac-cs5500-02-sp22-a4.herokuapp.com' //'https://kac-cs5500-02-sp22-a4.netlify.app' //'http://localhost:3000'
+    //origin: 'https://kac-cs5500-02-sp22-a4.netlify.app' //'http://localhost:3000'
+    origin: 'http://localhost:3000'
 }));
 
 const SECRET = 'process.env.SECRET';

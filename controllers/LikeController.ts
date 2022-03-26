@@ -5,6 +5,7 @@ import {Express, Request, Response} from "express";
 import LikeDao from "../daos/LikeDao";
 import LikeControllerI from "../interfaces/LikeControllerI";
 import TuitDao from "../daos/TuitDao";
+import DislikeDao from "../daos/DislikeDao";
 
 /**
  * @class LikeController Implements RESTful Web service API for likes resource.
@@ -25,6 +26,7 @@ import TuitDao from "../daos/TuitDao";
  */
 export default class LikeController implements LikeControllerI {
     private static likeDao: LikeDao = LikeDao.getInstance();
+    private static dislikeDao: DislikeDao = DislikeDao.getInstance();
     private static tuitDao: TuitDao = TuitDao.getInstance();
     private static likeController: LikeController | null = null;
     /**
@@ -89,6 +91,7 @@ export default class LikeController implements LikeControllerI {
      */
     userTogglesTuitLikes = async (req: Request, res: Response) => {
         const likeDao = LikeController.likeDao;
+        const dislikeDao = LikeController.dislikeDao;
         const tuitDao = LikeController.tuitDao;
         const uid = req.params.uid; // retrieve user ID from request parameter
         const tid = req.params.tid; // retrieve tuit ID from request parameter
@@ -102,10 +105,21 @@ export default class LikeController implements LikeControllerI {
             const howManyLikedTuit = await likeDao
                 .countHowManyLikedTuit(tid);    // Count how many like this tuit
             let tuit = await tuitDao.findTuitById(tid); // Get the tuit to get current stats
+
             if (userAlreadyLikedTuit) { // If already liked...
                 await likeDao.userUnlikesTuit(userId, tid); // unlike tuit
                 tuit.stats.likes = howManyLikedTuit - 1;    // decrement likes count
             } else {    // If not already liked...
+                const userAlreadyDislikedTuit = await dislikeDao
+                    .findUserDislikesTuit(userId, tid);    // check if user already liked tuit
+                const howManyDislikedTuit = await dislikeDao
+                    .countHowManyDislikedTuit(tid);    // Count how many like this tuit
+                // If user already disliked tuit, undislike it
+                if (userAlreadyDislikedTuit) { // If already disliked...
+                    await dislikeDao.userUndislikesTuit(userId, tid); // undislike tuit
+                    tuit.stats.dislikes = howManyDislikedTuit - 1;    // decrement dislikes count
+                }
+
                 await LikeController.likeDao.userLikesTuit(userId, tid);    // like the tuit
                 tuit.stats.likes = howManyLikedTuit + 1;    // increment likes count
             };
