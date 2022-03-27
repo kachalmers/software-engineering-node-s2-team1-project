@@ -75,13 +75,14 @@ export default class TuitController implements TuitControllerI {
      * body formatted as JSON arrays containing the tuit objects
      */
     findAllTuitsByUser = (req: Request, res: Response) => {
-        // @ts-ignore
-        // If user id is "my" and there's a logged in user...
-        let userId = req.params.uid === "my" && req.session['profile'] ?
-            // @ts-ignore
-            // ... then get user id from logged in user. Otherwise, use param
-            req.session['profile']._id : req.params.uid;
         try {
+            // @ts-ignore
+            // If user id is "my" and there's a logged in user...
+            let userId = req.params.uid === "my" && req.session['profile'] ?
+                // @ts-ignore
+                // ... then get user id from logged in user. Otherwise, use param
+                req.session['profile']._id : req.params.uid;
+
             TuitController.tuitDao.findAllTuitsByUser(userId)   // retrieve all tuits posted by user
                 .then((tuits: Tuit[]) => res.json(tuits));  // respond with tuits posted by user
         } catch (e) {
