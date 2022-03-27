@@ -21,8 +21,8 @@ import SessionController from "./controllers/SessionController";
 import AuthenticationController from "./controllers/AuthenticationController";
 import mongoose from "mongoose";
 import GroupController from "./controllers/GroupController";
-const cors = require("cors");
-const session = require("express-session");
+let cors = require("cors");
+let session = require("express-session");
 
 // build the connection string
 const PROTOCOL = "mongodb+srv";

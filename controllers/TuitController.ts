@@ -81,8 +81,12 @@ export default class TuitController implements TuitControllerI {
             // @ts-ignore
             // ... then get user id from logged in user. Otherwise, use param
             req.session['profile']._id : req.params.uid;
-        TuitController.tuitDao.findAllTuitsByUser(userId)   // retrieve all tuits posted by user
-            .then((tuits: Tuit[]) => res.json(tuits));  // respond with tuits posted by user
+        try {
+            TuitController.tuitDao.findAllTuitsByUser(userId)   // retrieve all tuits posted by user
+                .then((tuits: Tuit[]) => res.json(tuits));  // respond with tuits posted by user
+        } catch (e) {
+            res.sendStatus(404);
+        }
     }
 
     /**
