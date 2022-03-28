@@ -5,6 +5,7 @@ import TuitDao from "../daos/TuitDao";
 import Tuit from "../models/tuits/Tuit";
 import {Express, Request, Response} from "express";
 import TuitControllerI from "../interfaces/TuitControllerI";
+import { ObjectID } from 'bson';
 
 /**
  * @class TuitController Implements RESTful Web service API for tuits resource.
@@ -75,14 +76,30 @@ export default class TuitController implements TuitControllerI {
      * body formatted as JSON arrays containing the tuit objects
      */
     findAllTuitsByUser = (req: Request, res: Response) => {
+        const tuitDao = TuitController.tuitDao;
         // @ts-ignore
         // If user id is "my" and there's a logged in user...
-        let userId = req.params.uid === "my" && req.session['profile'] ?
+        let userId = req.params.uid === "me" && req.session['profile'] ?
             // @ts-ignore
             // ... then get user id from logged in user. Otherwise, use param
             req.session['profile']._id : req.params.uid;
-        TuitController.tuitDao.findAllTuitsByUser(userId)   // retrieve all tuits posted by user
-            .then((tuits: Tuit[]) => res.json(tuits));  // respond with tuits posted by user
+
+        if (userId === "me") {
+            //userId = new ObjectID();
+            //console.log(userId);
+            res.json({});
+        } else {
+            tuitDao.findAllTuitsByUser(userId)   // retrieve all tuits posted by user
+                .then((tuits: Tuit[]) => res.json(tuits));  // respond with tuits posted by user
+        }
+/*
+        try {
+            tuitDao.findAllTuitsByUser(userId)   // retrieve all tuits posted by user
+                .then((tuits: Tuit[]) => res.json(tuits));  // respond with tuits posted by user
+        } catch (e) {
+            res.sendStatus(404);    // respond with error status
+        }
+ */
     }
 
     /**
@@ -93,18 +110,31 @@ export default class TuitController implements TuitControllerI {
      * body formatted as JSON containing the new tuit that was inserted in the
      * database
      */
-    createTuitByUser = (req: Request, res: Response) => {
+    createTuitByUser = async (req: Request, res: Response) => {
         // @ts-ignore
         // If user id is "my" and there's a logged in user...
-        let userId = req.params.uid === "my" && req.session['profile'] ?
+        let userId = req.params.uid === "me" && req.session['profile'] ?
             // @ts-ignore
             // ... then get user id from logged in user. Otherwise, use param
             req.session['profile']._id : req.params.uid;
 
         console.log(userId);
-        
-        TuitController.tuitDao.createTuitByUser(userId, req.body)   // insert tuit into database
-            .then((tuit: Tuit) => res.json(tuit));  // respond with inserted tuit
+
+        try {
+            await TuitController.tuitDao.createTuitByUser(userId, req.body)   // insert tuit into database
+                .then((tuit: Tuit) => res.json(tuit));
+        } catch (e) {
+            res.status(404).send('User must be logged in to post tuit.');
+        }
+/*
+        if (userId === "me") {
+            res.json({});
+        } else {
+            TuitController.tuitDao.createTuitByUser(userId, req.body)   // insert tuit into database
+                .then((tuit: Tuit) => res.json(tuit));  // respond with inserted tuit
+        }
+        /*
+ */
     }
 
     /**
