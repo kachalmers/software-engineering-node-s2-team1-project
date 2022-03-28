@@ -6,7 +6,6 @@ import LikeDao from "../daos/LikeDao";
 import DislikeDao from "../daos/DislikeDao";
 import LikeControllerI from "../interfaces/LikeControllerI";
 import TuitDao from "../daos/TuitDao";
-import DislikeDao from "../daos/DislikeDao";
 
 /**
  * @class LikeController Implements RESTful Web service API for likes resource.
@@ -116,14 +115,11 @@ export default class LikeController implements LikeControllerI {
                 await likeDao.userUnlikesTuit(userId, tid); // unlike tuit
                 tuit.stats.likes = howManyLikedTuit - 1;    // decrement likes count
             } else {    // If not already liked...
-<<<<<<< HEAD
                 const userAlreadyDislikedTuit = await dislikeDao
                     .findUserDislikesTuit(userId, tid);    // check if user already liked tuit
                 const howManyDislikedTuit = await dislikeDao
                     .countHowManyDislikedTuit(tid);    // Count how many like this tuit
                 // If user already disliked tuit, undislike it
-=======
->>>>>>> dislikes-button
                 if (userAlreadyDislikedTuit) { // If already disliked...
                     await dislikeDao.userUndislikesTuit(userId, tid); // undislike tuit
                     tuit.stats.dislikes = howManyDislikedTuit - 1;    // decrement dislikes count

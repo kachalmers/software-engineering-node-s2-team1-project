@@ -6,7 +6,6 @@ import DislikeDao from "../daos/DislikeDao";
 import LikeDao from "../daos/LikeDao";
 import DislikeControllerI from "../interfaces/DislikeControllerI";
 import TuitDao from "../daos/TuitDao";
-import LikeDao from "../daos/LikeDao";
 
 /**c
  * @class DislikeController Implements RESTful Web service API for dislikes resource.
@@ -116,7 +115,6 @@ export default class DislikeController implements DislikeControllerI {
                 await dislikeDao.userUndislikesTuit(userId, tid); // undislike tuit
                 tuit.stats.dislikes = howManyDislikedTuit - 1;    // decrement dislikes count
             } else {    // If not already disliked...
-<<<<<<< HEAD
                 const userAlreadyLikedTuit = await likeDao
                     .findUserLikesTuit(userId, tid);    // check if user already liked tuit
                 const howManyLikedTuit = await likeDao
@@ -124,10 +122,6 @@ export default class DislikeController implements DislikeControllerI {
                 // If user already liked tuit, unlike it
                 if (userAlreadyLikedTuit) { // If already liked...
                     await likeDao.userUnlikesTuit(userId, tid); // unlike tuit
-=======
-                if (userAlreadyLikedTuit) {
-                    await likeDao.userUnlikesTuit(userId, tid);  // unlike tuit
->>>>>>> dislikes-button
                     tuit.stats.likes = howManyLikedTuit - 1;    // decrement likes count
                 }
 
@@ -141,14 +135,12 @@ export default class DislikeController implements DislikeControllerI {
         }
     }
 
-<<<<<<< HEAD
-=======
+
     /**
      * Find dislike of user that disliked a tuit.
      * @param req
      * @param res
      */
->>>>>>> dislikes-button
     findUserDislikesTuit = (req: Request, res: Response) => {
         const uid = req.params.uid;
         const tid = req.params.tid;
@@ -157,16 +149,13 @@ export default class DislikeController implements DislikeControllerI {
         const userId = uid === "me" && profile ?
             profile._id : uid;
 
-<<<<<<< HEAD
         DislikeController.dislikeDao.findUserDislikesTuit(userId, tid)
             .then(dislikes => res.json(dislikes));
-=======
         if (userId === "me") {
             res.json({});
         } else {
             DislikeController.dislikeDao.findUserDislikesTuit(userId, tid)
                 .then(dislike => res.json(dislike));
         }
->>>>>>> dislikes-button
     }
 };
