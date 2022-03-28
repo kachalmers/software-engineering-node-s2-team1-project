@@ -81,7 +81,7 @@ export default class DislikeController implements DislikeControllerI {
             });
     }
 
-    
+
     /**
      * @param {Request} req Represents request from client, including the
      * path parameters uid and tid representing the user that is liking the tuit
@@ -115,13 +115,8 @@ export default class DislikeController implements DislikeControllerI {
                 await dislikeDao.userUndislikesTuit(userId, tid); // undislike tuit
                 tuit.stats.dislikes = howManyDislikedTuit - 1;    // decrement dislikes count
             } else {    // If not already disliked...
-                const userAlreadyLikedTuit = await likeDao
-                    .findUserLikesTuit(userId, tid);    // check if user already liked tuit
-                const howManyLikedTuit = await likeDao
-                    .countHowManyLikedTuit(tid);    // Count how many like this tuit
-                // If user already liked tuit, unlike it
-                if (userAlreadyLikedTuit) { // If already liked...
-                    await likeDao.userUnlikesTuit(userId, tid); // unlike tuit
+                if (userAlreadyLikedTuit) {
+                    await likeDao.userUnlikesTuit(userId, tid);  // unlike tuit
                     tuit.stats.likes = howManyLikedTuit - 1;    // decrement likes count
                 }
 
@@ -134,7 +129,6 @@ export default class DislikeController implements DislikeControllerI {
             res.sendStatus(404);    // respond with error status
         }
     }
-
 
     /**
      * Find dislike of user that disliked a tuit.
@@ -149,8 +143,6 @@ export default class DislikeController implements DislikeControllerI {
         const userId = uid === "me" && profile ?
             profile._id : uid;
 
-        DislikeController.dislikeDao.findUserDislikesTuit(userId, tid)
-            .then(dislikes => res.json(dislikes));
         if (userId === "me") {
             res.json({});
         } else {
