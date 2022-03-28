@@ -21,8 +21,8 @@ import SessionController from "./controllers/SessionController";
 import AuthenticationController from "./controllers/AuthenticationController";
 import mongoose from "mongoose";
 import GroupController from "./controllers/GroupController";
-const cors = require("cors");
-const session = require("express-session");
+let cors = require("cors");
+let session = require("express-session");
 
 // build the connection string
 const PROTOCOL = "mongodb+srv";
@@ -38,19 +38,30 @@ mongoose.connect(connectionString);
 const app = express();
 app.use(cors({
     credentials: true,
-    origin: 'https://kac-cs5500-02-sp22-a4.netlify.app' //'https://kac-cs5500-02-sp22-a4.herokuapp.com' //'https://kac-cs5500-02-sp22-a4.netlify.app' //'http://localhost:3000'
+    //origin: 'https://kac-cs5500-02-sp22-a4.netlify.app'
+    origin: 'http://localhost:3000'
 }));
 
 const SECRET = 'process.env.SECRET';
+
 let sess = {
     secret: SECRET,
     saveUninitialized: true,
     resave: true,
     cookie: {
-        secure: false
+        secure: false,
     }
 }
-
+/*
+let sess = {
+    secret: SECRET,
+    proxy: true,
+    cookie: {
+        secure: true,
+        sameSite: 'none'
+    }
+}
+*/
 if (process.env.ENVIRONMENT === 'PRODUCTION') {
     app.set('trust proxy', 1) // trust first proxy
     sess.cookie.secure = true // serve secure cookies
