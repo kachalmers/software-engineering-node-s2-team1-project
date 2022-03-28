@@ -143,7 +143,11 @@ export default class DislikeController implements DislikeControllerI {
         const userId = uid === "me" && profile ?
             profile._id : uid;
 
-        DislikeController.dislikeDao.findUserDislikesTuit(userId, tid)
-            .then(dislike => res.json(dislike));
+        if (userId === "me") {
+            res.json({});
+        } else {
+            DislikeController.dislikeDao.findUserDislikesTuit(userId, tid)
+                .then(dislike => res.json(dislike));
+        }
     }
 };
