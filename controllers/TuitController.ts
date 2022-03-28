@@ -5,6 +5,7 @@ import TuitDao from "../daos/TuitDao";
 import Tuit from "../models/tuits/Tuit";
 import {Express, Request, Response} from "express";
 import TuitControllerI from "../interfaces/TuitControllerI";
+import { ObjectID } from 'bson';
 
 /**
  * @class TuitController Implements RESTful Web service API for tuits resource.
@@ -75,19 +76,30 @@ export default class TuitController implements TuitControllerI {
      * body formatted as JSON arrays containing the tuit objects
      */
     findAllTuitsByUser = (req: Request, res: Response) => {
-        try {
+        const tuitDao = TuitController.tuitDao;
+        // @ts-ignore
+        // If user id is "my" and there's a logged in user...
+        let userId = req.params.uid === "me" && req.session['profile'] ?
             // @ts-ignore
-            // If user id is "my" and there's a logged in user...
-            let userId = req.params.uid === "my" && req.session['profile'] ?
-                // @ts-ignore
-                // ... then get user id from logged in user. Otherwise, use param
-                req.session['profile']._id : req.params.uid;
+            // ... then get user id from logged in user. Otherwise, use param
+            req.session['profile']._id : req.params.uid;
 
-            TuitController.tuitDao.findAllTuitsByUser(userId)   // retrieve all tuits posted by user
+        if (userId === "me") {
+            //userId = new ObjectID();
+            //console.log(userId);
+            res.json({});
+        } else {
+            tuitDao.findAllTuitsByUser(userId)   // retrieve all tuits posted by user
+                .then((tuits: Tuit[]) => res.json(tuits));  // respond with tuits posted by user
+        }
+/*
+        try {
+            tuitDao.findAllTuitsByUser(userId)   // retrieve all tuits posted by user
                 .then((tuits: Tuit[]) => res.json(tuits));  // respond with tuits posted by user
         } catch (e) {
-            res.sendStatus(404);
+            res.sendStatus(404);    // respond with error status
         }
+ */
     }
 
     /**
@@ -101,7 +113,7 @@ export default class TuitController implements TuitControllerI {
     createTuitByUser = (req: Request, res: Response) => {
         // @ts-ignore
         // If user id is "my" and there's a logged in user...
-        let userId = req.params.uid === "my" && req.session['profile'] ?
+        let userId = req.params.uid === "me" && req.session['profile'] ?
             // @ts-ignore
             // ... then get user id from logged in user. Otherwise, use param
             req.session['profile']._id : req.params.uid;
