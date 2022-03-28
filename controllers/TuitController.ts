@@ -110,7 +110,7 @@ export default class TuitController implements TuitControllerI {
      * body formatted as JSON containing the new tuit that was inserted in the
      * database
      */
-    createTuitByUser = (req: Request, res: Response) => {
+    createTuitByUser = async (req: Request, res: Response) => {
         // @ts-ignore
         // If user id is "my" and there's a logged in user...
         let userId = req.params.uid === "me" && req.session['profile'] ?
@@ -119,9 +119,22 @@ export default class TuitController implements TuitControllerI {
             req.session['profile']._id : req.params.uid;
 
         console.log(userId);
-        
-        TuitController.tuitDao.createTuitByUser(userId, req.body)   // insert tuit into database
-            .then((tuit: Tuit) => res.json(tuit));  // respond with inserted tuit
+
+        try {
+            await TuitController.tuitDao.createTuitByUser(userId, req.body)   // insert tuit into database
+                .then((tuit: Tuit) => res.json(tuit));
+        } catch (e) {
+            res.status(404).send('User must be logged in to post tuit.');
+        }
+/*
+        if (userId === "me") {
+            res.json({});
+        } else {
+            TuitController.tuitDao.createTuitByUser(userId, req.body)   // insert tuit into database
+                .then((tuit: Tuit) => res.json(tuit));  // respond with inserted tuit
+        }
+        /*
+ */
     }
 
     /**
