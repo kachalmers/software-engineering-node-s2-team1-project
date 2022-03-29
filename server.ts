@@ -24,6 +24,9 @@ import GroupController from "./controllers/GroupController";
 let cors = require("cors");
 let session = require("express-session");
 
+import dotenv from "dotenv";
+dotenv.config();
+
 // build the connection string
 const PROTOCOL = "mongodb+srv";
 const DB_USERNAME = process.env.DB_USERNAME;
@@ -40,6 +43,7 @@ app.use(cors({
     credentials: true,
     origin: 'https://kac-cs5500-02-sp22-a4.netlify.app'
     //origin: 'http://localhost:3000'
+    //origin: process.env.CORS_ORIGIN
 }));
 
 const SECRET = 'process.env.SECRET';
@@ -76,6 +80,8 @@ let sess = {
 if (process.env.ENVIRONMENT === 'PRODUCTION') {
     app.set('trust proxy', 1) // trust first proxy
     //sess.cookie.secure = true // serve secure cookies
+} else {
+    console.log('ENVIRONMENT: '+process.env.ENVIRONMENT);
 }
 
 app.use(session(sess));
