@@ -48,9 +48,9 @@ let sess = {
     secret: SECRET,
     saveUninitialized: true,
     resave: true,
+    proxy: true,
     cookie: {
         secure: false,
-        sameSite: 'none'
     }
 }
 /*
