@@ -7,13 +7,14 @@ const bcrypt = require('bcrypt');
 const saltRounds = 10;
 
 const AuthenticationController = (app: Express) => {
-    
+
     const userDao: UserDao = UserDao.getInstance();
 
     // Expects the request body to contain a JSON object with the user's
     // credentials
     const login = async (req: Request, res: Response) => {
         const user = req.body;
+        console.log(user);
         const username = user.username;
         const password = user.password;
         console.log(password)
