@@ -50,6 +50,7 @@ let sess = {
     resave: true,
     cookie: {
         secure: false,
+        sameSite: 'none'
     }
 }
 /*
