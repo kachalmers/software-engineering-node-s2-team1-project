@@ -50,7 +50,6 @@ let sess = {
     resave: true,
     cookie: {
         secure: false,
-        sameSite: "strict"
     }
 }
 /*
@@ -66,7 +65,6 @@ let sess = {
 if (process.env.ENVIRONMENT === 'PRODUCTION') {
     app.set('trust proxy', 1) // trust first proxy
     sess.cookie.secure = true // serve secure cookies
-    sess.cookie.sameSite = "none";
 }
 
 app.use(session(sess));
