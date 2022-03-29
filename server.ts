@@ -49,8 +49,8 @@ let sess = {
     saveUninitialized: true,
     resave: true,
     cookie: {
-        sameSite: process.env.ENVIRONMENT === "production" ? 'none' : 'lax',
-        secure: process.env.ENVIRONMENT === "production",
+        sameSite: process.env.ENVIRONMENT === "PRODUCTION" ? 'none' : 'lax',
+        secure: process.env.ENVIRONMENT === "PRODUCTION",
     }
 }
 /*
@@ -75,7 +75,7 @@ let sess = {
 */
 if (process.env.ENVIRONMENT === 'PRODUCTION') {
     app.set('trust proxy', 1) // trust first proxy
-    sess.cookie.secure = true // serve secure cookies
+    //sess.cookie.secure = true // serve secure cookies
 }
 
 app.use(session(sess));
