@@ -44,28 +44,30 @@ const AuthenticationController = (app: Express) => {
 
     const register = async (req: Request, res: Response) => {
         const newUser = req.body;
-        const password = newUser.password;
-        const hash = await bcrypt.hash(password, saltRounds);
-        newUser.password = hash;
+        if (!(newUser.username && newUser.password && newUser.email)) {
+            const password = newUser.password;
+            const hash = await bcrypt.hash(password, saltRounds);
+            newUser.password = hash;
 
-        const existingUser = await userDao
-            .findUserByUsername(req.body.username);
-        if (existingUser) { // If user exists
-            // Don't create new user
-            res.sendStatus(403);
-            return;
-        } else {    // If user doesn't exist
-            // Create and insert new user into database
-            const insertedUser = await userDao
-                .createUser(newUser);
-            insertedUser.password = '';
-            // @ts-ignore
+            const existingUser = await userDao
+                .findUserByUsername(req.body.username);
+            if (existingUser) { // If user exists
+                // Don't create new user
+                res.sendStatus(403);
+                return;
+            } else {    // If user doesn't exist
+                // Create and insert new user into database
+                const insertedUser = await userDao
+                    .createUser(newUser);
+                insertedUser.password = '';
+                // @ts-ignore
 
-            // Store user in session under profile attribute to note which user
-            // is currently logged in
-            req.session['profile'] = insertedUser;
+                // Store user in session under profile attribute to note which user
+                // is currently logged in
+                req.session['profile'] = insertedUser;
 
-            res.json(insertedUser);
+                res.json(insertedUser);
+            }
         }
     }
 
