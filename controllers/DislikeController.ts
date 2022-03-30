@@ -29,8 +29,9 @@ export default class DislikeController implements DislikeControllerI {
     private static likeDao: LikeDao = LikeDao.getInstance();
     private static tuitDao: TuitDao = TuitDao.getInstance();
     private static dislikeController: DislikeController | null = null;
+
     /**
-     * Creates singleton controller instance
+     * Creates singleton controller instance.
      * @param {Express} app Express instance to declare the RESTful Web service
      * API
      * @return TuitController
@@ -49,7 +50,7 @@ export default class DislikeController implements DislikeControllerI {
     private constructor() {}
 
     /**
-     * Retrieves all users that disliked a tuit from the database
+     * Retrieves all users that disliked a tuit from the database.
      * @param {Request} req Represents request from client, including the path
      * parameter tid representing the disliked tuit
      * @param {Response} res Represents response to client, including the
@@ -60,7 +61,7 @@ export default class DislikeController implements DislikeControllerI {
             .then(dislikes => res.json(dislikes));
 
     /**
-     * Retrieves all tuits disliked by a user from the database
+     * Retrieves all tuits disliked by a user from the database.
      * @param {Request} req Represents request from client, including the path
      * parameter uid representing the user disliked the tuits
      * @param {Response} res Represents response to client, including the
@@ -81,8 +82,8 @@ export default class DislikeController implements DislikeControllerI {
             });
     }
 
-
     /**
+     * Toggle dislikes/likes of a tuit by a user.
      * @param {Request} req Represents request from client, including the
      * path parameters uid and tid representing the user that is liking the tuit
      * and the tuit being disliked
@@ -144,8 +145,9 @@ export default class DislikeController implements DislikeControllerI {
             profile._id : uid;
 
         if (userId === "me") {
-            res.json({});
+            res.json({});   // User does not exist. Respond with empty dislike.
         } else {
+            // Find dislike of tuit by user if it exists
             DislikeController.dislikeDao.findUserDislikesTuit(userId, tid)
                 .then(dislike => res.json(dislike));
         }
