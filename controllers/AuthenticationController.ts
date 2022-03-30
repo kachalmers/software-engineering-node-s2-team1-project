@@ -44,9 +44,10 @@ const AuthenticationController = (app: Express) => {
 
     const register = async (req: Request, res: Response) => {
         const newUser = req.body;
-        if (!(newUser.username && newUser.password && newUser.email)) {
+        // If username, password, and email exist...
+        if (newUser.username && newUser.password && newUser.email) {
             const password = newUser.password;
-            const hash = await bcrypt.hash(password, saltRounds);
+            const hash = await bcrypt.hash(password, saltRounds);   // encrypt password
             newUser.password = hash;
 
             const existingUser = await userDao
@@ -68,6 +69,8 @@ const AuthenticationController = (app: Express) => {
 
                 res.json(insertedUser);
             }
+        } else {    // If user, password, or email don't exist...
+            res.sendStatus(403);    // Send status 403
         }
     }
 
