@@ -25,12 +25,14 @@ export default class TuitDao implements TuitDaoI{
 
     findAllTuits = async (): Promise<Tuit[]> =>
         TuitModel.find()
+        //TuitModel.find({}, null, {sort: {postedOn: -1}})
+            .sort({postedOn: -1})
             .populate("postedBy")
             .exec();
 
     findAllTuitsByUser = async (uid: string): Promise<Tuit[]> =>
         TuitModel.find({postedBy: uid})
-            .sort({'postedOn': -1})
+            .sort({postedOn: -1})
             .populate("postedBy")
             .exec();
 
