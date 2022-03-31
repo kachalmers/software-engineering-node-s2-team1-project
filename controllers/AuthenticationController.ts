@@ -24,20 +24,24 @@ const AuthenticationController = (app: Express) => {
             const existingUser = await userDao
                 .findUserByUsername(username);  // retrieve user by username
 
-            // User's password is compared to hashed password passed from client
-            const match = await bcrypt.compare(password, existingUser.password);
+            if (existingUser === null) {
+                res.sendStatus(403);
+            } else {
+                // User's password is compared to hashed password passed from client
+                const match = await bcrypt.compare(password, existingUser.password);
 
-            if (match) {    // If user exists and password matches
-                existingUser.password = '*****';
-                // @ts-ignore
+                if (match) {    // If user exists and password matches
+                    existingUser.password = '*****';
+                    // @ts-ignore
 
-                // User object is stored in the profile attribute in the session,
-                // indicating that the user is currently logged in
-                req.session['profile'] = existingUser;
+                    // User object is stored in the profile attribute in the session,
+                    // indicating that the user is currently logged in
+                    req.session['profile'] = existingUser;
 
-                res.json(existingUser);
-            } else {    // If user doesn't exist or password mismatches
-                res.sendStatus(403);    // Send status 403
+                    res.json(existingUser);
+                } else {    // If user doesn't exist or password mismatches
+                    res.sendStatus(403);    // Send status 403
+                }
             }
         }
     }
