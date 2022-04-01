@@ -1,21 +1,20 @@
 /**
- * @file Implements some service for helping retrieve tuit resources
+ * @file Implements helper service for retrieving tuit information.
  */
 import LikeDao from "../daos/LikeDao";
 import DislikeDao from "../daos/DislikeDao";
 import Tuit from "../models/tuits/Tuit";
 
 /**
- * @class TuitService Implements Tuit service that provides some helper functions
- * for helping retrieve the tuits data for complicated needs, for example:
- * Retrieve tuits when user logged in, it will also check if user owns the tuit, likes/dislikes the tuit
+ * @class TuitService Implements Tuit service to help with tuit data
+ * retrieval and checking.
  */
 export default class TuitService {
     public static tuitService: TuitService | null = null;
     private static likeDao: LikeDao = LikeDao.getInstance();
     private static dislikeDao: DislikeDao = DislikeDao.getInstance();
     /**
-     * Creates singleton Service instance
+     * Creates singleton TuitService instance.
      * @returns TuitService
      */
     public static getInstance = (): TuitService => {
@@ -28,48 +27,64 @@ export default class TuitService {
     private constructor() {}
 
     /**
-     * Iterating through given tuits, check if each tuit is owned by given user, and
-     * also check if given user likes/dislikes the tuit and inserts likedByMe, dislikedByMe,
-     * and ownedByMe attributes to the tuit object. This helps the client to determine if user
-     * likes/dislikes/owns the tuit and display different view.
-     * @param {any} userId User's primary key
-     * @param {Tuit[]} tuits An array of tuits
+     * Loop through given tuits and check for tuit-user relationships,
+     * including ownership of a given tuit by the given user, likes of a given
+     * tuit by the given user, and dislikes of a given tuit by the given user.
+     * If any checks pass, an ownedByMe, likedByMe, and/or dislikedByMe
+     * attribute will be added to the tuit to assist the client in determining
+     * the user's relationships with the tuit.
+     * @param {any} userId Primary key of user
+     * @param {Tuit[]} tuits Array of tuits
      */
     public fetchTuitsForLikesDisLikesOwn = async (userId: any, tuits: Tuit[]): Promise<any[]> => {
-        let findLikesPromises: any[] = []
-        let findDislikesPromises: any[] = []
+        let likesOfTuitsByUser: any[] = []
+        let dislikesOfTuitsByUser: any[] = []
 
-        tuits.forEach((t: any) => {
-            let findLikePromise = TuitService.likeDao.findUserLikesTuit(userId, t._id);
-            let findDislikePromise = TuitService.dislikeDao.findUserDislikesTuit(userId, t._id);
-            findLikesPromises.push(findLikePromise);
-            findDislikesPromises.push(findDislikePromise);
-        })
-        const likedTuits = await Promise.all(findLikesPromises);
-        const dislikedTuits = await Promise.all(findDislikesPromises);
-        const likedTuitsIds = likedTuits.map((l) => {
-            if (l) {
-                return l.tuit.toString();
-            }
-        })
-        const dislikedTuitsIds = dislikedTuits.map((l) => {
-            if (l) {
-                return l.tuit.toString();
-            }
-        })
+        // For each tuit...
+        tuits.forEach((tuit: any) => {
+            // Find like of tuit by user if it exists
+            let likeOfTuitByUser = TuitService.likeDao
+                .findUserLikesTuit(userId, tuit._id);
 
-        const fetchTuits = tuits.map((t: any) => {
-            let copyT = t.toObject();
-            if (likedTuitsIds.indexOf(t._id.toString()) >= 0) {
-                copyT = {...copyT, likedByMe: true};
+            // Find dislike of tuit by user if it exists
+            let dislikesOfTuitByUser = TuitService.dislikeDao
+                .findUserDislikesTuit(userId, tuit._id);
+
+            // Add likeOfTuitByUser to list of likes of tuits by user
+            likesOfTuitsByUser.push(likeOfTuitByUser);
+
+            // Add dislikesOfTuitByUser to list of dislikes of tuits by user
+            dislikesOfTuitsByUser.push(dislikesOfTuitByUser);
+        })
+        // Wait for all likes/dislikes by user to be found
+        const allLikesOfTuitsByUser = await Promise.all(likesOfTuitsByUser);
+        const allDislikesOfTuitsByUser = await Promise.all(dislikesOfTuitsByUser);
+
+        // Store array of ids of likes of tuits by user
+        const allLikesOfTuitsByUserIds = allLikesOfTuitsByUser
+            .map((like) => {
+                if (like) { return like.tuit.toString(); }
+            })
+
+        // Store array of ids of dislikes of tuits by user
+        const allDislikesOfTuitsByUserIds = allDislikesOfTuitsByUser
+            .map((dislike) => {
+                if (dislike) { return dislike.tuit.toString(); }
+            })
+
+        const fetchTuits = tuits.map((tuit: any) => {
+            let tuitCopy = tuit.toObject();
+
+            if (allLikesOfTuitsByUserIds.indexOf(tuit._id.toString()) >= 0) {
+                tuitCopy = {...tuitCopy, likedByMe: true};
             }
-            if (dislikedTuitsIds.indexOf(t._id.toString()) >= 0) {
-                copyT = {...copyT, dislikedByMe: true};
+            if (allDislikesOfTuitsByUserIds.indexOf(tuit._id.toString()) >= 0) {
+                tuitCopy = {...tuitCopy, dislikedByMe: true};
             }
-            if (copyT.postedBy && copyT.postedBy._id.toString() === userId.toString()) {
-                copyT = {...copyT, ownedByMe: true};
+            if (tuitCopy.postedBy && tuitCopy.postedBy._id.toString() === userId.toString()) {
+                tuitCopy = {...tuitCopy, ownedByMe: true};
             }
-            return copyT;
+            return tuitCopy;
         })
         return fetchTuits;
     }
