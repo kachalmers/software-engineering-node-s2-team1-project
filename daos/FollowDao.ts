@@ -1,6 +1,6 @@
 /**
- * @file Implements DAO managing data storage of follows. Uses mongoose FollowModel
- * to integrate with MongoDB.
+ * @file Implements DAO managing data storage of follows. Uses mongoose
+ * FollowModel to integrate with MongoDB
  */
 import FollowDaoI from "../interfaces/FollowDaoI";
 import FollowModel from "../mongoose/follows/FollowModel";
@@ -9,14 +9,14 @@ import Follow from "../models/follows/Follow";
 /**
  * @class FollowDao Implements Data Access Object managing data storage
  * of Follows
- * @property {FollowDao} followDao Private single instance of FollowDao
+ * @property {FollowDao} followDao Private single of FollowDao
  */
-export default class FollowDao implements FollowDaoI{
+export default class FollowDao implements FollowDaoI {
     private static followDao: FollowDao | null = null;
 
     /**
      * Creates singleton DAO instance
-     * @returns {FollowDao} FollowDao
+     * @returns FollowDao
      */
     public static getInstance = (): FollowDao => {
         if (FollowDao.followDao === null) {
@@ -28,70 +28,54 @@ export default class FollowDao implements FollowDaoI{
     private constructor() {}
 
     /**
-     * Uses FollowModel to retrieve all follow documents from follows collection.
-     * @returns {Promise} Promise to be notified when the follows are retrieved from
-     * database
+     * Inserts follow instance into the database,
+     * representing a user follows another user
+     * @param {string} uid Primary key of user following another user
+     * @param {string} auid Primary key of user followed by another user
+     * @returns Promise To be notified when follow is inserted into the database
      */
-    findAllFollows = async (): Promise<Follow[]> =>
-        FollowModel.find();
+    userFollowsAnotherUser = async (uid: string, auid: string): Promise<Follow> =>
+        FollowModel.create({userFollowed: auid, userFollowing: uid});
 
     /**
-     * Uses FollowModel to retrieve all follows by a user (follower).
-     * @param {string} uid Primary key of user following other users
-     * @returns {Promise} Promise to be notified when the users being followed are
-     * retrieved from the database
+     * Removes follow from the database,
+     * representing a user unfollows another user
+     * @param {string} uid Primary key of user unfollowing another user
+     * @param {string} auid Primary key of user is unfollowed by another user
+     * @returns Promise To be notified when follow is removed from the database
      */
-    findFollowsByFollower = async (uid: string): Promise<Follow[]> =>
-        FollowModel
-            .find({follower: uid})
-            .populate("followee")
-            .exec();
+    userUnfollowsAnotherUser = async (uid: string, auid: string): Promise<any> =>
+        FollowModel.deleteOne({userFollowed: auid, userFollowing: uid})
 
     /**
-     * Uses FollowModel to retrieve all follows of a user (followee).
-     * @param {string} uid Primary key of user followed by other users
-     * @returns {Promise} Promise to be notified when the users following the given user
-     * are retrieved from the database
+     * Uses FollowModel to retrieve follow documents that all others users
+     * a particular user is following from follows collection
+     * @param {string} uid User's primary key
+     * @returns Promise To be notified when follows are retrieved from the database
      */
-    findFollowsByFollowee = async (uid: string): Promise<Follow[]> =>
-        FollowModel
-            .find({followee: uid}) // find follows where uid is being followed
-            .populate("follower") // fill in information about follower
-            .exec();
+    findAllFollowing = async (uid: string): Promise<Follow[]> =>
+        FollowModel.find({userFollowing: uid})
+            .populate('userFollowed')
+            .exec()
 
     /**
-     * Uses FollowModel to retrieve follow of user by user given the two uids.
-     * @param {string} uid Primary key of user following other user
-     * @param {string} ouid Primary key of user being followed
-     * @returns {Promise} Promise to be notified when the follow is retrieved from the
-     * database
+     * Uses FollowModel to retrieve follow documents that all followers of a particular user
+     * from follows collection
+     * @param {string} uid User's primary key
+     * @returns Promise To be notified when follows are retrieved from the database
      */
-    findFollowByUsers = async (uid: string, ouid: string): Promise<Follow[]> =>
-        FollowModel
-            .find({follower: uid, followee: ouid})
-            .populate("follower")  // fill in information about follower
-            .populate("followee")   // fill in information about followee
-            .exec();
+    findAllFollowers = async (uid: string): Promise<Follow[]> =>
+        FollowModel.find({userFollowed: uid})
+            .populate('userFollowing')
+            .exec()
 
     /**
-     * Inserts follow instance into the database.
-     * @param {string} uid Primary key of user following other user
-     * @param {string} ouid Primary key of user to be followed
-     * @return {Promise} Promise to be notified when follow is added to
-     * database
+     * Uses FollowModel to retrieve all follow documents from follows collection
+     * @returns Promise To be notified when follows are retrieved from the database
      */
-    userFollowsUser = async (uid: string, ouid: string): Promise<Follow> =>
-        FollowModel.create({follower: uid, followee: ouid});
-
-    /**
-     * Removes follow from the database.
-     * @param {string} uid Primary key of user to unfollow other user
-     * @param {string} ouid Primary key of user to be unfollowed
-     * @return {Promise} Promise to be notified when follow is removed from
-     * database
-     */
-    userUnfollowsUser = async (uid: string, ouid: string): Promise<any> =>
-        FollowModel.deleteOne({follower: uid, followee: ouid});
-
-
+    findAllFollow = async (): Promise<Follow[]> =>
+        FollowModel.find()
+            .populate('userFollowing', {username: 1})
+            .populate('userFollowed', {username: 1})
+            .exec()
 }

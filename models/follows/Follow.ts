@@ -1,16 +1,16 @@
 /**
- * @file Declares Follow data type representing relationship between
- * two users, as in user follows another user.
+ * @file Declares Follow data type representing relationship between tow users,
+ * as in a user follows another user.
  */
 import User from "../users/User";
 
 /**
- * @typedef Follow Represents follows relationship between a user and another
- * user, as in a user follows another user.
- * @property {User} followee User being followed by follower
- * @property {User} follower User following followee
+ * @typedef Follow Represents follows relationship between two users,
+ * as in a user follows another user
+ * @property {User} userFollowed User followed by another user
+ * @property {User} userFollowing User following another user
  */
 export default interface Follow {
-    followee: User,
-    follower: User
-};
+    userFollowed: User,
+    userFollowing: User
+}
