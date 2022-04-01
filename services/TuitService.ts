@@ -66,7 +66,7 @@ export default class TuitService {
             if (dislikedTuitsIds.indexOf(t._id.toString()) >= 0) {
                 copyT = {...copyT, dislikedByMe: true};
             }
-            if (copyT.postedBy._id.toString() === userId.toString()) {
+            if (copyT.postedBy && copyT.postedBy._id.toString() === userId.toString()) {
                 copyT = {...copyT, ownedByMe: true};
             }
             return copyT;

@@ -8,8 +8,8 @@ import Dislike from "../models/dislikes/Dislike";
 
 /**
  * @class DislikeDao Implements Data Access Object managing data storage
- * of dislikes
- * @property {DislikeDao} dislikeDao Private single instance of dislikeDao
+ * of Dislikes
+ * @property {DislikeDao} dislikeDao Private single instance of DislikeDao
  */
 export default class DislikeDao implements DislikeDaoI {
     private static dislikeDao: DislikeDao | null = null;
@@ -53,7 +53,7 @@ export default class DislikeDao implements DislikeDaoI {
             .exec();
 
     /**
-     * Retrieve dislike of tuit by user if it exists.
+     * Retrieves dislike of tuit by user if it exists.
      * @param {string} uid Primary key of user
      * @param {string} tid Primary key of tuit
      * @returns Promise To be notified when dislike is found from the database

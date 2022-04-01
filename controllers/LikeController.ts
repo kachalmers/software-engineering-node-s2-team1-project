@@ -65,7 +65,7 @@ export default class LikeController implements LikeControllerI {
      * body formatted as JSON arrays containing the user objects
      */
     findAllUsersThatLikedTuit = (req: Request, res: Response) =>
-        LikeController.likeDao.findLikesOfAllUsersThatLikedTuit(req.params.tid)
+        LikeController.likeDao.findAllLikesOfTuitByUsers(req.params.tid)
             .then((likes: Like[]) => res.json(likes.map(like => like.likedBy)));
 
     /**
@@ -91,7 +91,7 @@ export default class LikeController implements LikeControllerI {
         } else {    // If proper user id is passed...
             try {
                 // Find all tuits liked by user
-                LikeController.likeDao.findLikesOfAllTuitsLikedByUser(userId)
+                LikeController.likeDao.findAllLikesOfTuitsByUser(userId)
                     .then( async (likes: Like[]) => {
                         // Filter likes for likes of non-null tuits
                         const likesNonNullTuits = likes.filter(like => like.tuit);

@@ -4,8 +4,8 @@
 import Like from "../models/likes/Like"
 
 export default interface LikeDaoI {
-    findLikesOfAllUsersThatLikedTuit(tid: string): Promise<Like[]>;
-    findLikesOfAllTuitsLikedByUser(uid: string): Promise<Like[]>;
+    findAllLikesOfTuitByUsers(tid: string): Promise<Like[]>;
+    findAllLikesOfTuitsByUser(uid: string): Promise<Like[]>;
     userUnlikesTuit(uid: string, tid: string): Promise<any>;
     userLikesTuit(uid: string, tid: string): Promise<Like>;
     findAllLikes(): Promise<Like[]>;
