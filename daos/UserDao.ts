@@ -1,6 +1,6 @@
 /**
  * @file Implements DAO managing data storage of users. Uses mongoose UserModel
- * to integrate with MongoDB
+ * to integrate with MongoDB.
  */
 import User from "../models/users/User";
 import UserModel from "../mongoose/users/UserModel";
@@ -15,7 +15,7 @@ export default class UserDao implements UserDaoI {
     private static userDao : UserDao | null = null;
 
     /**
-     * Creates singleton DAO instance
+     * Creates singleton DAO instance for users.
      * @returns UserDao
      */
     public static getInstance = (): UserDao => {
@@ -26,7 +26,7 @@ export default class UserDao implements UserDaoI {
     }
 
     /**
-     * Uses UserModel to retrieve all user documents from users collection
+     * Retrieves all user documents from the database.
      * @returns Promise To be notified when the users are retrieved from
      * database
      */
@@ -34,16 +34,16 @@ export default class UserDao implements UserDaoI {
         UserModel.find().exec();
 
     /**
-     * Uses UserModel to retrieve single user document from users collection
-     * @param {string} uid User's primary key
+     * Retrieves users with a given primary key from the database.
+     * @param {string} uid Primary key of user
      * @returns Promise To be notified when user is retrieved from the database
      */
     findUserById = async (uid: string): Promise<any> =>
         UserModel.findById(uid);
 
     /**
-     * Inserts user instance into the database
-     * @param {User} user Instance to be inserted into the database
+     * Inserts user document into the database.
+     * @param {User} user User to be inserted into the database
      * @returns Promise To be notified when user is inserted into the database
      */
     createUser = async (user: User): Promise<User> =>
@@ -58,8 +58,8 @@ export default class UserDao implements UserDaoI {
         UserModel.deleteOne({_id: uid});
 
     /**
-     * Updates user with new values in database
-     * @param {string} uid Primary key of user to be modified
+     * Updates user with new values in the database.
+     * @param {string} uid Primary key of user to be updated
      * @param {User} user User object containing properties and their new values
      * @returns Promise To be notified when user is updated in the database
      */
@@ -67,8 +67,7 @@ export default class UserDao implements UserDaoI {
         UserModel.updateOne({_id: uid}, {$set: user});
 
     /**
-     * Uses UserModel to retrieve a single user document from users collection
-     * using the credential
+     * Retrieves user with credentials matching the given credentials.
      * @param {string} username User's username
      * @param {string} password User's password
      * @returns Promise To be notified when user is retrieved from the database
@@ -77,8 +76,7 @@ export default class UserDao implements UserDaoI {
         UserModel.findOne({username, password});
 
     /**
-     * Uses UserModel to retrieve a single user document from users collection
-     * using the given username
+     * Retrieves user documents with given username from the database.
      * @param {string} username User's username
      * @returns Promise To be notified when user is retrieved from the database
      */
@@ -86,7 +84,7 @@ export default class UserDao implements UserDaoI {
         UserModel.findOne({username});
 
     /**
-     * Removes the user instance in the database that matches the username
+     * Removes user documents with a given username from the database.
      * @param {string} username User's username
      * @returns Promise To be notified when user is removed from the database
      */

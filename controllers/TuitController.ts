@@ -217,7 +217,7 @@ export default class TuitController implements TuitControllerI {
      */
     deleteTuitByTuitText = (req: Request, res: Response) => {
         // Delete tuit or tuits with given text
-        TuitController.tuitDao.deleteTuitByTuitText(req.params.content)
+        TuitController.tuitDao.deleteTuitByTuitText(req.params.text)
             .then(status => res.json(status))
     }
 }
