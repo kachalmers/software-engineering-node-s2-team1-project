@@ -91,7 +91,7 @@ export default class TuitDao implements TuitDaoI {
      * @param {any} newStats Stats object containing properties and their new values
      * @returns Promise To be notified when tuit is updated in the database
      */
-    updateLikes = async (tid: string, newStats: any): Promise<any> =>
+    updateTuitStats = async (tid: string, newStats: any): Promise<any> =>
         TuitModel.updateOne(
             {_id: tid},
             {$set: {stats: newStats}}
