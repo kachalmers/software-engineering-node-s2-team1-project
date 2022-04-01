@@ -69,11 +69,11 @@ export default class DislikeController implements DislikeControllerI {
             res.sendStatus(403);
         } else {    // If proper user id is passed...
             try {
-                // Find all tuits disliked by user
-                DislikeController.dislikeDao.findAllTuitsDislikedByUser(userId)
-                    .then( async (likes: Dislike[]) => {
+                // Find all dislikes of tuits by user
+                DislikeController.dislikeDao.findAllDislikesOfTuitsByUser(userId)
+                    .then( async (dislikes: Dislike[]) => {
                         // Filter dislikes for dislikes of non-null tuits
-                        const dislikesNonNullTuits = likes
+                        const dislikesNonNullTuits = dislikes
                             .filter(dislike => dislike.tuit);
 
                         // Store list of tuits from dislikes
