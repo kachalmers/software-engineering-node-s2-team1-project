@@ -101,10 +101,10 @@ export default class LikeController implements LikeControllerI {
                             .map(like => like.tuit);
 
                         // Find tuits liked by 'me'
-                        const fetchTuits = await LikeController.tuitService
+                        const tuitsLikedByMe = await LikeController.tuitService
                             .fetchTuitsForLikesDisLikesOwn(userId, tuitsFromLikes);
 
-                        res.json(fetchTuits);   // respond with tuits liked by 'me'
+                        res.json(tuitsLikedByMe);   // respond with tuits liked by 'me'
                     });
             } catch (e) {
                 res.sendStatus(403);

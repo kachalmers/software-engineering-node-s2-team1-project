@@ -81,10 +81,10 @@ export default class DislikeController implements DislikeControllerI {
                             .map(dislike => dislike.tuit);
 
                         // Find tuits disliked by 'me'
-                        const fetchTuits = await DislikeController.tuitService
+                        const tuitsDislikedByMe = await DislikeController.tuitService
                             .fetchTuitsForLikesDisLikesOwn(userId, tuitsFromDislikes);
 
-                        res.json(fetchTuits);   // respond with tuits disliked by 'me'
+                        res.json(tuitsDislikedByMe);   // respond with tuits disliked by 'me'
                     });
             } catch (e) {
                 res.sendStatus(403);
