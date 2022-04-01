@@ -1,12 +1,15 @@
 /**
- * @file Declares Controller RESTful Web service API for follows resource
+ * @file implements the interface for the Follow controller.
  */
 import {Request, Response} from "express";
 
 export default interface FollowControllerI {
-    userFollowsAnotherUser(req: Request, res: Response): void;
-    userUnfollowsAnotherUser(req: Request, res: Response): void;
-    findAllFollowing(req: Request, res: Response): void;
-    findAllFollowers(req: Request, res: Response): void;
-    findAllFollow(req: Request, res: Response): void;
+    findAllFollows (req: Request, res: Response): void;
+    findFollowsByFollowee (req: Request, res: Response): void;
+    findFollowsByFollower (req: Request, res: Response): void;
+    userFollowsUser (req: Request, res: Response): void;
+    userUnfollowsUser (req: Request, res: Response): void;
+    findUsersFollowingUser (req: Request, res: Response): void;
+    findUsersFollowedByUser (req: Request, res: Response): void;
+    findFollowByUsers (req: Request, res: Response): void;
 }
