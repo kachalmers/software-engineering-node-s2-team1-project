@@ -1,20 +1,20 @@
 /**
- * @file Declares Message data type representing relationship between two users,
- * as in a user messages another user
+ * @file declares Message data type representing relationship between
+ * users and other users, as in user messages a user.
  */
 import User from "../users/User";
 
 /**
- * @typedef Message Represents messages relationship between two users,
- * as in a user messages another user
- * @property {User} to User messaged by another user.
- * @property {User} from User sending the message
- * @property {string} message Content of the massage
- * @property {Date} sentOn Date the message sent
+ * @typedef Message represents message sent by a user to another user.
+ * @property {string} message being sent
+ * @property {User} to User receiving message
+ * @property {User} from User sending message
+ * @property {Date} sentOn Date message is sent
  */
+
 export default interface Message {
+    message: string,
     to: User,
     from: User,
-    message: string,
-    sentOn: Date
-}
+    sentOn?: Date
+};
