@@ -37,7 +37,7 @@ export default class DislikeDao implements DislikeDaoI {
         DislikeModel.count({tuit: tid});
 
     /**
-     * Finds all dislikes of a tuits by a given user.
+     * Finds all dislikes of tuits by a given user.
      * @param {string} uid Primary key of user that disliked tuits
      * @returns Promise To be notified when dislikes are retrieved from
      * the database
