@@ -1,21 +1,19 @@
 /**
  * @file Controller RESTful Web service API for users authentication
  */
-import {Express, Request, Response} from "express";
+import {Request, Response, Express} from "express";
 import UserDao from "../daos/UserDao";
 import AuthenticationControllerI from "../interfaces/AuthenticationControllerI";
 const bcrypt = require('bcrypt');
 const saltRounds = 10;
 
 /**
- * @class AuthenticationController Implements RESTful Web Service API for users authentication.
+ * @class AuthenticationController Implements RESTful Web Service API for user authentication.
  * Defines the following HTTP endpoints:
  * <ul>
- *     <li>POST /api/auth/login to retrieve an individual user instance by their credential for
- *     logging in </li>
- *     <li>POST /api/auth/register to create an individual user instance assuring there is
- *     no repeating username </li>
- *     <li>POST /api/auth/profile to retrieve user's profile based on current session </li>
+ *     <li>POST /api/auth/login to retrieve a user instance by their login information </li>
+ *     <li>POST /api/auth/register to create a user instance if username does not yet exist </li>
+ *     <li>POST /api/auth/profile to retrieve user's profile for the current session </li>
  *     <li>POST /api/auth/logout to destroy the current session for logging out </li>
  * </ul>
  * @property {UserDao} userDao Singleton DAO implementing user CRUD operations
@@ -27,7 +25,7 @@ export default class AuthenticationController implements AuthenticationControlle
     private static authenticationController: AuthenticationController | null = null;
 
     /**
-     * Creates singleton controller instance
+     * Creates singleton authentication controller instance.
      * @param {Express} app Express instance to declare the RESTful Web service API
      * @returns AuthenticationController
      */
@@ -45,61 +43,73 @@ export default class AuthenticationController implements AuthenticationControlle
     private constructor() {}
 
     /**
-     * Retrieves the user by their credential for logging in
-     * @param {Request} req Represents request from client, including body
-     * containing the JSON object for a user's credential containing
+     * Retrieves a user by their login information.
+     * @param {Request} req Represents request from client, including body,
+     * which contains the JSON object for a user information containing
      * username and password
      * @param {Response} res Represents response to client, including the
-     * body formatted as JSON containing the user that matches the credential
-     * or the status that there is no user matches the credential (failed to log in)
+     * body formatted as JSON containing the user that matches the credentials
+     * if the credentials match existing user information, otherwise a status is sent
      */
     login = async (req: Request, res: Response) => {
         const user = req.body;
         const username = user.username;
         const password = user.password;
+
+        // Find user by given username in the database
         const existingUser = await AuthenticationController.userDao
             .findUserByUsername(username);
+
+        // If user exists in the database...
         if (existingUser) {
+            /*
+            Encrypt the given password and compare with the password stored for
+            the existing user
+             */
             const match = await bcrypt.compare(password, existingUser.password);
-            if (match) {
+
+            if (match) {    // If password matches...
                 // @ts-ignore
-                req.session['profile'] = existingUser;
-                res.json(existingUser);
-            } else {
-                res.sendStatus(403);
+                req.session['profile'] = existingUser;  // Current session is started for user
+                res.json(existingUser); // Return user JSON
+            } else {    // If password doesn't match...
+                res.sendStatus(403);    // Send error status
             }
-        } else {
-            res.sendStatus(403);
+        } else {    // If user doesn't exist...
+            res.sendStatus(403);    // Send error status
         }
     }
 
     /**
-     * Creates a new user instance assuring there is no repeating username
+     * Creates a new user document if no users yet have the given username.
      * @param {Request} req Represents request from client, including body
-     * containing the JSON object for the new user to be inserted in the database
+     * that contains a JSON object for a new user
      * @param {Response} res Represents response to client, including the
-     * body formatted as JSON containing the new user that was inserted in the
-     * database or the status that user was not inserted successfully,
-     * because of repetitive username in the database
+     * new user JSON
      */
     signup = async (req: Request, res: Response) => {
         const newUser = req.body;
+
+        // If username, password, and email are in the body...
         if (newUser.username && newUser.password && newUser.email) {
             const password = newUser.password;
-            newUser.password = await bcrypt.hash(password, saltRounds);
+            newUser.password = await bcrypt.hash(password, saltRounds); // encrypt password
+
+            // Retrieve user by username if they exist
             const existingUser = await AuthenticationController.userDao
                 .findUserByUsername(newUser.username);
 
-            if (existingUser) {
+            if (existingUser) { // If user with given username exists already...
                 existingUser.password = '*****';
-                res.sendStatus(403);
+                res.sendStatus(403);    // Respond with error status
                 return;
-            } else {
+            } else {    // If user with username doesn't yet exist...
+                // Create new user with given username, password, and email
                 const insertedUser = await AuthenticationController.userDao
                     .createUser(newUser);
                 // @ts-ignore
-                req.session['profile'] = insertedUser;
-                res.json(insertedUser);
+                req.session['profile'] = insertedUser;  // start session for user
+                res.json(insertedUser);     // respond with inserted user
             }
         } else {    // If user, password, or email don't exist...
             res.sendStatus(403);    // Send status 403
@@ -107,12 +117,11 @@ export default class AuthenticationController implements AuthenticationControlle
     }
 
     /**
-     * Retrieves user's profile information based on current session
+     * Retrieves user profile information for the current session.
      * @param {Request} req Represents request from client
      * @param {Response} res Represents response to client, including the
-     * body formatted as JSON containing the user that are stored in the
-     * current session, otherwise sends the status that session expires and
-     * user is not logged in.
+     * profile JSON body with the user stored in the current session or
+     * an error status if there is no user logged in
      */
     profile = (req: Request, res: Response) => {
         // @ts-ignore
@@ -125,10 +134,10 @@ export default class AuthenticationController implements AuthenticationControlle
     }
 
     /**
-     * Destroy current session for logging out a user
+     * Destroys current session when user logs out.
      * @param {Request} req Represents request from client
      * @param {Response} res Represents response to client, including the
-     * status that user is successfully logged out.
+     * status that user is successfully logged out
      */
     logout = (req: Request, res: Response) => {
         // @ts-ignore
