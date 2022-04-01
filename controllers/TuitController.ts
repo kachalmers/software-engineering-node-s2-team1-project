@@ -68,7 +68,7 @@ export default class TuitController implements TuitControllerI {
             TuitController.tuitDao.findAllTuits()
                 .then(async (tuits: Tuit[]) => {
                     const fetchTuits = await TuitController.tuitService
-                        .fetchTuitsForLikesDisLikeOwn(userId, tuits);
+                        .fetchTuitsForLikesDisLikesOwn(userId, tuits);
                     res.json(fetchTuits);
                 })
         } else {
@@ -95,7 +95,7 @@ export default class TuitController implements TuitControllerI {
                 .then( async (tuit: Tuit) => {
                     if (tuit) {
                         const fetchTuits = await TuitController.tuitService
-                            .fetchTuitsForLikesDisLikeOwn(userId, [tuit]);
+                            .fetchTuitsForLikesDisLikesOwn(userId, [tuit]);
                         res.json(fetchTuits[0]);
                     } else {
                         res.json(tuit);
@@ -128,7 +128,7 @@ export default class TuitController implements TuitControllerI {
             TuitController.tuitDao.findTuitsByUser(userId)
                 .then( async (tuits: Tuit[]) => {
                     const fetchTuits = await TuitController.tuitService
-                        .fetchTuitsForLikesDisLikeOwn(userId, tuits);
+                        .fetchTuitsForLikesDisLikesOwn(userId, tuits);
                     res.json(fetchTuits);
                 })
         }

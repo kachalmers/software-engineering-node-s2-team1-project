@@ -35,7 +35,7 @@ export default class TuitService {
      * @param {any} userId User's primary key
      * @param {Tuit[]} tuits An array of tuits
      */
-    public fetchTuitsForLikesDisLikeOwn = async (userId: any, tuits: Tuit[]): Promise<any[]> => {
+    public fetchTuitsForLikesDisLikesOwn = async (userId: any, tuits: Tuit[]): Promise<any[]> => {
         let findLikesPromises: any[] = []
         let findDislikesPromises: any[] = []
 
