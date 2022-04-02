@@ -49,7 +49,7 @@ let sess = {
     }
 }
 
-if (process.env.ENV === 'PRODUCTION') {
+if (process.env.ENVIRONMENT === 'PRODUCTION') {
     app.set('trust proxy', 1) // trust first proxy
 }
 
