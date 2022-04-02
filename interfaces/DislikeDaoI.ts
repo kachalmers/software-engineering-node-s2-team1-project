@@ -1,11 +1,13 @@
+/**
+ * @file Declares API for dislikes related data access object methods
+ */
+
 import Dislike from "../models/dislikes/Dislike";
 
-/**
- * @file Declares API for Dislikes related data access object methods
- */
 export default interface DislikeDaoI {
-    findAllUsersThatDislikedTuit (tid: string): Promise<Dislike[]>;
-    findAllTuitsDislikedByUser (uid: string): Promise<Dislike[]>;
-    userUndislikesTuit (tid: string, uid: string): Promise<any>;
-    userDislikesTuit (tid: string, uid: string): Promise<Dislike>;
-};
+    userDislikesTuit(uid: string, tid: string): Promise<Dislike>;
+    userUnDislikesTuit(uid: string, tid: string): Promise<any>;
+    findAllDislikesOfTuitsByUser(uid: string): Promise<Dislike[]>;
+    countHowManyDislikedTuit(tid: string): Promise<any>;
+    findUserDislikesTuit(uid: string, tid: string): Promise<any>;
+}

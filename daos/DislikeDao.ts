@@ -1,12 +1,25 @@
+/**
+ * @file Implements DAO managing data storage of dislikes and uses mongoose DislikeModel
+ * to integrate with MongoDB
+ */
 import DislikeDaoI from "../interfaces/DislikeDaoI";
 import DislikeModel from "../mongoose/dislikes/DislikeModel";
 import Dislike from "../models/dislikes/Dislike";
 
+/**
+ * @class DislikeDao Implements Data Access Object managing data storage
+ * of Dislikes
+ * @property {DislikeDao} dislikeDao Private single instance of DislikeDao
+ */
 export default class DislikeDao implements DislikeDaoI {
     private static dislikeDao: DislikeDao | null = null;
 
+    /**
+     * Creates singleton DAO instance for dislikes.
+     * @returns DislikeDao
+     */
     public static getInstance = (): DislikeDao => {
-        if(DislikeDao.dislikeDao === null) {
+        if (DislikeDao.dislikeDao === null) {
             DislikeDao.dislikeDao = new DislikeDao();
         }
         return DislikeDao.dislikeDao;
@@ -14,15 +27,23 @@ export default class DislikeDao implements DislikeDaoI {
 
     private constructor() {}
 
-    findAllUsersThatDislikedTuit = async (tid: string): Promise<Dislike[]> =>
-        DislikeModel
-            .find({tuit: tid})
-            .populate("dislikedBy")
-            .exec();
+    /**
+     * Counts how many users disliked a tuit.
+     * @param {string} tid Primary key of tuit
+     * @returns Promise To be notified when count is retrieved from
+     * the database
+     */
+    countHowManyDislikedTuit = async (tid: string): Promise<any> =>
+        DislikeModel.count({tuit: tid});
 
-    findAllTuitsDislikedByUser = async (uid: string): Promise<Dislike[]> =>
-        DislikeModel
-            .find({dislikedBy: uid})
+    /**
+     * Finds all dislikes of tuits by a given user.
+     * @param {string} uid Primary key of user that disliked tuits
+     * @returns Promise To be notified when dislikes are retrieved from
+     * the database
+     */
+    findAllDislikesOfTuitsByUser = async (uid: string): Promise<Dislike[]> =>
+        DislikeModel.find({dislikedBy: uid})
             .populate({
                 path: "tuit",
                 populate: {
@@ -32,36 +53,29 @@ export default class DislikeDao implements DislikeDaoI {
             .exec();
 
     /**
-     * Insert document into dislikes collection to record that user uid dislikes tuit
-     * tid.
-     * @param uid User to dislike the tuit
-     * @param tid Tuit to be disliked by user
-     */
-    userDislikesTuit = async (uid: string, tid: string): Promise<any> =>
-        DislikeModel.create({tuit: tid, dislikedBy: uid});
-
-    /**
-     * Check if there's a dislikes document in the database for user/tuit
-     * combination.
-     * @param uid User that disliked tuit
-     * @param tid Tuit that was disliked
+     * Retrieves dislike of tuit by user if it exists.
+     * @param {string} uid Primary key of user
+     * @param {string} tid Primary key of tuit
+     * @returns Promise To be notified when dislike is found from the database
      */
     findUserDislikesTuit = async (uid: string, tid: string): Promise<any> =>
         DislikeModel.findOne({tuit: tid, dislikedBy: uid});
 
     /**
-     * Delete document from dislikes collection to record that user uid no longer
-     * dislikes tuit tid.
-     * @param uid User that disliked tuit
-     * @param tid Tuit that was disliked by user
+     * Inserts dislike of a tuit by a user into the database.
+     * @param {string} tid Primary key of tuit
+     * @param {string} uid Primary key of user
+     * @returns Promise To be notified when dislike is inserted into the database
      */
-    userUndislikesTuit = async (uid: string, tid: string): Promise<any> =>
-        DislikeModel.deleteOne({tuit: tid, dislikedBy: uid});
+    userDislikesTuit = async (uid: string, tid: string): Promise<Dislike> =>
+        DislikeModel.create({tuit: tid, dislikedBy: uid});
 
     /**
-     * Count how many users disliked a tuit.
-     * @param tid
+     * Removes dislike of a tuit by a user from the database.
+     * @param {string} tid Primary key of tuit
+     * @param {string} uid Primary key of user
+     * @returns Promise To be notified when dislike is removed from the database
      */
-    countHowManyDislikedTuit = async (tid: string): Promise<any> =>
-        DislikeModel.count({tuit: tid});
+    userUnDislikesTuit = async (uid: string, tid: string): Promise<any> =>
+        DislikeModel.deleteOne({tuit: tid, dislikedBy: uid});
 }
