@@ -53,29 +53,34 @@ export default class AuthenticationController implements AuthenticationControlle
      */
     login = async (req: Request, res: Response) => {
         const user = req.body;
-        const username = user.username;
-        const password = user.password;
 
-        // Find user by given username in the database
-        const existingUser = await AuthenticationController.userDao
-            .findUserByUsername(username);
+        if (user.username && user.password) {
+            const username = user.username;
+            const password = user.password;
 
-        // If user exists in the database...
-        if (existingUser) {
-            /*
-            Encrypt the given password and compare with the password stored for
-            the existing user
-             */
-            const match = await bcrypt.compare(password, existingUser.password);
+            // Find user by given username in the database
+            const existingUser = await AuthenticationController.userDao
+                .findUserByUsername(username);
 
-            if (match) {    // If password matches...
-                // @ts-ignore
-                req.session['profile'] = existingUser;  // Current session is started for user
-                res.json(existingUser); // Return user JSON
-            } else {    // If password doesn't match...
+            // If user exists in the database...
+            if (existingUser) {
+                /*
+                Encrypt the given password and compare with the password stored for
+                the existing user
+                 */
+                const match = await bcrypt.compare(password, existingUser.password);
+
+                if (match) {    // If password matches...
+                    // @ts-ignore
+                    req.session['profile'] = existingUser;  // Current session is started for user
+                    res.json(existingUser); // Return user JSON
+                } else {    // If password doesn't match...
+                    res.sendStatus(403);    // Send error status
+                }
+            } else {    // If user doesn't exist...
                 res.sendStatus(403);    // Send error status
             }
-        } else {    // If user doesn't exist...
+        } else {
             res.sendStatus(403);    // Send error status
         }
     }
