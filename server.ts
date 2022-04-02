@@ -32,11 +32,11 @@ const session = require("express-session");
 dotenv.config();    // Configure environment variables in .env file
 const app = express();
 
-const CORS_ORIGIN = process.env.CORS_ORIGIN || 'http://localhost:3000';
-const CORS_ORIGINs = [CORS_ORIGIN, 'http://localhost']  // add localhost for local testing
+const CORS_ORIGIN = process.env.CORS_ORIGIN;// || 'http://localhost:3000';
+const CORS_ORIGINs = //[CORS_ORIGIN, 'http://localhost']  // add localhost for local testing
 app.use(cors({
     credentials: true,
-    origin: CORS_ORIGINs
+    origin: CORS_ORIGIN
 }));
 
 let sess = {
