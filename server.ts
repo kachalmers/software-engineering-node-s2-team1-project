@@ -39,9 +39,8 @@ app.use(cors({
     origin: CORS_ORIGINs
 }));
 
-const SECRET = "hithere";
 let sess = {
-    secret: SECRET,
+    secret: process.env.SECRET,
     saveUninitialized: true,
     resave: true,
     cookie: {
