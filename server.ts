@@ -14,7 +14,7 @@
  * Connects to a remote MongoDB instance hosted on the Atlas cloud database
  * service.
  */
-import express from 'express';
+import express, {Request, Response} from 'express';
 import mongoose from "mongoose";
 import cors from "cors";
 import bodyParser from "body-parser";
@@ -44,7 +44,10 @@ let sess = {
     saveUninitialized: true,
     resave: true,
     cookie: {
+        // If environment is production, use sameSite 'none', otherwise 'lax'
         sameSite: process.env.ENVIRONMENT === "PRODUCTION" ? 'none' : 'lax',
+
+        // Secure is true when in production, otherwise false
         secure: process.env.ENVIRONMENT === "PRODUCTION",
     }
 }
@@ -66,11 +69,17 @@ const connectionString = `${PROTOCOL}://${DB_USERNAME}:${DB_PASSWORD}@${HOST}/${
 mongoose.connect(connectionString);
 
 
-// configure HTTP body parser
+// Configure HTTP body parser
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({
     extended: true
 }));
+
+app.get('/', (req: Request, res: Response) =>
+    res.send('Welcome!'));
+
+app.get('/add/:a/:b', (req: Request, res: Response) =>
+    res.send(req.params.a + req.params.b));
 
 // Create RESTful Web service API
 const userController = UserController.getInstance(app);
