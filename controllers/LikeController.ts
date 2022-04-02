@@ -100,9 +100,9 @@ export default class LikeController implements LikeControllerI {
                         const tuitsFromLikes = likesNonNullTuits
                             .map(like => like.tuit);
 
-                        // Find tuits liked by 'me'
+                        // Mark tuits liked by 'me'
                         const tuitsLikedByMe = await LikeController.tuitService
-                            .fetchTuitsForLikesDisLikesOwn(userId, tuitsFromLikes);
+                            .markTuitsForUserInvolvement(userId, tuitsFromLikes);
 
                         res.json(tuitsLikedByMe);   // respond with tuits liked by 'me'
                     });

@@ -69,9 +69,9 @@ export default class TuitController implements TuitControllerI {
             // Find all tuits
             TuitController.tuitDao.findAllTuits()
                 .then(async (tuits: Tuit[]) => {
-                    // Fetch tuits for tuit ownership, likes, and dislikes
+                    // Mark tuits for tuit ownership, likes, and dislikes
                     const allTuits = await TuitController.tuitService
-                        .fetchTuitsForLikesDisLikesOwn(userId, tuits);
+                        .markTuitsForUserInvolvement(userId, tuits);
 
                     res.json(allTuits);   // Respond with list of tuits
                 })
@@ -101,9 +101,9 @@ export default class TuitController implements TuitControllerI {
             TuitController.tuitDao.findTuitById(req.params.tid)
                 .then( async (tuit: Tuit) => {
                     if (tuit) { // If tuit exists
-                        // Fetch tuits for tuit ownership, likes, and dislikes
+                        // Mark tuits for tuit ownership, likes, and dislikes
                         const tuitFoundById = await TuitController.tuitService
-                            .fetchTuitsForLikesDisLikesOwn(userId, [tuit]);
+                            .markTuitsForUserInvolvement(userId, [tuit]);
 
                         res.json(tuitFoundById[0]);    // Respond with tuit
                     } else {
@@ -136,9 +136,9 @@ export default class TuitController implements TuitControllerI {
             // Find tuits posted by user
             TuitController.tuitDao.findTuitsByUser(userId)
                 .then( async (tuits: Tuit[]) => {
-                    // Fetch tuits for tuit ownership, likes, and dislikes
+                    // Mark tuits for tuit ownership, likes, and dislikes
                     const tuitsPostedByUser = await TuitController.tuitService
-                        .fetchTuitsForLikesDisLikesOwn(userId, tuits);
+                        .markTuitsForUserInvolvement(userId, tuits);
 
                     res.json(tuitsPostedByUser);    // respond with tuits posted by user
                 })

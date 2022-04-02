@@ -36,7 +36,7 @@ export default class TuitService {
      * @param {any} userId Primary key of user
      * @param {Tuit[]} tuits Array of tuits
      */
-    public fetchTuitsForLikesDisLikesOwn = async (userId: any, tuits: Tuit[]): Promise<any[]> => {
+    public markTuitsForUserInvolvement = async (userId: any, tuits: Tuit[]): Promise<any[]> => {
         let likesOfTuitsByUser: any[] = []
         let dislikesOfTuitsByUser: any[] = []
 
@@ -56,6 +56,7 @@ export default class TuitService {
             // Add dislikesOfTuitByUser to list of dislikes of tuits by user
             dislikesOfTuitsByUser.push(dislikesOfTuitByUser);
         })
+
         // Wait for all likes/dislikes by user to be found
         const allLikesOfTuitsByUser = await Promise.all(likesOfTuitsByUser);
         const allDislikesOfTuitsByUser = await Promise.all(dislikesOfTuitsByUser);
@@ -72,20 +73,26 @@ export default class TuitService {
                 if (dislike) { return dislike.tuit.toString(); }
             })
 
-        const fetchTuits = tuits.map((tuit: any) => {
+        const markedTuits = tuits.map((tuit: any) => {
             let tuitCopy = tuit.toObject();
 
+            // If tuit has been liked by given user...
             if (allLikesOfTuitsByUserIds.indexOf(tuit._id.toString()) >= 0) {
+                // Mark the likedByMe flag as true
                 tuitCopy = {...tuitCopy, likedByMe: true};
             }
+            // If tuit has been disliked by given user...
             if (allDislikesOfTuitsByUserIds.indexOf(tuit._id.toString()) >= 0) {
+                // Mark the dislikedByMe flag as true
                 tuitCopy = {...tuitCopy, dislikedByMe: true};
             }
+            // If tuit's postedBy attribute matches the given userId...
             if (tuitCopy.postedBy && tuitCopy.postedBy._id.toString() === userId.toString()) {
+                // Marked the ownedByMe flag as true
                 tuitCopy = {...tuitCopy, ownedByMe: true};
             }
             return tuitCopy;
         })
-        return fetchTuits;
+        return markedTuits;
     }
 }

@@ -80,9 +80,9 @@ export default class DislikeController implements DislikeControllerI {
                         const tuitsFromDislikes = dislikesNonNullTuits
                             .map(dislike => dislike.tuit);
 
-                        // Find tuits disliked by 'me'
+                        // Mark tuits disliked by 'me'
                         const tuitsDislikedByMe = await DislikeController.tuitService
-                            .fetchTuitsForLikesDisLikesOwn(userId, tuitsFromDislikes);
+                            .markTuitsForUserInvolvement(userId, tuitsFromDislikes);
 
                         res.json(tuitsDislikedByMe);   // respond with tuits disliked by 'me'
                     });
