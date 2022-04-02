@@ -7,7 +7,7 @@ import FollowControllerI from "../interfaces/FollowControllerI";
 import Follow from "../models/follows/Follow";
 
 /**
- * @class UserController Implements RESTful Web service API for follows resource.
+ * @class FollowController Implements RESTful Web service API for follows resource.
  * Defines the following HTTP endpoints:
  * <ul>
  *     <li>POST /api/users/:uid/followees/:ouid to record that a user follows a
