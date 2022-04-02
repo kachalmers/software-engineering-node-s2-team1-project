@@ -4,6 +4,7 @@
  * <ul>
  *     <li>users</li>
  *     <li>tuits</li>
+ *     <li>dislikes</li>
  *     <li>likes</li>
  *     <li>bookmarks</li>
  *     <li>follows</li>
@@ -11,7 +12,7 @@
  * </ul>
  *
  * Connects to a remote MongoDB instance hosted on the Atlas cloud database
- * service
+ * service.
  */
 import express from 'express';
 import mongoose from "mongoose";
@@ -20,23 +21,22 @@ import bodyParser from "body-parser";
 import dotenv from "dotenv";
 import TuitController from "./controllers/TuitController";
 import UserController from "./controllers/UserController";
+import AuthenticationController from "./controllers/AuthenticationController";
 import LikeController from "./controllers/LikeController";
+import DislikeController from "./controllers/DislikeController";
 import FollowController from "./controllers/FollowController";
 import BookmarkController from "./controllers/BookmarkController";
 import MessageController from "./controllers/MessageController";
-import AuthenticationController from "./controllers/AuthenticationController";
-import DislikeController from "./controllers/DislikeController";
-const session = require("express-session")
 
-dotenv.config();
+const session = require("express-session");
+dotenv.config();    // Configure environment variables in .env file
 const app = express();
 
-// To test in local environment, add localhost as client url
-const CLIENT_URL = process.env.CLIENT_URL || 'http://localhost:3000';
-const CLIENT_URLs = [CLIENT_URL, 'http://localhost']
+const CORS_ORIGIN = process.env.CORS_ORIGIN || 'http://localhost:3000';
+const CORS_ORIGINs = [CORS_ORIGIN, 'http://localhost']  // add localhost for local testing
 app.use(cors({
     credentials: true,
-    origin: CLIENT_URLs
+    origin: CORS_ORIGINs
 }));
 
 const SECRET = "hithere";
@@ -45,15 +45,13 @@ let sess = {
     saveUninitialized: true,
     resave: true,
     cookie: {
-        secure: false,
-        sameSite: "strict"
+        sameSite: process.env.ENVIRONMENT === "PRODUCTION" ? 'none' : 'lax',
+        secure: process.env.ENVIRONMENT === "PRODUCTION",
     }
 }
 
 if (process.env.ENV === 'PRODUCTION') {
     app.set('trust proxy', 1) // trust first proxy
-    sess.cookie.secure = true // serve secure cookies
-    sess.cookie.sameSite = "none";
 }
 
 app.use(session(sess));
@@ -79,15 +77,15 @@ app.use(bodyParser.urlencoded({
 const userController = UserController.getInstance(app);
 const tuitController = TuitController.getInstance(app);
 const likeController = LikeController.getInstance(app);
+const dislikeController = DislikeController.getInstance(app);
 const followController = FollowController.getInstance(app);
 const bookmarkController = BookmarkController.getInstance(app);
 const messageController = MessageController.getInstance(app);
 const authenticationController = AuthenticationController.getInstance(app);
-const dislikeController = DislikeController.getInstance(app);
 
 /**
- * Start a server listening at port 4000 locally
- * but use environment variable PORT on Heroku if available
+ * Start a server listening at port 4000 locally, but use environment
+ * variable PORT on Heroku if available.
  */
 const PORT = 4000;
 app.listen(process.env.PORT || PORT);
