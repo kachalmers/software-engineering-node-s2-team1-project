@@ -98,7 +98,3 @@ export default class MessageDao implements MessageDaoI {
     userMessagesUser = async (uid: string, ouid: string, message: Message): Promise<Message> =>
         MessageModel.create({...message, from: uid, to: ouid});
 }
-
-
-
-
