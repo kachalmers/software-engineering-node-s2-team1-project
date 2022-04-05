@@ -155,7 +155,7 @@ export default class TuitController implements TuitControllerI {
      * the database
      */
     createTuit = (req: Request, res: Response) =>
-        TuitController.tuitDao.createTuit(req.body)
+        TuitController.tuitDao.createTuit(req.body)     // TODO Build in check for tag here (Issue -- 1d)
             .then((tuit: Tuit) => res.json(tuit))
 
     /**

@@ -4,8 +4,8 @@
  */
 
 import TagDaoI from "../interfaces/TagDaoI";
-import TagModel from "../mongoose/tags/TagModel";
-import Tag from "../models/Tags/Tag";
+import TagModel from "../mongoose/tag/TagModel";
+import Tag from "../models/tags/Tag";
 import Tuit from "../models/tuits/Tuit";
 import TuitModel from "../mongoose/tuits/TuitModel";
 export default class TagDao implements TagDaoI {
@@ -17,6 +17,18 @@ export default class TagDao implements TagDaoI {
         return TagDao.tagDao;
     }
     private constructor() {}
+
+    /**
+     * Retrieves all tag documents from the database.
+     * @returns Promise To be notified when the tags are retrieved from
+     * database
+     */
+    findAllTags = async (): Promise<Tag[]> =>
+        TagModel.find()
+            //.sort({postedOn: -1})     Don't think this is needed
+            //.populate('postedBy')     Don't know this is needed either --> would get from Tuit associated anyways
+            .exec();
+
     findAllUsersThatTaggedTuit = async (tid: string): Promise<Tag[]> =>
         TagModel
             .find({tuit: tid})
@@ -45,6 +57,6 @@ export default class TagDao implements TagDaoI {
      * @param {Tag} tag Tag to insert into database
      * @returns Promise To be notified when tag is inserted into the database
      */
-    createTag = async (tag: Tag): Promise<Tag> =>
+    createTag = async (tag: Tag): Promise<Tag> =>   // Not sure if this needs to change also
         TagModel.create(tag);
 }

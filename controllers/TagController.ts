@@ -37,6 +37,7 @@ export default class TagController implements TagControllerI {
     public static getInstance = (app: Express): TagController => {
         if(TagController.tagController === null) {
             TagController.tagController = new TagController();
+            app.post('/api/tags', TagController.tagController.createTag);
             app.get("/api/users/:uid/tags", TagController.tagController.findAllTuitsTaggedByUser);
             app.get("/api/tuits/:tid/tags", TagController.tagController.findAllUsersThatTaggedTuit);
             app.put("/api/users/:uid/tags/:tid", TagController.tagController.userTogglesTuitTags);
@@ -45,6 +46,36 @@ export default class TagController implements TagControllerI {
     }
 
     private constructor() {}
+
+    /**
+     * Retrieves all tag documents from the database.
+     * @param {Request} req Represents request from client
+     * @param {Response} res Represents response to client, including the
+     * body formatted as a JSON array of tag objects
+     */
+    findAllTags = (req: Request, res: Response) => {        // Don't know that we need the conditional, just need
+                                                            // all tags...
+        // @ts-ignore
+        /*const profile = req.session['profile'];
+        if (profile) {  // If user is logged in...
+            // @ts-ignore
+            const userId = profile._id;
+
+            // Find all tuits
+            TagController.tagDao.findAllTags()
+                .then(async (tags: Tag[]) => {
+                    // Mark tags for tag ownership, likes, and dislikes
+                    const allTags = await TagController.tagService
+                        .markTagsForUserInvolvement(userId, tags);
+
+                    res.json(allTags);   // Respond with list of tags
+                })
+        } else {    // If user is not logged in...*/
+            // Find all tags
+            TagController.tagDao.findAllTags()
+                .then((tags: Tag[]) => res.json(tags));
+        //}
+    }
 
     /**
      * Retrieves all users that tagged a tuit from the database
@@ -100,7 +131,8 @@ export default class TagController implements TagControllerI {
             profile._id : uid;
 
         try {
-            const existingTags = await tagDao.findAllTags(); // TODO Create findAllTags()
+            // Create an array of existing tags
+            const existingTags = await tagDao.findAllTags();
 
             // If tag already exists
             if (Request in existingTags) { // TODO Will need to check this syntax based on Model/Schema
@@ -113,7 +145,7 @@ export default class TagController implements TagControllerI {
                 }
                 // Then increase count by one and use that tag
                 existingTag.count++;
-                return existingTag;
+                return existingTag; // Should this return?  Or just stop after increasing count?
             }
             // Else
             else {
