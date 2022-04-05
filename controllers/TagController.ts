@@ -172,10 +172,10 @@ export default class TagController implements TagControllerI {
                         existingTag = existingTags[i];
                         // Then increase count by one and use that tag
                         existingTag.count = existingTag.count.valueOf() + 1; //count++;
-                        await res.json("Count is now: " + String(existingTag.count.valueOf()));//return;
+                        //await res.json("Count is now: " + String(existingTag.count.valueOf()));//return;
                         console.log(existingTag);
-                        await tagDao.updateTag(existingTag)
-                            .then((tag: Tag) => res.json(tag))
+                        tagDao.updateTag(existingTag)
+                            .then(status => res.json(status))
                     }
                 }
                 //return; //existingTag; // Should this return?  Or just stop after increasing count?
