@@ -5,6 +5,7 @@ import {Express, Request, Response} from "express";
 import TagDao from "../daos/TagDao";
 import TagControllerI from "../interfaces/TagControllerI";
 import TuitDao from "../daos/TuitDao";
+import Tuit from "../models/tuits/Tuit";
 
 /**
  * @class TagController Implements RESTful Web service API for tags resource.
@@ -77,6 +78,19 @@ export default class TagController implements TagControllerI {
                 res.json(tuitsFromTags);
             });
     }
+
+    /**
+     * Creates a new tag document in the database.
+     * @param {Request} req Represents request from client, including body
+     * containing the JSON object for the new tag to be inserted into the
+     * database
+     * @param {Response} res Represents response to client, including the
+     * body formatted as JSON containing the new tag that was inserted into
+     * the database
+     */
+    createTag = (req: Request, res: Response) =>
+        TagController.tagDao.createTag(req.body)
+            .then((tag: Tag) => res.json(tag))
 
 
     /**
