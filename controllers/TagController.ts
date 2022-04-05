@@ -88,10 +88,44 @@ export default class TagController implements TagControllerI {
      * body formatted as JSON containing the new tag that was inserted into
      * the database
      */
-    createTag = (req: Request, res: Response) =>
-        TagController.tagDao.createTag(req.body)
-            .then((tag: Tag) => res.json(tag))
+    createTag = async (req: Request, res: Response) => {
+        const tagDao = TagController.tagDao;
+        const tuitDao = TagController.tuitDao;
 
+        // Not sure if these are needed
+        const uid = req.params.uid;
+        const tid = req.params.tid;
+        const profile = req.session['profile'];
+        const userId = uid === "me" && profile ?
+            profile._id : uid;
+
+        try {
+            const existingTags = await tagDao.findAllTags(); // TODO Create findAllTags()
+
+            // If tag already exists
+            if (Request in existingTags) { // TODO Will need to check this syntax based on Model/Schema
+                // Then get the existing tag
+                let i, existingTag;
+                for (i = 0; i < existingTags.length; i++) {
+                    if (existingTags[i].tag == Request.tag) {
+                        existingTag = existingTags[i];
+                    }
+                }
+                // Then increase count by one and use that tag
+                existingTag.count++;
+                return existingTag;
+            }
+            // Else
+            else {
+                // create a new tag
+                TagController.tagDao.createTag(req.body)
+                    .then((tag: Tag) => res.json(tag))
+            }
+            res.sendStatus(200);
+        } catch (e) {
+            res.sendStatus(404);
+        }
+    }
 
     /**
      * @param {Request} req Represents request from client, including the
