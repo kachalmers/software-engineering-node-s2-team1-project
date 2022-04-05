@@ -6,6 +6,7 @@ import TagDao from "../daos/TagDao";
 import TagControllerI from "../interfaces/TagControllerI";
 import TuitDao from "../daos/TuitDao";
 import Tuit from "../models/tuits/Tuit";
+import Tag from "../models/tags/Tag";
 
 /**
  * @class TagController Implements RESTful Web service API for tags resource.
@@ -104,9 +105,9 @@ export default class TagController implements TagControllerI {
 
         TagController.tagDao.findAllTuitsTaggedByUser(userId)
             .then(tags => {
-                const tagsNonNullTuits = tags.filter(tag => tag.tuit);
-                const tuitsFromTags = tagsNonNullTuits.map(tag => tag.tuit);
-                res.json(tuitsFromTags);
+                //const tagsNonNullTuits = tags.filter(tag => tag.tuit);
+                //const tuitsFromTags = tagsNonNullTuits.map(tag => tag.tuit);
+                //res.json(tuitsFromTags);
             });
     }
 
@@ -121,36 +122,40 @@ export default class TagController implements TagControllerI {
      */
     createTag = async (req: Request, res: Response) => {
         const tagDao = TagController.tagDao;
-        const tuitDao = TagController.tuitDao;
+        //const tuitDao = TuitController.tuitDao;
 
         // Not sure if these are needed
         const uid = req.params.uid;
         const tid = req.params.tid;
-        const profile = req.session['profile'];
+        /*const profile = req.session['profile'];
         const userId = uid === "me" && profile ?
-            profile._id : uid;
+            profile._id : uid;*/
+
+        const newTag = req.body; // Body contains the potentially new tag
 
         try {
             // Create an array of existing tags
             const existingTags = await tagDao.findAllTags();
 
             // If tag already exists
-            if (Request in existingTags) { // TODO Will need to check this syntax based on Model/Schema
+            if (newTag.tag in existingTags) { // TODO Will need to check this syntax based on Model/Schema
                 // Then get the existing tag
                 let i, existingTag;
                 for (i = 0; i < existingTags.length; i++) {
-                    if (existingTags[i].tag == Request.tag) {
+                    if (existingTags[i].tag == newTag.tag) {
                         existingTag = existingTags[i];
+                        existingTag.count++;
+                        break;
                     }
                 }
                 // Then increase count by one and use that tag
-                existingTag.count++;
-                return existingTag; // Should this return?  Or just stop after increasing count?
+
+                return; //existingTag; // Should this return?  Or just stop after increasing count?
             }
             // Else
             else {
                 // create a new tag
-                TagController.tagDao.createTag(req.body)
+                await tagDao.createTag(req.body)
                     .then((tag: Tag) => res.json(tag))
             }
             res.sendStatus(200);
@@ -191,7 +196,7 @@ export default class TagController implements TagControllerI {
                 await TagController.tagDao.userTagsTuit(userId, tid);
                 tuit.stats.tags = howManyTaggedTuit + 1;
                 }
-            await tuitDao.updateTags(tid, tuit.stats);
+            //await tuitDao.updateTags(tid, tuit.stats);
             res.sendStatus(200);
         } catch (e) {
             res.sendStatus(404);
