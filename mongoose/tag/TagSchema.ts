@@ -12,7 +12,7 @@ import Tag from "../../models/tags/Tag";   // make sure this matches
  */
 const TagSchema = new mongoose.Schema<Tag>({
     tag: {type: String, required: true},
-    count: 1
+    count: {type: Number, default:1}
     // tuit: {type: Schema.Types.ObjectId, ref: 'TuitModel'},
 }, {collection: "tags"})
 

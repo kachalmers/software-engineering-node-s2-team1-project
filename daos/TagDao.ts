@@ -52,6 +52,15 @@ export default class TagDao implements TagDaoI {
         TagModel.deleteOne({tuit: tid, taggedBy: uid});
     countHowManyTaggedTuit = async (tid: string): Promise<any> =>
         TagModel.count({tuit: tid});
+
+    /**
+     * Updates tag with new values in the database.
+     * @param {string} tid Primary key of tag
+     * @param {Tuit} tag Tag body with new values for tag
+     */
+    updateTag = async (tag: Tag): Promise<any> =>
+        TagModel.updateOne({tag: tag.tag}, {$set: tag})
+
     /**
      * Inserts tag document into the database.
      * @param {Tag} tag Tag to insert into database

@@ -191,7 +191,7 @@ export default class TuitController implements TuitControllerI {
      * @param {Response} res Represents response to client, including update
      * status
      */
-    updateTuit = (req: Request, res: Response) =>
+    updateTuit = (req: Request, res: Response) =>                       // TODO Check if tag was removed
         TuitController.tuitDao.updateTuit(req.params.tid, req.body)
             .then(status => res.json(status))
 

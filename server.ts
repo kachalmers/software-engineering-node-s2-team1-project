@@ -27,6 +27,7 @@ import DislikeController from "./controllers/DislikeController";
 import FollowController from "./controllers/FollowController";
 import BookmarkController from "./controllers/BookmarkController";
 import MessageController from "./controllers/MessageController";
+import TagController from "./controllers/TagController";
 
 const session = require("express-session");
 dotenv.config();    // Configure environment variables in .env file
@@ -90,6 +91,8 @@ const followController = FollowController.getInstance(app);
 const bookmarkController = BookmarkController.getInstance(app);
 const messageController = MessageController.getInstance(app);
 const authenticationController = AuthenticationController.getInstance(app);
+const tagController = TagController.getInstance(app);
+
 
 /**
  * Start a server listening at port 4000 locally, but use environment

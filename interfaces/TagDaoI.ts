@@ -12,5 +12,6 @@ export default interface TagDaoI {
     findAllTuitsTaggedByUser (uid: string): Promise<Tag[]>;
     userUntagsTuit (tid: string, uid: string): Promise<any>;
     userTagsTuit (tid: string, uid: string): Promise<Tag>;
+    updateTag(tag: Tag): Promise<any>;
     createTag(tag: Tag): Promise<Tag>;
 };

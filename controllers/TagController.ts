@@ -38,9 +38,11 @@ export default class TagController implements TagControllerI {
     public static getInstance = (app: Express): TagController => {
         if(TagController.tagController === null) {
             TagController.tagController = new TagController();
-            app.post('/api/tags', TagController.tagController.createTag);
+            app.post("/api/tags", TagController.tagController.createTag);
+            app.put('/api/tags/:tid', TagController.tagController.updateTag);
             app.get("/api/users/:uid/tags", TagController.tagController.findAllTuitsTaggedByUser);
             app.get("/api/tuits/:tid/tags", TagController.tagController.findAllUsersThatTaggedTuit);
+            app.get("/api/tags", TagController.tagController.findAllTags);
             app.put("/api/users/:uid/tags/:tid", TagController.tagController.userTogglesTuitTags);
         }
         return TagController.tagController;
@@ -112,6 +114,18 @@ export default class TagController implements TagControllerI {
     }
 
     /**
+     * Updates a tag document.
+     * @param {Request} req Represents request from client, including path
+     * parameter tid (primary key of the tag to be updated) and tag
+     * JSON body for the tag to be updated
+     * @param {Response} res Represents response to client, including update
+     * status
+     */
+    updateTag = (req: Request, res: Response) =>
+        TagController.tagDao.updateTag(req.body)
+            .then(status => res.json(status))
+
+    /**
      * Creates a new tag document in the database.
      * @param {Request} req Represents request from client, including body
      * containing the JSON object for the new tag to be inserted into the
@@ -127,30 +141,44 @@ export default class TagController implements TagControllerI {
         // Not sure if these are needed
         const uid = req.params.uid;
         const tid = req.params.tid;
+        //console.log(uid);
+        //console.log(tid);
         /*const profile = req.session['profile'];
         const userId = uid === "me" && profile ?
             profile._id : uid;*/
 
         const newTag = req.body; // Body contains the potentially new tag
-
+        //console.log(newTag);
         try {
             // Create an array of existing tags
             const existingTags = await tagDao.findAllTags();
-
+            //console.log(existingTags);
             // If tag already exists
-            if (newTag.tag in existingTags) { // TODO Will need to check this syntax based on Model/Schema
+            let i;
+            let flag = false;
+            //let tagID;
+            for (i = 0; i < existingTags.length; i++) {
+                if (existingTags[i].tag === newTag.tag) {
+                    flag = true;
+                    //tagID = existingTags[i]._id;
+                }
+            }
+            if (flag) { // TODO Will need to check this syntax based on Model/Schema
                 // Then get the existing tag
+                console.log("Inside the if");
                 let i, existingTag;
                 for (i = 0; i < existingTags.length; i++) {
                     if (existingTags[i].tag == newTag.tag) {
                         existingTag = existingTags[i];
-                        existingTag.count++;
-                        break;
+                        // Then increase count by one and use that tag
+                        existingTag.count = existingTag.count.valueOf() + 1; //count++;
+                        await res.json("Count is now: " + String(existingTag.count.valueOf()));//return;
+                        console.log(existingTag);
+                        await tagDao.updateTag(existingTag)
+                            .then((tag: Tag) => res.json(tag))
                     }
                 }
-                // Then increase count by one and use that tag
-
-                return; //existingTag; // Should this return?  Or just stop after increasing count?
+                //return; //existingTag; // Should this return?  Or just stop after increasing count?
             }
             // Else
             else {
