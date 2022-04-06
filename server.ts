@@ -27,7 +27,7 @@ import DislikeController from "./controllers/DislikeController";
 import FollowController from "./controllers/FollowController";
 import BookmarkController from "./controllers/BookmarkController";
 import MessageController from "./controllers/MessageController";
-import TagController from ".//controllers/TagController";
+import TagController from "./controllers/TagController";
 
 const session = require("express-session");
 dotenv.config();    // Configure environment variables in .env file
