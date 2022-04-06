@@ -136,49 +136,35 @@ export default class TagController implements TagControllerI {
      */
     createTag = async (req: Request, res: Response) => {
         const tagDao = TagController.tagDao;
-        //const tuitDao = TuitController.tuitDao;
-
-        // Not sure if these are needed
-        const uid = req.params.uid;
-        const tid = req.params.tid;
-        //console.log(uid);
-        //console.log(tid);
-        /*const profile = req.session['profile'];
-        const userId = uid === "me" && profile ?
-            profile._id : uid;*/
 
         const newTag = req.body; // Body contains the potentially new tag
-        //console.log(newTag);
+
         try {
             // Create an array of existing tags
             const existingTags = await tagDao.findAllTags();
-            //console.log(existingTags);
+
             // If tag already exists
             let i;
             let flag = false;
-            //let tagID;
             for (i = 0; i < existingTags.length; i++) {
                 if (existingTags[i].tag === newTag.tag) {
                     flag = true;
-                    //tagID = existingTags[i]._id;
                 }
             }
-            if (flag) { // TODO Will need to check this syntax based on Model/Schema
+            if (flag) {
                 // Then get the existing tag
-                console.log("Inside the if");
                 let i, existingTag;
                 for (i = 0; i < existingTags.length; i++) {
                     if (existingTags[i].tag == newTag.tag) {
                         existingTag = existingTags[i];
-                        // Then increase count by one and use that tag
-                        existingTag.count = existingTag.count.valueOf() + 1; //count++;
-                        //await res.json("Count is now: " + String(existingTag.count.valueOf()));//return;
-                        console.log(existingTag);
-                        tagDao.updateTag(existingTag)
+                        // Then increase count by one and update that tag
+                        existingTag.count = existingTag.count.valueOf() + 1;
+
+                        let updatedTag;
+                        updatedTag = await tagDao.updateTag(existingTag)
                             .then(status => res.json(status))
                     }
                 }
-                //return; //existingTag; // Should this return?  Or just stop after increasing count?
             }
             // Else
             else {
@@ -186,7 +172,6 @@ export default class TagController implements TagControllerI {
                 await tagDao.createTag(req.body)
                     .then((tag: Tag) => res.json(tag))
             }
-            res.sendStatus(200);
         } catch (e) {
             res.sendStatus(404);
         }
