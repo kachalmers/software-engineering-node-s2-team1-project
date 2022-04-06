@@ -6,8 +6,7 @@
 import TagDaoI from "../interfaces/TagDaoI";
 import TagModel from "../mongoose/tag/TagModel";
 import Tag from "../models/tags/Tag";
-import Tuit from "../models/tuits/Tuit";
-import TuitModel from "../mongoose/tuits/TuitModel";
+
 export default class TagDao implements TagDaoI {
     private static tagDao: TagDao | null = null;
     public static getInstance = (): TagDao => {
@@ -23,7 +22,7 @@ export default class TagDao implements TagDaoI {
      * @param {Tag} tag Tag to insert into database
      * @returns Promise To be notified when tag is inserted into the database
      */
-    createTag = async (tag: Tag): Promise<Tag> =>   // Not sure if this needs to change also
+    createTag = async (tag: Tag): Promise<Tag> =>
         TagModel.create(tag);
 
     /**
@@ -41,14 +40,11 @@ export default class TagDao implements TagDaoI {
      */
     findAllTags = async (): Promise<Tag[]> =>
         TagModel.find()
-            //.sort({postedOn: -1})     Don't think this is needed
-            //.populate('postedBy')     Don't know this is needed either --> would get from Tuit associated anyways
             .exec();
 
     /**
      * Updates tag with new values in the database.
-     * @param {string} tid Primary key of tag
-     * @param {Tuit} tag Tag body with new values for tag
+     * @param {Tag} tag Tag body with new values for tag
      */
     updateTag = async (tag: Tag): Promise<any> =>
         TagModel.updateOne({tag: tag.tag}, {$set: tag})

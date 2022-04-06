@@ -1,25 +1,24 @@
 /**
  * @file Controller RESTful Web service API for tags resource
  */
+
 import {Express, Request, Response} from "express";
 import TagDao from "../daos/TagDao";
 import TagControllerI from "../interfaces/TagControllerI";
-import TuitDao from "../daos/TuitDao";
-import Tuit from "../models/tuits/Tuit";
 import Tag from "../models/tags/Tag";
 
 /**
  * @class TagController Implements RESTful Web service API for tags resource.
  * Defines the following HTTP endpoints:
  * <ul>
- *     <li>GET /api/users/:uid/tags to retrieve all the tuits tagged by a user
+ *     <li>POST /api/tags to record that a tag has been added to the DB
  *     </li>
- *     <li>GET /api/tuits/:tid/tags to retrieve all users that tagged a tuit
+ *     <li>DELETE /api/tags/:tag to record that a tag no longer exists
  *     </li>
- *     <li>POST /api/users/:uid/tags/:tid to record that a user tags a tuit
+ *     <li>GET /api/tags to find all existing tags in the DB
  *     </li>
- *     <li>DELETE /api/users/:uid/untags/:tid to record that a user
- *     no longer tags a tuit</li>
+ *     <li>PUT /api/tags/:tag to update an existing tag
+ *     </li>
  * </ul>
  * @property {TagDao} tagDao Singleton DAO implementing tags CRUD operations
  * @property {TagController} TagController Singleton controller implementing
@@ -27,7 +26,7 @@ import Tag from "../models/tags/Tag";
  */
 export default class TagController implements TagControllerI {
     private static tagDao: TagDao = TagDao.getInstance();
-    private static tuitDao: TuitDao = TuitDao.getInstance();
+    //private static tuitDao: TuitDao = TuitDao.getInstance();
     private static tagController: TagController | null = null;
     /**
      * Creates singleton controller instance
@@ -39,8 +38,9 @@ export default class TagController implements TagControllerI {
         if(TagController.tagController === null) {
             TagController.tagController = new TagController();
             app.post("/api/tags", TagController.tagController.createTag);
-            app.put('/api/tags/:tag', TagController.tagController.updateTag);
+            app.delete('/api/tags/:tag', TagController.tagController.deleteTag);
             app.get("/api/tags", TagController.tagController.findAllTags);
+            app.put('/api/tags/:tag', TagController.tagController.updateTag);
         }
         return TagController.tagController;
     }
