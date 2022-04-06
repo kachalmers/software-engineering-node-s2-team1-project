@@ -40,6 +40,7 @@ export default class TagDao implements TagDaoI {
      */
     findAllTags = async (): Promise<Tag[]> =>
         TagModel.find()
+            .sort({count: -1})
             .exec();
 
     /**
