@@ -155,7 +155,7 @@ export default class TuitController implements TuitControllerI {
      * the database
      */
     createTuit = (req: Request, res: Response) =>
-        TuitController.tuitDao.createTuit(req.body)
+        TuitController.tuitDao.createTuit(req.body)     // TODO Build in check for tag here (Issue -- 1d)
             .then((tuit: Tuit) => res.json(tuit))
 
     /**
@@ -191,7 +191,7 @@ export default class TuitController implements TuitControllerI {
      * @param {Response} res Represents response to client, including update
      * status
      */
-    updateTuit = (req: Request, res: Response) =>
+    updateTuit = (req: Request, res: Response) =>                       // TODO Check if tag was removed
         TuitController.tuitDao.updateTuit(req.params.tid, req.body)
             .then(status => res.json(status))
 
