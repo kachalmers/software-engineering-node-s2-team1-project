@@ -48,29 +48,6 @@ export default class TagController implements TagControllerI {
     private constructor() {}
 
     /**
-     * Retrieves all tag documents from the database.
-     * @param {Request} req Represents request from client
-     * @param {Response} res Represents response to client, including the
-     * body formatted as a JSON array of tag objects
-     */
-    findAllTags = (req: Request, res: Response) => {
-        TagController.tagDao.findAllTags()
-                .then((tags: Tag[]) => res.json(tags));
-    }
-
-    /**
-     * Updates a tag document.
-     * @param {Request} req Represents request from client, including path
-     * parameter tid (primary key of the tag to be updated) and tag
-     * JSON body for the tag to be updated
-     * @param {Response} res Represents response to client, including update
-     * status
-     */
-    updateTag = (req: Request, res: Response) =>
-        TagController.tagDao.updateTag(req.body)
-            .then(status => res.json(status))
-
-    /**
      * Creates a new tag document in the database.
      * @param {Request} req Represents request from client, including body
      * containing the JSON object for the new tag to be inserted into the
@@ -121,5 +98,40 @@ export default class TagController implements TagControllerI {
             res.sendStatus(404);
         }
     }
+
+    /**
+     * Removes a tag document from the database.
+     * @param {Request} req Represents request from client, including path
+     * parameter tag (tag string of the tag to be removed)
+     * @param {Response} res Represents response to client, including
+     * deletion status
+     */
+    deleteTag = (req: Request, res: Response) =>
+        // Delete tag with given tag string
+        TagController.tagDao.deleteTag(req.body.tag)
+            .then(status => res.json(status))
+
+    /**
+     * Retrieves all tag documents from the database.
+     * @param {Request} req Represents request from client
+     * @param {Response} res Represents response to client, including the
+     * body formatted as a JSON array of tag objects
+     */
+    findAllTags = (req: Request, res: Response) => {
+        TagController.tagDao.findAllTags()
+                .then((tags: Tag[]) => res.json(tags));
+    }
+
+    /**
+     * Updates a tag document.
+     * @param {Request} req Represents request from client, including path
+     * parameter tid (primary key of the tag to be updated) and tag
+     * JSON body for the tag to be updated
+     * @param {Response} res Represents response to client, including update
+     * status
+     */
+    updateTag = (req: Request, res: Response) =>
+        TagController.tagDao.updateTag(req.body)
+            .then(status => res.json(status))
 
 };
