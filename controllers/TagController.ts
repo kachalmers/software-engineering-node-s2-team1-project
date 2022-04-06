@@ -60,35 +60,16 @@ export default class TagController implements TagControllerI {
      */
     createTag = async (req: Request, res: Response) => {
         const tagDao = TagController.tagDao;
-
         const newTag = req.body; // Body contains the potentially new tag
-
         try {
-            // Create an array of existing tags
-            const existingTags = await tagDao.findAllTags();
-
+            // Acquire tag if it exists
+            let existingTag = await tagDao.findTagByText(newTag.tag);
             // If tag already exists
-            let i;
-            let flag = false;
-            for (i = 0; i < existingTags.length; i++) {
-                if (existingTags[i].tag === newTag.tag) {
-                    flag = true;
-                }
-            }
-            if (flag) {
-                // Then get the existing tag
-                let i, existingTag;
-                for (i = 0; i < existingTags.length; i++) {
-                    if (existingTags[i].tag == newTag.tag) {
-                        existingTag = existingTags[i];
-                        // Then increase count by one and update that tag
-                        existingTag.count = existingTag.count.valueOf() + 1;
-
-                        let updatedTag;
-                        updatedTag = await tagDao.updateTag(existingTag)
-                            .then(status => res.json(status))
-                    }
-                }
+            if (existingTag) {
+                // Then increase count by one and update that tag
+                existingTag.count++; // = existingTag.count.valueOf() + 1;
+                await tagDao.updateTag(existingTag);
+                res.json(existingTag); // Respond w/updated existing tag
             }
             // Else
             else {
