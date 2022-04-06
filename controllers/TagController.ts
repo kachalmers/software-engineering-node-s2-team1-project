@@ -56,28 +56,9 @@ export default class TagController implements TagControllerI {
      * @param {Response} res Represents response to client, including the
      * body formatted as a JSON array of tag objects
      */
-    findAllTags = (req: Request, res: Response) => {        // Don't know that we need the conditional, just need
-                                                            // all tags...
-        // @ts-ignore
-        /*const profile = req.session['profile'];
-        if (profile) {  // If user is logged in...
-            // @ts-ignore
-            const userId = profile._id;
-
-            // Find all tuits
-            TagController.tagDao.findAllTags()
-                .then(async (tags: Tag[]) => {
-                    // Mark tags for tag ownership, likes, and dislikes
-                    const allTags = await TagController.tagService
-                        .markTagsForUserInvolvement(userId, tags);
-
-                    res.json(allTags);   // Respond with list of tags
-                })
-        } else {    // If user is not logged in...*/
-            // Find all tags
-            TagController.tagDao.findAllTags()
+    findAllTags = (req: Request, res: Response) => {
+        TagController.tagDao.findAllTags()
                 .then((tags: Tag[]) => res.json(tags));
-        //}
     }
 
     /**
