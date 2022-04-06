@@ -107,7 +107,7 @@ export default class TagController implements TagControllerI {
      */
     deleteTag = (req: Request, res: Response) =>
         // Delete tag with given tag string
-        TagController.tagDao.deleteTag(req.body.tag)
+        TagController.tagDao.deleteTag(req.params.tid)
             .then(status => res.json(status))
 
     /**

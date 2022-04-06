@@ -6,7 +6,7 @@ import Tag from "../models/tags/Tag";
 
 export default interface TagDaoI {
     createTag(tag: Tag): Promise<Tag>;
-    deleteTag(tag: string): Promise<any>;
+    deleteTag(tid: string): Promise<any>;
     findAllTags(): Promise<Tag[]>;
     updateTag(tag: Tag): Promise<any>;
 };

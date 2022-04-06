@@ -27,11 +27,11 @@ export default class TagDao implements TagDaoI {
 
     /**
      * Removes tag document with a given tag from the database.
-     * @param {string} tag Tag string of tag
+     * @param {string} tid Primary key of tag
      * @returns Promise To be notified when tag is removed from the database
      */
-    deleteTag = async (tag: string): Promise<any> =>
-        TagModel.deleteOne({tag: tag});
+    deleteTag = async (tid: string): Promise<any> =>
+        TagModel.deleteOne({_id: tid});
 
     /**
      * Retrieves all tag documents from the database.
