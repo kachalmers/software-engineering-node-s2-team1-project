@@ -26,7 +26,6 @@ import Tag from "../models/tags/Tag";
  */
 export default class TagController implements TagControllerI {
     private static tagDao: TagDao = TagDao.getInstance();
-    //private static tuitDao: TuitDao = TuitDao.getInstance();
     private static tagController: TagController | null = null;
     /**
      * Creates singleton controller instance
