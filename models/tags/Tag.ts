@@ -11,5 +11,5 @@
  */
 export default interface Tag {
     tag: String,
-    count: number
+    count: Number
 }
