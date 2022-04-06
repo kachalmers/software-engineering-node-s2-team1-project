@@ -40,10 +40,7 @@ export default class TagController implements TagControllerI {
             TagController.tagController = new TagController();
             app.post("/api/tags", TagController.tagController.createTag);
             app.put('/api/tags/:tid', TagController.tagController.updateTag);
-            app.get("/api/users/:uid/tags", TagController.tagController.findAllTuitsTaggedByUser);
-            app.get("/api/tuits/:tid/tags", TagController.tagController.findAllUsersThatTaggedTuit);
             app.get("/api/tags", TagController.tagController.findAllTags);
-            app.put("/api/users/:uid/tags/:tid", TagController.tagController.userTogglesTuitTags);
         }
         return TagController.tagController;
     }

@@ -29,29 +29,12 @@ export default class TagDao implements TagDaoI {
             //.populate('postedBy')     Don't know this is needed either --> would get from Tuit associated anyways
             .exec();
 
-    findAllUsersThatTaggedTuit = async (tid: string): Promise<Tag[]> =>
-        TagModel
-            .find({tuit: tid})
-            .populate("taggedBy")
-            .exec();
-    findAllTuitsTaggedByUser = async (uid: string): Promise<Tag[]> =>
-        TagModel
-            .find({taggedBy: uid})
-            .populate({
-                path: "tuit",
-                populate: {
-                    path: "postedBy"
-                }
-            })
-            .exec();
     userTagsTuit = async (uid: string, tid: string): Promise<any> =>
         TagModel.create({tuit: tid, taggedBy: uid});
-    findUserTagsTuit = async (uid: string, tid: string): Promise<any> =>
-        TagModel.findOne({tuit: tid, taggedBy: uid});
+    /*findUserTagsTuit = async (uid: string, tid: string): Promise<any> =>
+        TagModel.findOne({tuit: tid, taggedBy: uid});*/
     userUntagsTuit = async (uid: string, tid: string): Promise<any> =>
         TagModel.deleteOne({tuit: tid, taggedBy: uid});
-    countHowManyTaggedTuit = async (tid: string): Promise<any> =>
-        TagModel.count({tuit: tid});
 
     /**
      * Updates tag with new values in the database.
