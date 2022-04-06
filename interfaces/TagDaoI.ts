@@ -8,8 +8,6 @@ import Tuit from "../models/tuits/Tuit";
  */
 export default interface TagDaoI {
     findAllTags(): Promise<Tag[]>;
-    userUntagsTuit (tid: string, uid: string): Promise<any>;
-    userTagsTuit (tid: string, uid: string): Promise<Tag>;
     updateTag(tag: Tag): Promise<any>;
     createTag(tag: Tag): Promise<Tag>;
 };

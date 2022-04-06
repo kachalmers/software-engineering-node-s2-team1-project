@@ -29,13 +29,6 @@ export default class TagDao implements TagDaoI {
             //.populate('postedBy')     Don't know this is needed either --> would get from Tuit associated anyways
             .exec();
 
-    userTagsTuit = async (uid: string, tid: string): Promise<any> =>
-        TagModel.create({tuit: tid, taggedBy: uid});
-    /*findUserTagsTuit = async (uid: string, tid: string): Promise<any> =>
-        TagModel.findOne({tuit: tid, taggedBy: uid});*/
-    userUntagsTuit = async (uid: string, tid: string): Promise<any> =>
-        TagModel.deleteOne({tuit: tid, taggedBy: uid});
-
     /**
      * Updates tag with new values in the database.
      * @param {string} tid Primary key of tag
