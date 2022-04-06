@@ -13,9 +13,11 @@ import Tag from "../models/tags/Tag";
  * <ul>
  *     <li>POST /api/tags to record that a tag has been added to the DB
  *     </li>
- *     <li>DELETE /api/tags/:tid to record that a tag no longer exists
+ *     <li>DELETE /api/tags/:tagID to record that a tag no longer exists
  *     </li>
  *     <li>GET /api/tags to find all existing tags in the DB
+ *     </li>
+ *     <li>GET /api/tags/:tag to find a specific tag that exists in the DB
  *     </li>
  *     <li>PUT /api/tags/:tag to update an existing tag
  *     </li>
@@ -37,8 +39,9 @@ export default class TagController implements TagControllerI {
         if(TagController.tagController === null) {
             TagController.tagController = new TagController();
             app.post("/api/tags", TagController.tagController.createTag);
-            app.delete('/api/tags/:tid', TagController.tagController.deleteTag);
+            app.delete('/api/tags/:tagID', TagController.tagController.deleteTag);
             app.get("/api/tags", TagController.tagController.findAllTags);
+            app.get("/api/tags/:tag", TagController.tagController.findTagByText);
             app.put('/api/tags/:tag', TagController.tagController.updateTag);
         }
         return TagController.tagController;
@@ -106,8 +109,8 @@ export default class TagController implements TagControllerI {
      * deletion status
      */
     deleteTag = (req: Request, res: Response) =>
-        // Delete tag with given tag string
-        TagController.tagDao.deleteTag(req.params.tid)
+        // Delete tag with given tagID string
+        TagController.tagDao.deleteTag(req.params.tagID)
             .then(status => res.json(status))
 
     /**
@@ -119,6 +122,17 @@ export default class TagController implements TagControllerI {
     findAllTags = (req: Request, res: Response) => {
         TagController.tagDao.findAllTags()
                 .then((tags: Tag[]) => res.json(tags));
+    }
+
+    /**
+     * Retrieves all tag documents from the database.
+     * @param {Request} req Represents request from client
+     * @param {Response} res Represents response to client, including the
+     * body formatted as a JSON array of tag objects
+     */
+    findTagByText = (req: Request, res: Response) => {
+        TagController.tagDao.findTagByText(req.params.tag)
+            .then((tag: Tag) => res.json(tag));
     }
 
     /**

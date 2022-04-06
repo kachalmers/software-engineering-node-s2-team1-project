@@ -27,11 +27,11 @@ export default class TagDao implements TagDaoI {
 
     /**
      * Removes tag document with a given tag from the database.
-     * @param {string} tid Primary key of tag
+     * @param {string} tagID Primary key of tag
      * @returns Promise To be notified when tag is removed from the database
      */
-    deleteTag = async (tid: string): Promise<any> =>
-        TagModel.deleteOne({_id: tid});
+    deleteTag = async (tagID: string): Promise<any> =>
+        TagModel.deleteOne({_id: tagID});
 
     /**
      * Retrieves all tag documents from the database.
@@ -41,6 +41,14 @@ export default class TagDao implements TagDaoI {
     findAllTags = async (): Promise<Tag[]> =>
         TagModel.find()
             .exec();
+
+    /**
+     * Retrieves tag documents with given tag text from the database.
+     * @param {string} tag Tag's tag text
+     * @returns Promise To be notified when user is retrieved from the database
+     */
+    findTagByText = async (tag: string): Promise<any> =>
+        TagModel.findOne({tag});
 
     /**
      * Updates tag with new values in the database.
