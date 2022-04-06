@@ -13,7 +13,7 @@ import Tag from "../models/tags/Tag";
  * <ul>
  *     <li>POST /api/tags to record that a tag has been added to the DB
  *     </li>
- *     <li>DELETE /api/tags/:tag to record that a tag no longer exists
+ *     <li>DELETE /api/tags/:tid to record that a tag no longer exists
  *     </li>
  *     <li>GET /api/tags to find all existing tags in the DB
  *     </li>
@@ -37,7 +37,7 @@ export default class TagController implements TagControllerI {
         if(TagController.tagController === null) {
             TagController.tagController = new TagController();
             app.post("/api/tags", TagController.tagController.createTag);
-            app.delete('/api/tags/:tag', TagController.tagController.deleteTag);
+            app.delete('/api/tags/:tid', TagController.tagController.deleteTag);
             app.get("/api/tags", TagController.tagController.findAllTags);
             app.put('/api/tags/:tag', TagController.tagController.updateTag);
         }
