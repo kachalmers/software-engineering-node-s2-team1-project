@@ -6,8 +6,6 @@
 import Tuit2TagDaoI from "../interfaces/Tuit2TagDaoI";
 import Tuit2TagModel from "../mongoose/tag/Tuit2TagModel";
 import Tuit2Tag from "../models/tags/Tuit2Tag";
-import Tag from "../models/tags/Tag";
-import TagModel from "../mongoose/tag/TagModel";
 
 export default class Tuit2TagDao implements Tuit2TagDaoI {
     private static tuit2tagDao: Tuit2TagDao | null = null;
@@ -19,7 +17,6 @@ export default class Tuit2TagDao implements Tuit2TagDaoI {
     }
     private constructor() {}
 
-
     /**
      * Inserts a tuit2tag document into the database.
      * @param {string} tuit the id of the tuit in the Tuit2Tag to be
@@ -28,7 +25,6 @@ export default class Tuit2TagDao implements Tuit2TagDaoI {
      * inserted in the database
      * @returns Promise To be notified when tuit2tag is inserted
      */
-
         // TODO: should the data type below be string or a tuit/tag object?
     createTuit2Tag = async (tuit: string, tag: string): Promise<Tuit2Tag> =>
         Tuit2TagModel.create({tuit: tuit, tag: tag});

@@ -2,12 +2,7 @@
  * @file Controller RESTful Web service API for the tuit2tag resource
  */
 
-
 import {Request, Response, Express} from "express";
-import TuitDao from "../daos/TuitDao";
-import TuitControllerI from "../interfaces/TuitControllerI";
-import Tuit from "../models/tuits/Tuit";
-import TuitService from "../services/TuitService";
 import Tuit2TagDao from "../daos/Tuit2TagDao";
 import Tuit2TagControllerI from "../interfaces/Tuit2TagControllerI";
 import Tuit2Tag from "../models/tags/Tuit2Tag";
@@ -16,15 +11,11 @@ import Tuit2Tag from "../models/tags/Tuit2Tag";
  * @class Tuit2TagController Implements RESTful Web service API for the
  * Tuit2Tag resource.Defines the following HTTP endpoints:
  * <ul>
- *     <li>POST /api/tags to record that a tag has been added to the DB
+ *     <li>POST /api/tuit2tags to record that a new tuit2tag relationship has
+ *     been added to the database
  *     </li>
- *     <li>DELETE /api/tags/:tagID to record that a tag no longer exists
- *     </li>
- *     <li>GET /api/tags to find all existing tags in the DB
- *     </li>
- *     <li>GET /api/tags/:tag to find a specific tag that exists in the DB
- *     </li>
- *     <li>PUT /api/tags/:tag to update an existing tag
+ *     <li>DELETE /api/tuit2tags/:tagID to record that a tuit2tag relationship
+ *     has been deleted
  *     </li>
  * </ul>
  * @property {Tuit2TagDao} tuit2tagDao Singleton DAO implementing tags CRUD operations
@@ -44,7 +35,7 @@ export default class Tuit2TagController implements Tuit2TagControllerI {
         if (Tuit2TagController.tuit2tagController === null) {
             Tuit2TagController.tuit2tagController = new Tuit2TagController();
             app.post("api/tuit2tags", Tuit2TagController.tuit2tagController.createTuit2Tag);
-            app.delete("api/tuit2tags", Tuit2TagController.tuit2tagController.deleteTuit2Tag);
+            app.delete("api/tuit2tags/:t2tID", Tuit2TagController.tuit2tagController.deleteTuit2Tag);
         }
         return Tuit2TagController.tuit2tagController;
     }
@@ -72,6 +63,6 @@ createTuit2Tag = (req: Request, res: Response) =>
  * tuit2tag deletion status
  */
 deleteTuit2Tag = (req: Request, res: Response) =>
-    Tuit2TagController.tuit2tagDao.deleteTuit2Tag(req.params.tuit2tagID)
+    Tuit2TagController.tuit2tagDao.deleteTuit2Tag(req.params.t2tID)
         .then(status => res.send(status))
 }
