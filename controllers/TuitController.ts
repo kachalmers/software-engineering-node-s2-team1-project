@@ -154,9 +154,18 @@ export default class TuitController implements TuitControllerI {
      * body formatted as JSON containing the new tuit that was inserted into
      * the database
      */
-    createTuit = (req: Request, res: Response) =>
+    createTuit = (req: Request, res: Response) => {
+        // Check if tuit text contains a tag
+        if ('#' in req.body.tuit) {
+            // Then pull out the tag text,
+
+            // Create a tag
+
+            // And make an entry in Tuit2Tag
+        }
         TuitController.tuitDao.createTuit(req.body)     // TODO Build in check for tag here (Issue -- 1d)
             .then((tuit: Tuit) => res.json(tuit))
+    }
 
     /**
      * Creates a new tuit document in the database.
