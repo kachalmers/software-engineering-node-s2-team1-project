@@ -22,8 +22,51 @@ export default class TagDao implements TagDaoI {
      * @param {Tag} tag Tag to insert into database
      * @returns Promise To be notified when tag is inserted into the database
      */
-    createTag = async (tag: Tag): Promise<Tag> =>
-        TagModel.create(tag);
+    createTag = async (tag: Tag): Promise<Tag> => {
+        const newTag = tag.tag; // The potentially new tag
+        try {
+            // Acquire tag if it exists
+            let existingTag = await this.findTagByText(newTag.toString());
+            // If tag already exists
+            if (existingTag) {
+                // Then increase count by one and update that tag
+                existingTag.count++;
+                await this.updateTag(existingTag);
+                return await this.findTagByText(existingTag.tag);
+                // Do we need a "response" of some kind here?
+            }
+            // Else
+            else {
+                // create a new tag
+                return await TagModel.create(tag);
+            }
+        } catch (e) {
+            console.log("Error");
+        }
+        //TagModel.create(tag);
+
+        // const tagDao = TagController.tagDao;
+        // const newTag = req.body; // Body contains the potentially new tag
+        // try {
+        //     // Acquire tag if it exists
+        //     let existingTag = await tagDao.findTagByText(newTag.tag);
+        //     // If tag already exists
+        //     if (existingTag) {
+        //         // Then increase count by one and update that tag
+        //         existingTag.count++; // = existingTag.count.valueOf() + 1;
+        //         await tagDao.updateTag(existingTag);
+        //         res.json(existingTag); // Respond w/updated existing tag
+        //     }
+        //     // Else
+        //     else {
+        //         // create a new tag
+        //         await tagDao.createTag(req.body)
+        //             .then((tag: Tag) => res.json(tag))
+        //     }
+        // } catch (e) {
+        //     res.sendStatus(404);
+        // }
+    }
 
     /**
      * Removes tag document with a given tag from the database.

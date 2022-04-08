@@ -6,7 +6,7 @@ import TuitDao from "../daos/TuitDao";
 import TuitControllerI from "../interfaces/TuitControllerI";
 import Tuit from "../models/tuits/Tuit";
 import TuitService from "../services/TuitService";
-import TagController from "./TagController";
+import TagDao from "../daos/TagDao";
 
 /**
  * @class TuitController Implements RESTful Web service API for tuits resource.
@@ -27,10 +27,10 @@ import TagController from "./TagController";
  * RESTful Web service API
  */
 export default class TuitController implements TuitControllerI {
+    private static tagDao: TagDao = TagDao.getInstance();
     private static tuitDao: TuitDao = TuitDao.getInstance();
     private static tuitService: TuitService = TuitService.getInstance();
     private static tuitController: TuitController | null = null;
-    private static tagController: TagController;
 
     /**
      * Creates singleton tuit controller instance.
@@ -39,9 +39,6 @@ export default class TuitController implements TuitControllerI {
      * @returns TuitController
      */
     public static getInstance = (app: Express): TuitController => {
-        // Get the instance of TagController and save it to an instance variable
-        TuitController.tagController = TagController.getInstance(app);
-
         if (TuitController.tuitController === null) {
             TuitController.tuitController = new TuitController();
             app.get('/api/tuits', TuitController.tuitController.findAllTuits);
@@ -178,7 +175,7 @@ export default class TuitController implements TuitControllerI {
             tagText = tuitText.slice(start, end);
 
             // Create a tag
-            TuitController.tagController.createTag(tagText); // Should I make this happen with tagDao?
+            TuitController.tagDao.createTag(tagText, res);
 
             // And make an entry in Tuit2Tag
         }
