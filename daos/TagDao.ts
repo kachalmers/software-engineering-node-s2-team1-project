@@ -19,7 +19,7 @@ export default class TagDao implements TagDaoI {
 
     /**
      * Inserts tag document into the database.
-     * @param {Tag} tag Tag to insert into database
+     * @param {Tag} Tag Tag to insert into database
      * @returns Promise To be notified when tag is inserted into the database
      */
     createTag = async (tag: Tag): Promise<Tag> => {

@@ -7,6 +7,7 @@ import TuitControllerI from "../interfaces/TuitControllerI";
 import Tuit from "../models/tuits/Tuit";
 import TuitService from "../services/TuitService";
 import TagDao from "../daos/TagDao";
+import Tuit2TagDao from "../daos/Tuit2TagDao";
 
 /**
  * @class TuitController Implements RESTful Web service API for tuits resource.
@@ -156,7 +157,7 @@ export default class TuitController implements TuitControllerI {
      * body formatted as JSON containing the new tuit that was inserted into
      * the database
      */
-    createTuit = (req: Request, res: Response) => {
+    createTuit = async (req: Request, res: Response) => {
         // Check if tuit text contains a tag
         let tuitText = req.body.tuit;
         if ('#' in tuitText) {
@@ -169,18 +170,30 @@ export default class TuitController implements TuitControllerI {
                 }
                 if (start != -1 && tuitText[i] == ' ') {
                     end = i;
+                    break; // End of tag, stop loop
+                           // (Will need to adjust to handle multiple tags later
                 }
                 prev = tuitText[i];
             }
             tagText = tuitText.slice(start, end);
+            const almostTag = {
+                "tag": tagText,
+                "count": 1
+            }
 
-            // Create a tag
-            TuitController.tagDao.createTag(tagText, res);
-
+            // Create a tag & the tuit
+            const newTag = await TuitController.tagDao.createTag(almostTag);
+            const newTuit = await TuitController.tuitDao.createTuit(req.body);
             // And make an entry in Tuit2Tag
+            TuitController.tuit2TagDao.createTuit2Tag(newTuit._id, newTag._id);
+            // Respond with the new tuit
+            res.json(newTuit);
         }
-        TuitController.tuitDao.createTuit(req.body)     // TODO Build in check for tag here (Issue -- 1d)
-            .then((tuit: Tuit) => res.json(tuit))
+        else {
+            TuitController.tuitDao.createTuit(req.body)     // TODO Build in check for tag here (Issue -- 1d)
+                .then((tuit: Tuit) => res.json(tuit))
+        }
+
     }
 
     /**
