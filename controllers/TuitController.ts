@@ -6,6 +6,7 @@ import TuitDao from "../daos/TuitDao";
 import TuitControllerI from "../interfaces/TuitControllerI";
 import Tuit from "../models/tuits/Tuit";
 import TuitService from "../services/TuitService";
+import TagController from "./TagController";
 
 /**
  * @class TuitController Implements RESTful Web service API for tuits resource.
@@ -29,6 +30,7 @@ export default class TuitController implements TuitControllerI {
     private static tuitDao: TuitDao = TuitDao.getInstance();
     private static tuitService: TuitService = TuitService.getInstance();
     private static tuitController: TuitController | null = null;
+    private static tagController: TagController;
 
     /**
      * Creates singleton tuit controller instance.
@@ -37,6 +39,9 @@ export default class TuitController implements TuitControllerI {
      * @returns TuitController
      */
     public static getInstance = (app: Express): TuitController => {
+        // Get the instance of TagController and save it to an instance variable
+        TuitController.tagController = TagController.getInstance(app);
+
         if (TuitController.tuitController === null) {
             TuitController.tuitController = new TuitController();
             app.get('/api/tuits', TuitController.tuitController.findAllTuits);
@@ -156,10 +161,24 @@ export default class TuitController implements TuitControllerI {
      */
     createTuit = (req: Request, res: Response) => {
         // Check if tuit text contains a tag
-        if ('#' in req.body.tuit) {
+        let tuitText = req.body.tuit;
+        if ('#' in tuitText) {
             // Then pull out the tag text,
+            let i, prev = '', tagText = '',
+                start = -1, end = -1;
+            for (i = 0; i < tuitText.length; i++) {
+                if (tuitText[i] == '#' && prev == ' ') {
+                    start = i;
+                }
+                if (start != -1 && tuitText[i] == ' ') {
+                    end = i;
+                }
+                prev = tuitText[i];
+            }
+            tagText = tuitText.slice(start, end);
 
             // Create a tag
+            TuitController.tagController.createTag(tagText); // Should I make this happen with tagDao?
 
             // And make an entry in Tuit2Tag
         }
