@@ -29,6 +29,7 @@ import Tuit2TagDao from "../daos/Tuit2TagDao";
  */
 export default class TuitController implements TuitControllerI {
     private static tagDao: TagDao = TagDao.getInstance();
+    private static tuit2TagDao: Tuit2TagDao = Tuit2TagDao.getInstance();
     private static tuitDao: TuitDao = TuitDao.getInstance();
     private static tuitService: TuitService = TuitService.getInstance();
     private static tuitController: TuitController | null = null;
@@ -185,12 +186,12 @@ export default class TuitController implements TuitControllerI {
             const newTag = await TuitController.tagDao.createTag(almostTag);
             const newTuit = await TuitController.tuitDao.createTuit(req.body);
             // And make an entry in Tuit2Tag
-            TuitController.tuit2TagDao.createTuit2Tag(newTuit._id, newTag._id);
+            TuitController.tuit2TagDao.createTuit2Tag(newTuit._id, newTag._id); // TODO Figure out why I can't access _id
             // Respond with the new tuit
             res.json(newTuit);
         }
         else {
-            TuitController.tuitDao.createTuit(req.body)     // TODO Build in check for tag here (Issue -- 1d)
+            TuitController.tuitDao.createTuit(req.body)
                 .then((tuit: Tuit) => res.json(tuit))
         }
 
@@ -205,7 +206,7 @@ export default class TuitController implements TuitControllerI {
      * tuit JSON body of the new tuit that was inserted into the
      * database
      */
-    createTuitByUser = (req: Request, res: Response) => {
+    createTuitByUser = (req: Request, res: Response) => {                   // TODO Need to add functionality from createTuit() down here
         // @ts-ignore
         let userId = req.params.uid === "me" && req.session['profile'] ?
             // @ts-ignore
@@ -229,7 +230,7 @@ export default class TuitController implements TuitControllerI {
      * @param {Response} res Represents response to client, including update
      * status
      */
-    updateTuit = (req: Request, res: Response) =>                       // TODO Check if tag was removed
+    updateTuit = (req: Request, res: Response) =>                       // TODO Check if tag was removed/added
         TuitController.tuitDao.updateTuit(req.params.tid, req.body)
             .then(status => res.json(status))
 
@@ -240,7 +241,7 @@ export default class TuitController implements TuitControllerI {
      * @param {Response} res Represents response to client, including
      * deletion status
      */
-    deleteTuit = (req: Request, res: Response) =>
+    deleteTuit = (req: Request, res: Response) =>                       // TODO Check if tag present & if it was the last tuit w/that tag
         // Delete tuit with given tuit id
         TuitController.tuitDao.deleteTuit(req.params.tid)
             .then(status => res.json(status))
@@ -253,7 +254,7 @@ export default class TuitController implements TuitControllerI {
      * @param {Response} res Represents response to client, including
      * deletion status
      */
-    deleteTuitByTuitText = (req: Request, res: Response) => {
+    deleteTuitByTuitText = (req: Request, res: Response) => {           // TODO Check if tag present & if it was the last tuit w/that tag
         // Delete tuit or tuits with given text
         TuitController.tuitDao.deleteTuitByTuitText(req.params.text)
             .then(status => res.json(status))
