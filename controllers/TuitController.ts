@@ -241,10 +241,29 @@ export default class TuitController implements TuitControllerI {
      * @param {Response} res Represents response to client, including
      * deletion status
      */
-    deleteTuit = (req: Request, res: Response) =>                       // TODO Check if tag present & if it was the last tuit w/that tag
-        // Delete tuit with given tuit id
-        TuitController.tuitDao.deleteTuit(req.params.tid)
-            .then(status => res.json(status))
+    deleteTuit = (req: Request, res: Response) => {                       // TODO Check if tag present & if it was the last tuit w/that tag
+        const tuitToBeDeleted = TuitController.tuitDao.findTuitById(req.params.tid);
+        const potentialTags = TuitController.tuit2TagDao.findTagsByTuit(req.params.tid);
+
+        // If at least 1 Tag is present in the Tuit
+        if (potentialTags) {
+            for (let i = 0; i < potentialTags.length; i++) {
+                // and if this Tuit is the last one with the Tag
+                if (potentialTags[i].count == 1) {
+                    // Then delete the Tag
+                    TuitController.tagDao.deleteTag(potentialTags[i]._id)
+                }
+                // and delete the Tuit2Tag row
+                TuitController.tuit2TagDao.deleteTuit2TagByTag(potentialTags[i]._id)
+            }
+          // Else if no Tag present
+        } else {
+            // The delete Tuit with given Tuit id
+            TuitController.tuitDao.deleteTuit(req.params.tid)
+                .then(status => res.json(status))
+        }
+
+    }
 
     /**
      * (For testing) Removes a tuit documents with tuit text that matches the
