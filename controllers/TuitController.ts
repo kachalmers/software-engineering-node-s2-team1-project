@@ -230,9 +230,14 @@ export default class TuitController implements TuitControllerI {
      * @param {Response} res Represents response to client, including update
      * status
      */
-    updateTuit = (req: Request, res: Response) =>                       // TODO Check if tag was removed/added
+    updateTuit = (req: Request, res: Response) => {                      // TODO Check if tag was removed/added
+        // Check if there's a tag/tuit row in Tuit2Tag
+        // Check if the tag is no longer present in req.body
+            // If not, then remove the Tuit2Tag row
+            // If it was the last Tuit with that Tag, then delete the tag
         TuitController.tuitDao.updateTuit(req.params.tid, req.body)
             .then(status => res.json(status))
+    }
 
     /**
      * Removes a tuit document from the database.
@@ -256,13 +261,10 @@ export default class TuitController implements TuitControllerI {
                 // and delete the Tuit2Tag row
                 TuitController.tuit2TagDao.deleteTuit2TagByTag(potentialTags[i]._id)
             }
-          // Else if no Tag present
-        } else {
-            // The delete Tuit with given Tuit id
-            TuitController.tuitDao.deleteTuit(req.params.tid)
-                .then(status => res.json(status))
         }
-
+        // Delete Tuit with given Tuit id
+        TuitController.tuitDao.deleteTuit(req.params.tid)
+            .then(status => res.json(status))
     }
 
     /**
