@@ -230,11 +230,47 @@ export default class TuitController implements TuitControllerI {
      * @param {Response} res Represents response to client, including update
      * status
      */
-    updateTuit = (req: Request, res: Response) => {                      // TODO Check if tag was removed/added
+    updateTuit = async (req: Request, res: Response) => {                      // TODO Check if tag was removed/added
         // Check if there's a tag/tuit row in Tuit2Tag
+        const potentialTags = await TuitController.tuit2TagDao.findTagsByTuit(req.params.tid);
         // Check if the tag is no longer present in req.body
+        if (req.body.tuit.includes("#" + potentialTags) == 0) {
             // If not, then remove the Tuit2Tag row
-            // If it was the last Tuit with that Tag, then delete the tag
+            await TuitController.tuit2TagDao.deleteTuit2Tag(req.params.tid, potentialTags._id);
+            // If it was the last Tuit with that Tag,
+            if (potentialTags.count == 1) {
+                // then delete the Tag
+                await TuitController.tagDao.deleteTag(potentialTags._id)
+            }
+        }
+        // Check if a new Tag is present
+        let tuitText = req.body.tuit;
+        if ('#' in tuitText) {
+            // Pull out the tag text,
+            let i, prev = '', tagText = '',
+                start = -1, end = -1;
+            for (i = 0; i < tuitText.length; i++) {
+                if (tuitText[i] == '#' && prev == ' ') {
+                    start = i;
+                }
+                if (start != -1 && tuitText[i] == ' ') {
+                    end = i;
+                    break; // End of tag, stop loop
+                           // (Will need to adjust to handle multiple tags later
+                }
+                prev = tuitText[i];
+            }
+            tagText = tuitText.slice(start, end);
+            const almostTag = {
+                "tag": tagText,
+                "count": 1
+            }
+            // If so,
+            if (tagText) {
+                // then create the Tag
+                await TuitController.tagDao.createTag(almostTag);
+            }
+        }
         TuitController.tuitDao.updateTuit(req.params.tid, req.body)
             .then(status => res.json(status))
     }
@@ -247,7 +283,6 @@ export default class TuitController implements TuitControllerI {
      * deletion status
      */
     deleteTuit = (req: Request, res: Response) => {                       // TODO Check if tag present & if it was the last tuit w/that tag
-        const tuitToBeDeleted = TuitController.tuitDao.findTuitById(req.params.tid);
         const potentialTags = TuitController.tuit2TagDao.findTagsByTuit(req.params.tid);
 
         // If at least 1 Tag is present in the Tuit
