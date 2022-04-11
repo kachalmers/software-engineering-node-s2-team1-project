@@ -236,7 +236,8 @@ export default class TuitController implements TuitControllerI {
         const tuitText = req.body.tuit;
 
         // Check if there's a tag/tuit row in Tuit2Tag
-        const potentialTags = await TuitController.tuit2TagDao.findTagsByTuit(req.params.tid);
+        const potentialTags = await TuitController.tuit2TagDao.findTagsByTuit(req.params.tid);   // TODO This will be a Tuit2Tag array,
+                                                                                                // loop through and get tagIDs.  Then get Tags
         // Check if the tag is no longer present in req.body
         for (let tag in potentialTags) {
             if (tuitText.includes("#" + tag.tag) == 0) {
