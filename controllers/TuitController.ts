@@ -8,6 +8,7 @@ import Tuit from "../models/tuits/Tuit";
 import TuitService from "../services/TuitService";
 import TagDao from "../daos/TagDao";
 import Tuit2TagDao from "../daos/Tuit2TagDao";
+import Tag from "../models/tags/Tag";
 
 /**
  * @class TuitController Implements RESTful Web service API for tuits resource.
@@ -159,34 +160,35 @@ export default class TuitController implements TuitControllerI {
      * the database
      */
     createTuit = async (req: Request, res: Response) => {
-        // Check if tuit text contains a tag
-        let tuitText = req.body.tuit;
+        // Initialize variables
+        const tuitText = req.body.tuit;
+        const splitTuit = tuitText.split();
+        let potentialTags: Array<Tag> = [], almostTag, newTag;
+
+        // Check if Tuit text contains a tag
         if ('#' in tuitText) {
-            // Then pull out the tag text,
-            let i, prev = '', tagText = '',     // Could try using .split() instead
-                start = -1, end = -1;
-            for (i = 0; i < tuitText.length; i++) {
-                if (tuitText[i] == '#' && prev == ' ') {
-                    start = i;
+            // Loop through words
+            for (let word in splitTuit) {
+                // If the first char is #
+                if (word[0] == '#') {
+                    // Prep a Tag (use the word w/o the #)
+                    almostTag = {
+                        "tag": word.slice(1),
+                        "count": 1
+                    }
+                    // Create the tag
+                    newTag = await TuitController.tagDao.createTag(almostTag);
+                    // Add the tag(s) to the array
+                    potentialTags.push(newTag);
                 }
-                if (start != -1 && tuitText[i] == ' ') {
-                    end = i;
-                    break; // End of tag, stop loop
-                           // (Will need to adjust to handle multiple tags later
-                }
-                prev = tuitText[i];
-            }
-            tagText = tuitText.slice(start, end);
-            const almostTag = {
-                "tag": tagText,
-                "count": 1
             }
 
-            // Create a tag & the tuit
-            const newTag = await TuitController.tagDao.createTag(almostTag);
+            // Create the tuit
             const newTuit = await TuitController.tuitDao.createTuit(req.body);
             // And make an entry in Tuit2Tag
-            TuitController.tuit2TagDao.createTuit2Tag(newTuit._id, newTag._id); // TODO Figure out why I can't access _id
+            for (let tag in potentialTags) {
+                TuitController.tuit2TagDao.createTuit2Tag(newTuit._id, tag._id);    // TODO Figure out why I can't access _id
+            }
             // Respond with the new tuit
             res.json(newTuit);
         }
