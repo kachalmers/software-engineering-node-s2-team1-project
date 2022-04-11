@@ -163,7 +163,7 @@ export default class TuitController implements TuitControllerI {
         let tuitText = req.body.tuit;
         if ('#' in tuitText) {
             // Then pull out the tag text,
-            let i, prev = '', tagText = '',
+            let i, prev = '', tagText = '',     // Could try using .split() instead
                 start = -1, end = -1;
             for (i = 0; i < tuitText.length; i++) {
                 if (tuitText[i] == '#' && prev == ' ') {
@@ -241,6 +241,8 @@ export default class TuitController implements TuitControllerI {
             if (potentialTags.count == 1) {
                 // then delete the Tag
                 await TuitController.tagDao.deleteTag(potentialTags._id)
+            } else {
+                //Reduce count
             }
         }
         // Check if a new Tag is present
@@ -292,9 +294,11 @@ export default class TuitController implements TuitControllerI {
                 if (potentialTags[i].count == 1) {
                     // Then delete the Tag
                     TuitController.tagDao.deleteTag(potentialTags[i]._id)
+                } else {
+                    // Reduce count
                 }
                 // and delete the Tuit2Tag row
-                TuitController.tuit2TagDao.deleteTuit2TagByTag(potentialTags[i]._id)
+                TuitController.tuit2TagDao.deleteTuit2Tag(req.params.tid, potentialTags[i]._id)
             }
         }
         // Delete Tuit with given Tuit id
