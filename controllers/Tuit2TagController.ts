@@ -34,35 +34,44 @@ export default class Tuit2TagController implements Tuit2TagControllerI {
     public static getInstance = (app: Express): Tuit2TagController => {
         if (Tuit2TagController.tuit2tagController === null) {
             Tuit2TagController.tuit2tagController = new Tuit2TagController();
-            app.post("api/tuit2tags", Tuit2TagController.tuit2tagController.createTuit2Tag);
-            app.delete("api/tuit2tags/:t2tID", Tuit2TagController.tuit2tagController.deleteTuit2Tag);
+            app.post("/api/tuits/:tuitID/tags/:tagID", Tuit2TagController.tuit2tagController.createTuit2Tag);
+            app.delete("/api/tuits/:tuitID/tags/:tagID", Tuit2TagController.tuit2tagController.deleteTuit2Tag);
+            app.get("/api/tuits/:tuitID/tags/:tagID", Tuit2TagController.tuit2tagController.findTuit2TagsByTuit);
         }
         return Tuit2TagController.tuit2tagController;
     }
 
-    private constructor() {}
+    private constructor() {
+    }
 
-/**
- * Creates a new tuit2tag document in the database.
- * @param {Request} req Represents request from client, including body
- * containing the JSON object for the new tuit2tag to be inserted into
- * the database
- * @param {Response} res Represents response to client, including the
- * body formatted as JSON containing the new tuit2tag that was inserted
- * into the database
- */
-createTuit2Tag = (req: Request, res: Response) =>
-    Tuit2TagController.tuit2tagDao.createTuit2Tag(req.params.tuit, req.params.tag)
-        .then((tuit2tag:Tuit2Tag) => res.json(tuit2tag))
+    /**
+     * Creates a new tuit2tag document in the database.
+     * @param {Request} req Represents request from client, including body
+     * containing the JSON object for the new tuit2tag to be inserted into
+     * the database
+     * @param {Response} res Represents response to client, including the
+     * body formatted as JSON containing the new tuit2tag that was inserted
+     * into the database
+     */
+    createTuit2Tag = (req: Request, res: Response) =>
+        Tuit2TagController.tuit2tagDao.createTuit2Tag(req.params.tuitID, req.params.tagID)
+            .then((tuit2tag: Tuit2Tag) => res.json(tuit2tag))
 
-/**
- * Removes a tuit2tag document from the database
- * @param {Request} req Represents request from client, including the
- * parameter of a primary key for the t2t to be removed
- * @param {Response} res Represents response to client, including
- * tuit2tag deletion status
- */
-deleteTuit2Tag = (req: Request, res: Response) =>
-    Tuit2TagController.tuit2tagDao.deleteTuit2Tag(req.params.t2tID)
-        .then(status => res.send(status))
+    /**
+     * Removes a tuit2tag document from the database
+     * @param {Request} req Represents request from client, including the
+     * parameter of a primary key for the t2t to be removed
+     * @param {Response} res Represents response to client, including
+     * tuit2tag deletion status
+     */
+    deleteTuit2Tag = (req: Request, res: Response) =>
+        Tuit2TagController.tuit2tagDao.deleteTuit2Tag(req.params.tuitID, req.params.tagID)
+            .then(status => res.send(status))
+
+    /**
+     * DO THIS
+     */
+    findTuit2TagsByTuit = (req: Request, res: Response) =>
+        Tuit2TagController.tuit2tagDao.findTuit2TagsByTuit(req.params.tuitID)
+            .then((tuit2tags: Tuit2Tag[]) => res.json(tuit2tags));
 }

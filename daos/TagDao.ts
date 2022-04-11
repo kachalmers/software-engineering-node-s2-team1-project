@@ -63,6 +63,6 @@ export default class TagDao implements TagDaoI {
      * @param {string} tagID Primary key of tag
      * @returns Promise To be notified when the tag is retrieved from database
      */
-    findTagById = async (tagID: Promise<(Document<unknown, any, Tuit2Tag> & Tuit2Tag & { _id: Types.ObjectId })[]>): Promise<any> =>
+    findTagById = async (tagID: string): Promise<any> =>
         TagModel.findById(tagID).exec();
 }

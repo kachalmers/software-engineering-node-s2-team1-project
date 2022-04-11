@@ -10,6 +10,5 @@ export default interface TagDaoI {
     findAllTags(): Promise<Tag[]>;
     findTagByText(tag: string): Promise<any>;
     updateTag(tag: Tag): Promise<any>;
-
-    findTagById(tagID: Promise<(Document<unknown, any, Tuit2Tag> & Tuit2Tag & { _id: Types.ObjectId })[]>): Promise<any>;
+    findTagById(tagID: string): Promise<any>;
 };

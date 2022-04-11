@@ -45,7 +45,7 @@ export default class Tuit2TagDao implements Tuit2TagDaoI {
         Tuit2TagModel.deleteOne({tuit: tuitID, tag: tagID});
 
 
-    findTagsByTuit = async (tid: string): Promise<Tuit2Tag[]> =>
+    findTuit2TagsByTuit = async (tid: string): Promise<Tuit2Tag[]> =>
         Tuit2TagModel.find({tuit: tid})
             .populate("tag")
             .exec();
