@@ -233,48 +233,50 @@ export default class TuitController implements TuitControllerI {
      * status
      */
     updateTuit = async (req: Request, res: Response) => {                      // TODO Check if tag was removed/added
+        const tuitText = req.body.tuit;
+
         // Check if there's a tag/tuit row in Tuit2Tag
         const potentialTags = await TuitController.tuit2TagDao.findTagsByTuit(req.params.tid);
         // Check if the tag is no longer present in req.body
-        if (req.body.tuit.includes("#" + potentialTags) == 0) {
-            // If not, then remove the Tuit2Tag row
-            await TuitController.tuit2TagDao.deleteTuit2Tag(req.params.tid, potentialTags._id);
-            // If it was the last Tuit with that Tag,
-            if (potentialTags.count == 1) {
-                // then delete the Tag
-                await TuitController.tagDao.deleteTag(potentialTags._id)
-            } else {
-                //Reduce count
+        for (let tag in potentialTags) {
+            if (tuitText.includes("#" + tag.tag) == 0) {
+                // If not, then remove the Tuit2Tag row
+                await TuitController.tuit2TagDao.deleteTuit2Tag(req.params.tid, tag._id);
+                // If it was the last Tuit with that Tag,
+                if (tag.count == 1) {
+                    // then delete the Tag
+                    await TuitController.tagDao.deleteTag(tag._id)
+                } else {
+                    //Reduce count
+                    tag.count--;
+                }
             }
         }
+
         // Check if a new Tag is present
-        let tuitText = req.body.tuit;
+        // Initialize variables
+        const splitTuit = tuitText.split();
+        let almostTag, newTag;
+
+        // Check if Tuit text contains a tag
         if ('#' in tuitText) {
-            // Pull out the tag text,
-            let i, prev = '', tagText = '',
-                start = -1, end = -1;
-            for (i = 0; i < tuitText.length; i++) {
-                if (tuitText[i] == '#' && prev == ' ') {
-                    start = i;
+            // Loop through words
+            for (let word in splitTuit) {
+                // If the first char is #
+                if (word[0] == '#') {
+                    // Prep a Tag (use the word w/o the #)
+                    almostTag = {
+                        "tag": word.slice(1),
+                        "count": 1
+                    }
+                    // Create the tag
+                    newTag = await TuitController.tagDao.createTag(almostTag);
+                    // and enter a row in Tuit2Tag
+                    await TuitController.tuit2TagDao.createTuit2Tag(req.params.tid, newTag._id)
                 }
-                if (start != -1 && tuitText[i] == ' ') {
-                    end = i;
-                    break; // End of tag, stop loop
-                           // (Will need to adjust to handle multiple tags later
-                }
-                prev = tuitText[i];
-            }
-            tagText = tuitText.slice(start, end);
-            const almostTag = {
-                "tag": tagText,
-                "count": 1
-            }
-            // If so,
-            if (tagText) {
-                // then create the Tag
-                await TuitController.tagDao.createTag(almostTag);
             }
         }
+        // Always update the Tuit
         TuitController.tuitDao.updateTuit(req.params.tid, req.body)
             .then(status => res.json(status))
     }
@@ -298,6 +300,7 @@ export default class TuitController implements TuitControllerI {
                     TuitController.tagDao.deleteTag(potentialTags[i]._id)
                 } else {
                     // Reduce count
+                    potentialTags[i].count--;
                 }
                 // and delete the Tuit2Tag row
                 TuitController.tuit2TagDao.deleteTuit2Tag(req.params.tid, potentialTags[i]._id)
