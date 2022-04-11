@@ -3,8 +3,10 @@
  */
 
 import Tuit2Tag from "../models/tags/Tuit2Tag";
+import Tag from "../models/tags/Tag";
 
 export default interface Tuit2TagDaoI {
-    createTuit2Tag(tuit: string, tag: string): Promise<Tuit2Tag>;
-    deleteTuit2Tag(t2tID: string): Promise<any>;
+    createTuit2Tag(tuitID: string, tagID: string): Promise<Tuit2Tag>;
+    deleteTuit2Tag(tuitID: string, tagID: string): Promise<any>;
+    findTagsByTuit(tid: string): Promise<Tuit2Tag[]>;
 };
