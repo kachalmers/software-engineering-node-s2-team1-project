@@ -168,15 +168,12 @@ export default class TuitController implements TuitControllerI {
         // Check if Tuit text contains a tag
         if (tuitText.includes('#')) {
             // Loop through words
-            for (let word in splitTuit) {
+            for (let i = 0; i < splitTuit.length; i++) {
                 // If the first char is #
-                console.log("inside for each loop")
-                console.log(word)
-                if (word.charAt(0) === '#') {
+                if (splitTuit[i].charAt(0) === '#') {
                     // Prep a Tag (use the word w/o the #)
-                    console.log("inside if starts w/hashtag condition")
                     almostTag = {
-                        "tag": word.slice(1),
+                        "tag": splitTuit[i].slice(1),
                         "count": 1
                     }
                     // Create the tag
@@ -190,7 +187,6 @@ export default class TuitController implements TuitControllerI {
             const newTuit = await TuitController.tuitDao.createTuit(req.body);
             // And make an entry in Tuit2Tag
             for (let tag in potentialTags) {
-                console.log("Would make a Tuit2Tag entry now.")
                 //TuitController.tuit2TagDao.createTuit2Tag(newTuit._id, tag._id);    // TODO Figure out why I can't access _id
             }
             // Respond with the new tuit
