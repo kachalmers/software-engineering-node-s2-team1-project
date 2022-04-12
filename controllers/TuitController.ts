@@ -162,16 +162,19 @@ export default class TuitController implements TuitControllerI {
     createTuit = async (req: Request, res: Response) => {
         // Initialize variables
         const tuitText = req.body.tuit;
-        const splitTuit = tuitText.split();
+        const splitTuit = tuitText.split(" ");
         let potentialTags: Array<Tag> = [], almostTag, newTag;
 
         // Check if Tuit text contains a tag
-        if ('#' in tuitText) {
+        if (tuitText.includes('#')) {
             // Loop through words
             for (let word in splitTuit) {
                 // If the first char is #
-                if (word[0] == '#') {
+                console.log("inside for each loop")
+                console.log(word)
+                if (word.charAt(0) === '#') {
                     // Prep a Tag (use the word w/o the #)
+                    console.log("inside if starts w/hashtag condition")
                     almostTag = {
                         "tag": word.slice(1),
                         "count": 1
