@@ -7,7 +7,7 @@ import TuitControllerI from "../interfaces/TuitControllerI";
 import Tuit from "../models/tuits/Tuit";
 import TuitService from "../services/TuitService";
 import TagDao from "../daos/TagDao";
-import Tuit2TagDao from "../daos/Tuit2TagDao";
+//import Tuit2TagDao from "../daos/Tuit2TagDao";
 import Tag from "../models/tags/Tag";
 
 /**
@@ -30,7 +30,7 @@ import Tag from "../models/tags/Tag";
  */
 export default class TuitController implements TuitControllerI {
     private static tagDao: TagDao = TagDao.getInstance();
-    private static tuit2TagDao: Tuit2TagDao = Tuit2TagDao.getInstance();
+    //private static tuit2TagDao: Tuit2TagDao = Tuit2TagDao.getInstance();
     private static tuitDao: TuitDao = TuitDao.getInstance();
     private static tuitService: TuitService = TuitService.getInstance();
     private static tuitController: TuitController | null = null;
@@ -187,7 +187,8 @@ export default class TuitController implements TuitControllerI {
             const newTuit = await TuitController.tuitDao.createTuit(req.body);
             // And make an entry in Tuit2Tag
             for (let tag in potentialTags) {
-                TuitController.tuit2TagDao.createTuit2Tag(newTuit._id, tag._id);    // TODO Figure out why I can't access _id
+                console.log("Would make a Tuit2Tag entry now.")
+                //TuitController.tuit2TagDao.createTuit2Tag(newTuit._id, tag._id);    // TODO Figure out why I can't access _id
             }
             // Respond with the new tuit
             res.json(newTuit);
@@ -233,11 +234,11 @@ export default class TuitController implements TuitControllerI {
      * status
      */
     updateTuit = async (req: Request, res: Response) => {                      // TODO Check if tag was removed/added
-        const tuitText = req.body.tuit;
+        /*const tuitText = req.body.tuit;
 
         // Check if there's a tag/tuit row in Tuit2Tag
-        const potentialTags = await TuitController.tuit2TagDao.findTagsByTuit(req.params.tid);   // TODO This will be a Tuit2Tag array,
-                                                                                                // loop through and get tagIDs.  Then get Tags
+        const potentialTags = await TuitController.tuit2TagDao.findTuit2TagsByTuit(req.params.tid);   // TODO This will be a Tuit2Tag array,
+                                                                                                      // loop through and get tagIDs.  Then get Tags
         // Check if the tag is no longer present in req.body
         for (let tag in potentialTags) {
             if (tuitText.includes("#" + tag.tag) == 0) {
@@ -276,7 +277,7 @@ export default class TuitController implements TuitControllerI {
                     await TuitController.tuit2TagDao.createTuit2Tag(req.params.tid, newTag._id)
                 }
             }
-        }
+        }*/
         // Always update the Tuit
         TuitController.tuitDao.updateTuit(req.params.tid, req.body)
             .then(status => res.json(status))
@@ -290,7 +291,7 @@ export default class TuitController implements TuitControllerI {
      * deletion status
      */
     deleteTuit = (req: Request, res: Response) => {                       // TODO Check if tag present & if it was the last tuit w/that tag
-        const potentialTags = TuitController.tuit2TagDao.findTagsByTuit(req.params.tid);
+        /*const potentialTags = TuitController.tuit2TagDao.findTuit2TagsByTuit(req.params.tid);
 
         // If at least 1 Tag is present in the Tuit
         if (potentialTags) {
@@ -306,7 +307,7 @@ export default class TuitController implements TuitControllerI {
                 // and delete the Tuit2Tag row
                 TuitController.tuit2TagDao.deleteTuit2Tag(req.params.tid, potentialTags[i]._id)
             }
-        }
+        }*/
         // Delete Tuit with given Tuit id
         TuitController.tuitDao.deleteTuit(req.params.tid)
             .then(status => res.json(status))
