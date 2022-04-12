@@ -10,4 +10,5 @@ export default interface TagDaoI {
     findAllTags(): Promise<Tag[]>;
     findTagByText(tag: string): Promise<any>;
     updateTag(tag: Tag): Promise<any>;
+    findTagById(tagID: string): Promise<any>;
 };

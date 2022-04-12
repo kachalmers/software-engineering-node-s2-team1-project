@@ -4,7 +4,7 @@
  */
 
 import TagDaoI from "../interfaces/TagDaoI";
-import TagModel from "../mongoose/tag/TagModel";
+import TagModel from "../mongoose/tags/TagModel";
 import Tag from "../models/tags/Tag";
 
 export default class TagDao implements TagDaoI {
@@ -58,4 +58,11 @@ export default class TagDao implements TagDaoI {
     updateTag = async (tag: Tag): Promise<any> =>
         TagModel.updateOne({tag: tag.tag}, {$set: tag})
 
+    /**
+     * Retrieves tag with given primary key.
+     * @param {string} tagID Primary key of tag
+     * @returns Promise To be notified when the tag is retrieved from database
+     */
+    findTagById = async (tagID: string): Promise<any> =>
+        TagModel.findById(tagID).exec();
 }

@@ -13,11 +13,6 @@ import Like from "../models/likes/Like";
  */
 export default class LikeDao implements LikeDaoI {
     private static likeDao: LikeDao | null = null;
-
-    /**
-     * Creates singleton DAO instance for likes.
-     * @returns LikeDao
-     */
     public static getInstance = (): LikeDao => {
         if (LikeDao.likeDao === null) {
             LikeDao.likeDao = new LikeDao();

@@ -26,6 +26,7 @@ import Tag from "../models/tags/Tag";
  * @property {TagController} TagController Singleton controller implementing
  * RESTful Web service API
  */
+
 export default class TagController implements TagControllerI {
     private static tagDao: TagDao = TagDao.getInstance();
     private static tagController: TagController | null = null;
