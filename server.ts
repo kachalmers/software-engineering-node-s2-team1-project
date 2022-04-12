@@ -28,6 +28,7 @@ import FollowController from "./controllers/FollowController";
 import BookmarkController from "./controllers/BookmarkController";
 import MessageController from "./controllers/MessageController";
 import TagController from "./controllers/TagController";
+import Tuit2TagController from "./controllers/Tuit2TagController";
 
 const session = require("express-session");
 dotenv.config();    // Configure environment variables in .env file
@@ -92,6 +93,7 @@ const bookmarkController = BookmarkController.getInstance(app);
 const messageController = MessageController.getInstance(app);
 const authenticationController = AuthenticationController.getInstance(app);
 const tagController = TagController.getInstance(app);
+const tuit2tagController = Tuit2TagController.getInstance(app);
 
 
 /**
