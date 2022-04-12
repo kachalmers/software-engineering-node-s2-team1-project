@@ -8,6 +8,7 @@ import Tuit2TagModel from "../mongoose/tags/Tuit2TagModel";
 import Tuit2Tag from "../models/tags/Tuit2Tag";
 import TagDao from "./TagDao";
 import Tuit from "../models/tuits/Tuit";
+import Tag from "../models/tags/Tag";
 
 export default class Tuit2TagDao implements Tuit2TagDaoI {
     private static tuit2tagDao: Tuit2TagDao | null = null;
@@ -24,6 +25,12 @@ export default class Tuit2TagDao implements Tuit2TagDaoI {
     }
 
     /**
+     * Retrieves all Tuit2Tag documents from the database.
+     */
+    findAllTuit2Tags = async (): Promise<Tuit2Tag[]> =>
+        Tuit2TagModel.find().exec();
+
+    /**
      * Inserts a tuit2tag document into the database.
      * @param {string} tuitID the id of the tuit in the Tuit2Tag to be
      * inserted in the database
@@ -31,8 +38,11 @@ export default class Tuit2TagDao implements Tuit2TagDaoI {
      * inserted in the database
      * @returns Promise To be notified when tuit2tag is inserted
      */
-    createTuit2Tag = async (tuitID: string, tagID: string): Promise<Tuit2Tag> =>
-        Tuit2TagModel.create({tuit: tuitID, tag: tagID});
+    createTuit2Tag = async (tuitID: string, tagID: string): Promise<Tuit2Tag> => {
+        let tuit2tag = await Tuit2TagModel.create({tuit: tuitID, tag: tagID});
+        console.log(tuit2tag.tuit.toString());
+        return tuit2tag;
+    }
 
     /**
      * Removes tuit2tag document from a given tuit ID from the database
@@ -64,18 +74,34 @@ export default class Tuit2TagDao implements Tuit2TagDaoI {
             .populate("tuit")
             .exec();
 
-
-/*
-    findTuit2TagsByTagText = async (tagText: string): Promise<Tuit[]> => {
-        let tuit2tags = await Tuit2TagModel.find({tag: {$elemMatch: {tag: tagText}}})
+    /**
+     * Retrieves all tag documents that have been added as a tag for a tuit
+     * with the given tuitID.
+     * @param {string} tuitID Primary key of tuit
+     */
+    findTagsByTuit = async (tuitID: string): Promise<Tag[]> => {
+        let tuit2tags = await Tuit2TagModel
+            .find({tuit: tuitID})
             .populate("tag")
+            .exec();
+
+        return tuit2tags.map(tuit2tag => tuit2tag.tag);
+    }
+
+    /**
+     * Retrieves all tuit documents that have been tagged with a tag with
+     * the given tag text.
+     * @param {string} tagText Text of tag
+     */
+    findTuitsByTagText = async (tagText: string): Promise<Tuit[]> => {
+        let tag = await Tuit2TagDao.tagDao.findTagByText(tagText);
+
+        let tuit2tags = await Tuit2TagModel
+            .find({tag: tag._id})
+            .populate("tuit")
             .exec();
 
         return tuit2tags.map(tuit2tag => tuit2tag.tuit);
     }
- */
-
-
-
 
 }
