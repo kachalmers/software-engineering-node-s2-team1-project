@@ -271,7 +271,7 @@ export default class TuitController implements TuitControllerI {
 
         // Check if there's a tag/tuit row in Tuit2Tag
         const oldT2T = await TuitController.tuit2TagDao.findTuit2TagsByTuit(req.params.tid);
-        const oldTags = oldT2T.map(oldT2T => oldT2T.tag); // Turn T2T array into tag array
+        const oldTags = oldT2T.map(oldT2T => oldT2T.tag); // Turn T2T array into tag array      // TODO Make sure this mapping works
 
         // Check if the tag is no longer present in req.body
         for (let i = 0; i < oldTags.length; i++) {
