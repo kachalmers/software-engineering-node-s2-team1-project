@@ -208,7 +208,7 @@ export default class TuitController implements TuitControllerI {
      * tuit JSON body of the new tuit that was inserted into the
      * database
      */
-    createTuitByUser = (req: Request, res: Response) => {                   // TODO Need to add functionality from createTuit() down here
+    createTuitByUser = async (req: Request, res: Response) => {                   // TODO Need to add functionality from createTuit() down here
         // @ts-ignore
         let userId = req.params.uid === "me" && req.session['profile'] ?
             // @ts-ignore
@@ -218,9 +218,44 @@ export default class TuitController implements TuitControllerI {
         if (userId === undefined || userId === null) {
             res.sendStatus(403);    // send error status
         } else {
-            // Create tuit to be posted by given user
-            TuitController.tuitDao.createTuitByUser(userId, req.body)
-                .then((tuit: Tuit) => res.json(tuit))
+            // TODO add functionality from above here
+            // Initialize variables
+            const tuitText = req.body.tuit;
+            const splitTuit = tuitText.split(" ");
+            let potentialTags: Array<Tag> = [], almostTag, newTag;
+
+            // Check if Tuit text contains a tag
+            if (tuitText.includes('#')) {
+                // Loop through words
+                for (let i = 0; i < splitTuit.length; i++) {
+                    // If the first char is #
+                    if (splitTuit[i].charAt(0) === '#') {
+                        // Prep a Tag (use the word w/o the #)
+                        almostTag = {
+                            "tag": splitTuit[i].slice(1),
+                            "count": 1
+                        }
+                        // Create the tag
+                        newTag = await TuitController.tagDao.createTag(almostTag);
+                        // Add the tag(s) to the array
+                        potentialTags.push(newTag);
+                    }
+                }
+
+                // Create tuit to be posted by given user
+                const newTuit = await TuitController.tuitDao.createTuitByUser(userId, req.body);
+                // And make an entry in Tuit2Tag
+                for (let tag in potentialTags) {
+                    //TuitController.tuit2TagDao.createTuit2Tag(newTuit._id, tag._id);    // TODO Figure out why I can't access _id
+                }
+                // Respond with the new tuit
+                res.json(newTuit);
+            }
+            else {
+                // Create tuit to be posted by given user
+                TuitController.tuitDao.createTuitByUser(userId, req.body)
+                    .then((tuit: Tuit) => res.json(tuit))
+            }
         }
     }
 
