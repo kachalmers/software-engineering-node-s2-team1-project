@@ -35,7 +35,7 @@ export default class Tuit2TagController implements Tuit2TagControllerI {
         if (Tuit2TagController.tuit2tagController === null) {
             Tuit2TagController.tuit2tagController = new Tuit2TagController();
             app.post("/api/tuits/:tuitID/tags/:tagID", Tuit2TagController.tuit2tagController.createTuit2Tag);
-            app.delete("/api/tuits/:tuitID/tags/:tagID", Tuit2TagController.tuit2tagController.deleteTuit2Tag);
+            app.delete("/api/tuits/:tuitID/tags", Tuit2TagController.tuit2tagController.deleteTuit2Tag);
             app.get("/api/tuits/:tuitID/tags/:tagID", Tuit2TagController.tuit2tagController.findTuit2TagsByTuit);
         }
         return Tuit2TagController.tuit2tagController;
@@ -65,11 +65,15 @@ export default class Tuit2TagController implements Tuit2TagControllerI {
      * tuit2tag deletion status
      */
     deleteTuit2Tag = (req: Request, res: Response) =>
-        Tuit2TagController.tuit2tagDao.deleteTuit2Tag(req.params.tuitID, req.params.tagID)
+        Tuit2TagController.tuit2tagDao.deleteTuit2Tag(req.params.tuitID)
             .then(status => res.send(status))
 
     /**
-     * DO THIS
+     * Finds a t2t document in the database based on its tuit component
+     * @param {Request} req the request from the client, including the
+     * parameter of a primary key for the tuit to be searched
+     * @param {Response} res the response to the client, including the
+     * array of desired tuit2tags
      */
     findTuit2TagsByTuit = (req: Request, res: Response) =>
         Tuit2TagController.tuit2tagDao.findTuit2TagsByTuit(req.params.tuitID)

@@ -4,7 +4,7 @@
  */
 
 import TagDaoI from "../interfaces/TagDaoI";
-import TagModel from "../mongoose/tag/TagModel";
+import TagModel from "../mongoose/tags/TagModel";
 import Tag from "../models/tags/Tag";
 
 export default class TagDao implements TagDaoI {
