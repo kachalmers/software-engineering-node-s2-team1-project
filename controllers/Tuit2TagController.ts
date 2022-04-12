@@ -6,6 +6,8 @@ import {Request, Response, Express} from "express";
 import Tuit2TagDao from "../daos/Tuit2TagDao";
 import Tuit2TagControllerI from "../interfaces/Tuit2TagControllerI";
 import Tuit2Tag from "../models/tags/Tuit2Tag";
+import TagDao from "../daos/TagDao";
+import Tuit from "../models/tuits/Tuit";
 
 /**
  * @class Tuit2TagController Implements RESTful Web service API for the
@@ -25,6 +27,7 @@ import Tuit2Tag from "../models/tags/Tuit2Tag";
 
 export default class Tuit2TagController implements Tuit2TagControllerI {
     private static tuit2tagDao: Tuit2TagDao = Tuit2TagDao.getInstance();
+    private static tagDao: TagDao = TagDao.getInstance();
     private static tuit2tagController: Tuit2TagController | null = null;
     /**
      * Creates a singleton controller instance
@@ -35,8 +38,9 @@ export default class Tuit2TagController implements Tuit2TagControllerI {
         if (Tuit2TagController.tuit2tagController === null) {
             Tuit2TagController.tuit2tagController = new Tuit2TagController();
             app.post("/api/tuits/:tuitID/tags/:tagID", Tuit2TagController.tuit2tagController.createTuit2Tag);
-            app.delete("/api/tuits/:tuitID/tags", Tuit2TagController.tuit2tagController.deleteTuit2Tag);
-            app.get("/api/tuits/:tuitID/tags/:tagID", Tuit2TagController.tuit2tagController.findTuit2TagsByTuit);
+            app.delete("/api/tuits/:tuitID/tags/:tagID", Tuit2TagController.tuit2tagController.deleteTuit2Tag);
+            app.get("/api/tuits/:tuitID/tags", Tuit2TagController.tuit2tagController.findTuit2TagsByTuit);
+            //app.get("/api/tags/:tagText/tuits", Tuit2TagController.tuit2tagController.findTuitsByTagText);
         }
         return Tuit2TagController.tuit2tagController;
     }
@@ -65,7 +69,7 @@ export default class Tuit2TagController implements Tuit2TagControllerI {
      * tuit2tag deletion status
      */
     deleteTuit2Tag = (req: Request, res: Response) =>
-        Tuit2TagController.tuit2tagDao.deleteTuit2Tag(req.params.tuitID)
+        Tuit2TagController.tuit2tagDao.deleteTuit2Tag(req.params.tuitID,req.params.tagID)
             .then(status => res.send(status))
 
     /**
@@ -78,4 +82,30 @@ export default class Tuit2TagController implements Tuit2TagControllerI {
     findTuit2TagsByTuit = (req: Request, res: Response) =>
         Tuit2TagController.tuit2tagDao.findTuit2TagsByTuit(req.params.tuitID)
             .then((tuit2tags: Tuit2Tag[]) => res.json(tuit2tags));
+
+    /**
+     *
+     * @param req
+     * @param res
+     */
+    /*
+    findTuitsByTagText = async (req: Request, res: Response) => {
+        // Find tag by tag text
+        let tag = await Tuit2TagController.tagDao.findTagByText(req.params.tagText);
+
+        // Map all the returned tuit2tags (from DAO) to their corresponding tuits
+        Tuit2TagController.tuit2tagDao.findTuit2TagsByTag(tag._id)
+            // The mapping function maps the tuit2tags to the corresponding tuits
+            .then(tuit2tags => res.json(tuit2tags.map(tuit2tag => tuit2tag.tuit)));
+    }
+     */
+/*
+    findTuitsByTagText = async (req: Request, res: Response) => {
+        Tuit2TagController.tuit2tagDao.findTuit2TagsByTagText(req.params.tagText)
+            .then((tuits: Tuit[]) => res.json(tuits));
+    }
+
+ */
+
+
 }
