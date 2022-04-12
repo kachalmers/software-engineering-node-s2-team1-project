@@ -208,7 +208,7 @@ export default class TuitController implements TuitControllerI {
      * tuit JSON body of the new tuit that was inserted into the
      * database
      */
-    createTuitByUser = async (req: Request, res: Response) => {                   // TODO Need to add functionality from createTuit() down here
+    createTuitByUser = async (req: Request, res: Response) => {
         // @ts-ignore
         let userId = req.params.uid === "me" && req.session['profile'] ?
             // @ts-ignore
@@ -218,7 +218,6 @@ export default class TuitController implements TuitControllerI {
         if (userId === undefined || userId === null) {
             res.sendStatus(403);    // send error status
         } else {
-            // TODO add functionality from above here
             // Initialize variables
             const tuitText = req.body.tuit;
             const splitTuit = tuitText.split(" ");
