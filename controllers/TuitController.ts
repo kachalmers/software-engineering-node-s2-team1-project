@@ -6,6 +6,8 @@ import TuitDao from "../daos/TuitDao";
 import TuitControllerI from "../interfaces/TuitControllerI";
 import Tuit from "../models/tuits/Tuit";
 import TuitService from "../services/TuitService";
+import TagDao from "../daos/TagDao";
+import Tuit2TagDao from "../daos/Tuit2TagDao";
 
 /**
  * @class TuitController Implements RESTful Web service API for tuits resource.
@@ -26,6 +28,8 @@ import TuitService from "../services/TuitService";
  * RESTful Web service API
  */
 export default class TuitController implements TuitControllerI {
+    private static tagDao: TagDao = TagDao.getInstance();
+    private static tuit2TagDao: Tuit2TagDao = Tuit2TagDao.getInstance();
     private static tuitDao: TuitDao = TuitDao.getInstance();
     private static tuitService: TuitService = TuitService.getInstance();
     private static tuitController: TuitController | null = null;
@@ -46,7 +50,7 @@ export default class TuitController implements TuitControllerI {
             app.post("/api/users/:uid/tuits", TuitController.tuitController.createTuitByUser);
             app.put('/api/tuits/:tid', TuitController.tuitController.updateTuit);
             app.delete('/api/tuits/:tid', TuitController.tuitController.deleteTuit);
-            app.delete('/api/tuits/text/:text', TuitController.tuitController.deleteTuitByTuitText)
+            //app.delete('/api/tuits/text/:text', TuitController.tuitController.deleteTuitByTuitText)
         }
         return TuitController.tuitController
     }
@@ -154,9 +158,41 @@ export default class TuitController implements TuitControllerI {
      * body formatted as JSON containing the new tuit that was inserted into
      * the database
      */
-    createTuit = (req: Request, res: Response) =>
-        TuitController.tuitDao.createTuit(req.body)     // TODO Build in check for tag here (Issue -- 1d)
-            .then((tuit: Tuit) => res.json(tuit))
+    createTuit = async (req: Request, res: Response) => {
+        // Initialize variables
+        const tuitText = req.body.tuit;
+        const splitTuit = tuitText.split(" ");
+        let almostTag;
+        let newTag;
+
+        // Always create the Tuit
+        const tuit2Return = await TuitController.tuitDao.createTuit(req.body);
+        // Find the newly created Tuit
+        const newTuit = await TuitController.tuitDao.findTuitByText(tuitText);
+
+        // Check if Tuit text contains a tag
+        if (tuitText.includes('#')) {
+            // Loop through words
+            for (let i = 0; i < splitTuit.length; i++) {
+                // If the first char is #
+                if (splitTuit[i].charAt(0) === '#') {
+                    // Prep a Tag (use the word w/o the #)
+                    almostTag = {
+                        "tag": splitTuit[i].slice(1),
+                        "count": 1
+                    }
+                    // Create the tag
+                    await TuitController.tagDao.createTag(almostTag);
+                    // Find the newly created Tag
+                    newTag = await TuitController.tagDao.findTagByText(almostTag.tag);
+                    // and make an entry in Tuit2Tag
+                    await TuitController.tuit2TagDao.createTuit2Tag(newTuit._id, newTag._id);
+                }
+            }
+        }
+        // Always respond with the new tuit
+        res.json(tuit2Return);
+    }
 
     /**
      * Creates a new tuit document in the database.
@@ -167,7 +203,7 @@ export default class TuitController implements TuitControllerI {
      * tuit JSON body of the new tuit that was inserted into the
      * database
      */
-    createTuitByUser = (req: Request, res: Response) => {
+    createTuitByUser = async (req: Request, res: Response) => {
         // @ts-ignore
         let userId = req.params.uid === "me" && req.session['profile'] ?
             // @ts-ignore
@@ -177,9 +213,38 @@ export default class TuitController implements TuitControllerI {
         if (userId === undefined || userId === null) {
             res.sendStatus(403);    // send error status
         } else {
-            // Create tuit to be posted by given user
-            TuitController.tuitDao.createTuitByUser(userId, req.body)
-                .then((tuit: Tuit) => res.json(tuit))
+            // Initialize variables
+            const tuitText = req.body.tuit;
+            const splitTuit = tuitText.split(" ");
+            let almostTag, newTag;
+
+            // Always create tuit to be posted by given user
+            const tuit2Return = await TuitController.tuitDao.createTuit(req.body);
+            // Find the newly created Tuit
+            const newTuit = await TuitController.tuitDao.findTuitByText(tuitText);
+
+            // Check if Tuit text contains a tag
+            if (tuitText.includes('#')) {
+                // Loop through words
+                for (let i = 0; i < splitTuit.length; i++) {
+                    // If the first char is #
+                    if (splitTuit[i].charAt(0) === '#') {
+                        // Prep a Tag (use the word w/o the #)
+                        almostTag = {
+                            "tag": splitTuit[i].slice(1),
+                            "count": 1
+                        }
+                        // Create the tag
+                        await TuitController.tagDao.createTag(almostTag);
+                        // Find the newly created Tag
+                        newTag = await TuitController.tagDao.findTagByText(almostTag.tag);
+                        // and make an entry in Tuit2Tag
+                        await TuitController.tuit2TagDao.createTuit2Tag(newTuit._id, newTag._id);
+                    }
+                }
+            }
+            // Always respond with the new tuit
+            res.json(tuit2Return);
         }
     }
 
@@ -191,9 +256,65 @@ export default class TuitController implements TuitControllerI {
      * @param {Response} res Represents response to client, including update
      * status
      */
-    updateTuit = (req: Request, res: Response) =>                       // TODO Check if tag was removed
+    updateTuit = async (req: Request, res: Response) => {
+        const tuitText = req.body.tuit;
+
+        // Check if there's a tag/tuit row in Tuit2Tag
+        const oldT2T = await TuitController.tuit2TagDao.findTuit2TagsByTuit(req.params.tid);
+        const oldTags = oldT2T.map((oldT2T: { tag: any; }) => oldT2T.tag); // Turn T2T array into tag array
+        console.log(oldT2T);
+        console.log(oldTags);
+
+        // Check if the tag is no longer present in req.body
+        for (let i = 0; i < oldTags.length; i++) {
+            console.log(oldTags[i]._id);
+            if (tuitText.includes("#" + oldTags[i].tag) == 0) {
+                console.log("Inside for loop")
+                // If not, then remove the Tuit2Tag row
+                await TuitController.tuit2TagDao.deleteTuit2Tag(req.params.tid, oldTags[i]._id);
+                // If it was the last Tuit with that Tag,
+                if (oldTags[i].count === 1) {
+                    // then delete the Tag
+                    await TuitController.tagDao.deleteTag(oldTags[i]._id)
+                } else {
+                    //Reduce count
+                    oldTags[i].count--;
+                }
+            }
+        }
+
+        // Check if a new Tag is present
+        // Initialize variables
+        const splitTuit = tuitText.split(" ");
+        let almostTag, newTag;
+
+        // Check if Tuit text contains a tag
+        if (tuitText.includes('#')) {
+            // Loop through words
+            for (let i = 0; i < splitTuit.length; i++) {
+                // If the first char is #
+                if (splitTuit[i].charAt(0) === '#') {
+                    // Prep a Tag (use the word w/o the #)
+                    almostTag = {
+                        "tag": splitTuit[i].slice(1),
+                        "count": 1
+                    }
+                    // If the almost tag is a new one
+                    if (oldTags.includes(almostTag.tag) == 0) {
+                        // Create the tag
+                        await TuitController.tagDao.createTag(almostTag);
+                        // Find the newly created Tag
+                        newTag = await TuitController.tagDao.findTagByText(almostTag.tag);
+                        // and make an entry in Tuit2Tag
+                        await TuitController.tuit2TagDao.createTuit2Tag(req.params.tid, newTag._id);
+                    }
+                }
+            }
+        }
+        // Always update the Tuit
         TuitController.tuitDao.updateTuit(req.params.tid, req.body)
             .then(status => res.json(status))
+    }
 
     /**
      * Removes a tuit document from the database.
@@ -202,10 +323,29 @@ export default class TuitController implements TuitControllerI {
      * @param {Response} res Represents response to client, including
      * deletion status
      */
-    deleteTuit = (req: Request, res: Response) =>
-        // Delete tuit with given tuit id
-        TuitController.tuitDao.deleteTuit(req.params.tid)
+    deleteTuit = async (req: Request, res: Response) => {
+        const oldT2T = await TuitController.tuit2TagDao.findTuit2TagsByTuit(req.params.tid);
+        const potentialTags = oldT2T.map((oldT2T: { tag: any; }) => oldT2T.tag); // Turn T2T array into tag array
+
+        // If at least 1 Tag is present in the Tuit
+        if (potentialTags) {
+            for (let i = 0; i < potentialTags.length; i++) {
+                // and if this Tuit is the last one with the Tag
+                if (potentialTags[i].count === 1) {
+                    // Then delete the Tag
+                    await TuitController.tagDao.deleteTag(potentialTags[i]._id)
+                } else {
+                    // Reduce count
+                    potentialTags[i].count--;
+                }
+                // and delete the Tuit2Tag row
+                await TuitController.tuit2TagDao.deleteTuit2Tag(req.params.tid, potentialTags[i]._id)
+            }
+        }
+        // Delete Tuit with given Tuit id
+        await TuitController.tuitDao.deleteTuit(req.params.tid)
             .then(status => res.json(status))
+    }
 
     /**
      * (For testing) Removes a tuit documents with tuit text that matches the
@@ -215,9 +355,33 @@ export default class TuitController implements TuitControllerI {
      * @param {Response} res Represents response to client, including
      * deletion status
      */
-    deleteTuitByTuitText = (req: Request, res: Response) => {
+    /*deleteTuitByTuitText = async (req: Request, res: Response) => {           // TODO Check if tag present & if it was the last tuit w/that tag
+        const tuit2BeDeleted = await TuitController.tuitDao.findTuitByText(req.params.tuitText);
+        console.log(tuit2BeDeleted);
+        const oldT2T = await TuitController.tuit2TagDao.findTuit2TagsByTuit(tuit2BeDeleted._id);
+        const potentialTags = oldT2T.map((oldT2T: { tag: any; }) => oldT2T.tag); // Turn T2T array into tag array
+
+        console.log(tuit2BeDeleted);
+        console.log(oldT2T);
+        console.log(potentialTags);
+
+        // If at least 1 Tag is present in the Tuit
+        if (potentialTags) {
+            for (let i = 0; i < potentialTags.length; i++) {
+                // and if this Tuit is the last one with the Tag
+                if (potentialTags[i].count === 1) {
+                    // Then delete the Tag
+                    await TuitController.tagDao.deleteTag(potentialTags[i]._id)
+                } else {
+                    // Reduce count
+                    potentialTags[i].count--;
+                }
+                // and delete the Tuit2Tag row
+                await TuitController.tuit2TagDao.deleteTuit2Tag(tuit2BeDeleted._id, potentialTags[i]._id)
+            }
+        }
         // Delete tuit or tuits with given text
-        TuitController.tuitDao.deleteTuitByTuitText(req.params.text)
+        await TuitController.tuitDao.deleteTuitByTuitText(req.params.tuitText)
             .then(status => res.json(status))
-    }
+    }*/
 }

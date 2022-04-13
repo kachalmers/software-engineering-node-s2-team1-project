@@ -5,6 +5,7 @@
 import Tuit from "../models/tuits/Tuit";
 import TuitDaoI from "../interfaces/TuitDaoI";
 import TuitModel from "../mongoose/tuits/TuitModel";
+import TagModel from "../mongoose/tags/TagModel";
 
 /**
  * @class TuitDao Implements Data Access Object managing data storage
@@ -57,6 +58,14 @@ export default class TuitDao implements TuitDaoI {
      */
     findTuitById = async (tid: string): Promise<any> =>
         TuitModel.findById(tid).populate("postedBy").exec();
+
+    /**
+     * Finds tuit document with given tuit text from the database.
+     * @param {string} tuitText Tuit text
+     * @returns Promise To be notified when tuit is found from the database
+     */
+    findTuitByText = async (tuitText: string): Promise<any> =>
+        TuitModel.findOne({tuit: tuitText});
 
     /**
      * Inserts tuit document into the database.
