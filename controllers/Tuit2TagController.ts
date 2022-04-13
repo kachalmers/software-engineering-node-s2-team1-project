@@ -8,6 +8,7 @@ import Tuit2TagControllerI from "../interfaces/Tuit2TagControllerI";
 import Tuit2Tag from "../models/tags/Tuit2Tag";
 import TagDao from "../daos/TagDao";
 import Tuit from "../models/tuits/Tuit";
+import User from "../models/users/User";
 
 /**
  * @class Tuit2TagController Implements RESTful Web service API for the
@@ -39,6 +40,7 @@ export default class Tuit2TagController implements Tuit2TagControllerI {
             Tuit2TagController.tuit2tagController = new Tuit2TagController();
             app.post("/api/tuits/:tuitID/tags/:tagID", Tuit2TagController.tuit2tagController.createTuit2Tag);
             app.delete("/api/tuits/:tuitID/tags/:tagID", Tuit2TagController.tuit2tagController.deleteTuit2Tag);
+            app.get('/api/tuit2tags', Tuit2TagController.tuit2tagController.findAllTuit2Tags);
             app.get("/api/tuits/:tuitID/tags", Tuit2TagController.tuit2tagController.findTuit2TagsByTuit);
             //app.get("/api/tags/:tagText/tuits", Tuit2TagController.tuit2tagController.findTuitsByTagText);
         }
@@ -71,6 +73,16 @@ export default class Tuit2TagController implements Tuit2TagControllerI {
     deleteTuit2Tag = (req: Request, res: Response) =>
         Tuit2TagController.tuit2tagDao.deleteTuit2Tag(req.params.tuitID,req.params.tagID)
             .then(status => res.send(status))
+
+    /**
+     * Retrieves all Tuit2Tag documents from the database.
+     * @param {Request} req Represents request from client
+     * @param {Response} res Represents response to client, including the
+     * body formatted as JSON arrays containing the Tuit2Tag objects
+     */
+    findAllTuit2Tags = (req: Request, res: Response) =>
+        Tuit2TagController.tuit2tagDao.findAllTuit2Tags()
+            .then((tuit2tags: Tuit2Tag[]) => res.json(tuit2tags));
 
     /**
      * Finds a t2t document in the database based on its tuit component

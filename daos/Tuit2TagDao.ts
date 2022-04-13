@@ -8,6 +8,8 @@ import Tuit2TagModel from "../mongoose/tags/Tuit2TagModel";
 import Tuit2Tag from "../models/tags/Tuit2Tag";
 import TagDao from "./TagDao";
 import Tuit from "../models/tuits/Tuit";
+import User from "../models/users/User";
+import UserModel from "../mongoose/users/UserModel";
 
 export default class Tuit2TagDao implements Tuit2TagDaoI {
     private static tuit2tagDao: Tuit2TagDao | null = null;
@@ -43,13 +45,21 @@ export default class Tuit2TagDao implements Tuit2TagDaoI {
     deleteTuit2Tag = async (tuitID: string, tagID: string): Promise<any> =>
         Tuit2TagModel.deleteMany({tuit: tuitID, tag: tagID});
 
+    /**
+     * Retrieves all tuit2tag documents from the database.
+     * @returns Promise To be notified when the tuit2tags are retrieved from
+     * database
+     */
+    findAllTuit2Tags = async (): Promise<Tuit2Tag[]> =>
+        Tuit2TagModel.find().exec();
+
 
     /**
      * Returns an array of t2ts from the database where the given tuit
      * is its tuit component
      * @param {string} tid the primary key of the tuit
      */
-    findTuit2TagsByTuit = async (tuitID: string): Promise<Tuit2Tag[]> =>
+    findTuit2TagsByTuit = async (tuitID: string): Promise<any> =>
         Tuit2TagModel.find({tuit: tuitID})
             .populate("tag")
             .exec();
