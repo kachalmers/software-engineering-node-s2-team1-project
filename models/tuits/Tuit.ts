@@ -3,6 +3,7 @@
  */
 import User from '../users/User'
 import Stats from "./Stats";
+import { ObjectId } from 'mongoose';
 
 /**
  * @typedef Tuit Represents tuit
@@ -11,6 +12,7 @@ import Stats from "./Stats";
  * @property {Date} postedOn The date of this tuit posted on
  */
 export default interface Tuit {
+    _id: ObjectId,
     tuit: string,
     postedBy: User,
     postedOn?: Date,

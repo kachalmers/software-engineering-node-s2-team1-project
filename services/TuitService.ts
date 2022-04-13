@@ -3,6 +3,8 @@
  */
 import LikeDao from "../daos/LikeDao";
 import DislikeDao from "../daos/DislikeDao";
+import TagDao from "../daos/TagDao";
+import Tuit2TagDao from "../daos/Tuit2TagDao";
 import Tuit from "../models/tuits/Tuit";
 
 /**
@@ -13,6 +15,9 @@ export default class TuitService {
     public static tuitService: TuitService | null = null;
     private static likeDao: LikeDao = LikeDao.getInstance();
     private static dislikeDao: DislikeDao = DislikeDao.getInstance();
+    private static tagDao: TagDao = TagDao.getInstance();
+    private static tuit2TagDao: Tuit2TagDao = Tuit2TagDao.getInstance();
+
     /**
      * Creates singleton TuitService instance.
      * @returns TuitService
@@ -24,7 +29,8 @@ export default class TuitService {
         return TuitService.tuitService;
     }
 
-    private constructor() {}
+    private constructor() {
+    }
 
     /**
      * Loop through given tuits and check for tuit-user relationships,
@@ -64,13 +70,17 @@ export default class TuitService {
         // Store array of ids of likes of tuits by user
         const allLikesOfTuitsByUserIds = allLikesOfTuitsByUser
             .map((like) => {
-                if (like) { return like.tuit.toString(); }
+                if (like) {
+                    return like.tuit.toString();
+                }
             })
 
         // Store array of ids of dislikes of tuits by user
         const allDislikesOfTuitsByUserIds = allDislikesOfTuitsByUser
             .map((dislike) => {
-                if (dislike) { return dislike.tuit.toString(); }
+                if (dislike) {
+                    return dislike.tuit.toString();
+                }
             })
 
         const markedTuits = tuits.map((tuit: any) => {
@@ -94,5 +104,37 @@ export default class TuitService {
             return tuitCopy;
         })
         return markedTuits;
+    }
+
+    public createTagsAndTuit2TagsForTuit = async (newTuit: Tuit): Promise<any> => {
+        const tuitText = newTuit.tuit;
+        const newTuitId = newTuit._id.toString();
+
+        // Check if Tuit text contains a tag
+        if (tuitText.includes('#')) {
+            const splitTuit = tuitText.split(" ");
+
+            let almostTag;  // initialize tag to feed into createTag
+            let newTag; // initialize tag to be found by tag text after created
+
+            // Loop through words
+            for (let i = 0; i < splitTuit.length; i++) {
+                // If the first char is #
+                if (splitTuit[i].charAt(0) === '#') {
+                    // Prep a Tag (use the word w/o the #)
+                    almostTag = {
+                        "tag": splitTuit[i].slice(1),
+                        "count": 1
+                    }
+                    // Create the tag
+                    await TuitService.tagDao.createTag(almostTag);
+                    // Find the newly created Tag
+                    newTag = await TuitService.tagDao.findTagByText(almostTag.tag);
+                    // and make an entry in Tuit2Tag
+                    await TuitService.tuit2TagDao.createTuit2Tag(newTuitId, newTag._id);
+                }
+            }
+        }
+        return;
     }
 }
