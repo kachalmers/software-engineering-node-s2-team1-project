@@ -38,11 +38,8 @@ export default class Tuit2TagDao implements Tuit2TagDaoI {
      * inserted in the database
      * @returns Promise To be notified when tuit2tag is inserted
      */
-    createTuit2Tag = async (tuitID: string, tagID: string): Promise<Tuit2Tag> => {
-        let tuit2tag = await Tuit2TagModel.create({tuit: tuitID, tag: tagID});
-        console.log(tuit2tag.tuit.toString());
-        return tuit2tag;
-    }
+    createTuit2Tag = async (tuitID: string, tagID: string): Promise<Tuit2Tag> =>
+        Tuit2TagModel.create({tuit: tuitID, tag: tagID});
 
     /**
      * Removes tuit2tag document from a given tuit ID from the database

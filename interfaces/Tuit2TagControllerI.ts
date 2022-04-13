@@ -6,4 +6,5 @@ export default interface Tuit2TagControllerI {
     findTagsByTuit(req: Request, res: Response): void;
     findTuitsByTagText(req: Request, res: Response): void;
     findAllTuit2Tags(req: Request, res: Response): void;
+    findTuit2TagsByTuit(req: Request, res: Response): void;
 };

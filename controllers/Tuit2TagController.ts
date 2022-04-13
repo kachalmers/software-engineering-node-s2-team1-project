@@ -43,6 +43,7 @@ export default class Tuit2TagController implements Tuit2TagControllerI {
             app.delete("/api/tuits/:tuitID/tags/:tagID", Tuit2TagController.tuit2tagController.deleteTuit2Tag);
             app.get("/api/tags/:tagText/tuits", Tuit2TagController.tuit2tagController.findTuitsByTagText);
             app.get("/api/tuits/:tuitID/tags", Tuit2TagController.tuit2tagController.findTagsByTuit);
+            app.get("/api/tuit2tags/tuits/:tuitID", Tuit2TagController.tuit2tagController.findTuit2TagsByTuit);
             app.get("/api/tuit2tags",Tuit2TagController.tuit2tagController.findAllTuit2Tags);
         }
         return Tuit2TagController.tuit2tagController;
@@ -74,6 +75,17 @@ export default class Tuit2TagController implements Tuit2TagControllerI {
     deleteTuit2Tag = (req: Request, res: Response) =>
         Tuit2TagController.tuit2tagDao.deleteTuit2Tag(req.params.tuitID,req.params.tagID)
             .then(status => res.send(status))
+
+    /**
+     * Retrieves all tuit2tag documents for a tuit with the given primary key.
+     * @param {Request} req Represents request from client, including the
+     * parameter of a primary key for the tuit for which tags are to be
+     * retrieved
+     * @param {Response} res Represents response to client
+     */
+    findTuit2TagsByTuit = async (req: Request, res: Response) =>
+        Tuit2TagController.tuit2tagDao.findTuit2TagsByTuit(req.params.tuitID)
+            .then((tuit2tags: Tuit2Tag[]) => res.json(tuit2tags));
 
     /**
      * Retrieves all tags in a tuit with the given primary key.
