@@ -217,10 +217,12 @@ export default class TuitController implements TuitControllerI {
             // Initialize variables
             const tuitText = req.body.tuit;
             const splitTuit = tuitText.split(" ");
-            let potentialTags: Array<Tag> = [], almostTag, newTag;
+            let almostTag, newTag;
 
-            // Create tuit to be posted by given user
-            const newTuit = await TuitController.tuitDao.createTuitByUser(userId, req.body);
+            // Always create tuit to be posted by given user
+            const tuit2Return = await TuitController.tuitDao.createTuit(req.body);
+            // Find the newly created Tuit
+            const newTuit = await TuitController.tuitDao.findTuitByText(tuitText);
 
             // Check if Tuit text contains a tag
             if (tuitText.includes('#')) {
@@ -234,15 +236,16 @@ export default class TuitController implements TuitControllerI {
                             "count": 1
                         }
                         // Create the tag
-                        newTag = await TuitController.tagDao.createTag(almostTag);
+                        await TuitController.tagDao.createTag(almostTag);
+                        // Find the newly created Tag
+                        newTag = await TuitController.tagDao.findTagByText(almostTag.tag);
                         // and make an entry in Tuit2Tag
-                        //TuitController.tuit2TagDao.createTuit2Tag(newTuit._id, tag._id);
-
+                        await TuitController.tuit2TagDao.createTuit2Tag(newTuit._id, newTag._id);
                     }
                 }
             }
             // Always respond with the new tuit
-            res.json(newTuit);
+            res.json(tuit2Return);
         }
     }
 
