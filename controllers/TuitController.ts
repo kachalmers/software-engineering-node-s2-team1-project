@@ -166,8 +166,9 @@ export default class TuitController implements TuitControllerI {
         let almostTag;
         let newTag;
 
-        // Always create the tuit
+        // Always create the Tuit
         const tuit2Return = await TuitController.tuitDao.createTuit(req.body);
+        // Find the newly created Tuit
         const newTuit = await TuitController.tuitDao.findTuitByText(tuitText);
 
         // Check if Tuit text contains a tag
@@ -183,10 +184,9 @@ export default class TuitController implements TuitControllerI {
                     }
                     // Create the tag
                     await TuitController.tagDao.createTag(almostTag);
+                    // Find the newly created Tag
                     newTag = await TuitController.tagDao.findTagByText(almostTag.tag);
                     // and make an entry in Tuit2Tag
-                    console.log(newTuit);
-                    console.log(newTag);
                     await TuitController.tuit2TagDao.createTuit2Tag(newTuit._id, newTag._id);
                 }
             }
