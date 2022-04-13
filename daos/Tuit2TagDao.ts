@@ -91,12 +91,15 @@ export default class Tuit2TagDao implements Tuit2TagDaoI {
      * @param {string} tagText Text of tag
      */
     findTuitsByTagText = async (tagText: string): Promise<Tuit[]> => {
-        let tag = await Tuit2TagDao.tagDao.findTagByText(tagText);
+        const tag = await Tuit2TagDao.tagDao.findTagByText(tagText);
+        let tuit2tags : Tuit2Tag[] = [];
 
-        let tuit2tags = await Tuit2TagModel
-            .find({tag: tag._id})
-            .populate("tuit")
-            .exec();
+        if (tag !== null) {
+            tuit2tags = await Tuit2TagModel
+                .find({tag: tag._id})
+                .populate("tuit")
+                .exec();
+        }
 
         return tuit2tags.map(tuit2tag => tuit2tag.tuit);
     }
