@@ -8,6 +8,7 @@ import Tuit from "../models/tuits/Tuit";
 import TuitService from "../services/TuitService";
 import TagDao from "../daos/TagDao";
 import Tuit2TagDao from "../daos/Tuit2TagDao";
+import Tag from "../models/tags/Tag";
 
 /**
  * @class TuitController Implements RESTful Web service API for tuits resource.
@@ -45,6 +46,7 @@ export default class TuitController implements TuitControllerI {
             TuitController.tuitController = new TuitController();
             app.get('/api/tuits', TuitController.tuitController.findAllTuits);
             app.get('/api/tuits/:tid', TuitController.tuitController.findTuitById);
+            app.get('/api/tuits/text', TuitController.tuitController.findTuitByText);
             app.get('/api/users/:uid/tuits', TuitController.tuitController.findTuitsByUser);
             app.post('/api/tuits', TuitController.tuitController.createTuit);
             app.post("/api/users/:uid/tuits", TuitController.tuitController.createTuitByUser);
@@ -119,6 +121,19 @@ export default class TuitController implements TuitControllerI {
             TuitController.tuitDao.findTuitById(req.params.tid)
                 .then((tuit: Tuit) => res.json(tuit));
         }
+    }
+
+    /**
+     * Retrieves all tuit documents from the database.
+     * @param {Request} req Represents request from client
+     * @param {Response} res Represents response to client, including the
+     * body formatted as a JSON array of tuit objects
+     */
+    findTuitByText = async (req: Request, res: Response) => {
+        console.log(req.body.tuit);
+        const tuit : Tuit = await TuitController.tuitDao.findTuitByText(req.body.tuit)
+        console.log(tuit);
+        res.json(tuit);
     }
 
     /**
