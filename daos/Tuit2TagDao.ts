@@ -59,7 +59,7 @@ export default class Tuit2TagDao implements Tuit2TagDaoI {
      * is its tuit component
      * @param {string} tid the primary key of the tuit
      */
-    findTuit2TagsByTuit = async (tuitID: string): Promise<Tuit2Tag[]> =>
+    findTuit2TagsByTuit = async (tuitID: string): Promise<any> =>
         Tuit2TagModel.find({tuit: tuitID})
             .populate("tag")
             .exec();
