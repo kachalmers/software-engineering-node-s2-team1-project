@@ -65,8 +65,8 @@ export default class TagDao implements TagDaoI {
      * @param {string} tagID Primary key of tag
      * @returns Promise To be notified when the tag is retrieved from database
      */
-    findTagById = async (tagID: string): Promise<any> =>
-        TagModel.findById(tagID).exec();
+    /*findTagById = async (tagID: string): Promise<any> =>
+        TagModel.findById(tagID).exec();*/
 
     /**
      * Retrieves tag documents with given tag text from the database.
