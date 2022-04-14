@@ -8,6 +8,8 @@ import Tuit from "../models/tuits/Tuit";
 import TuitService from "../services/TuitService";
 import TagDao from "../daos/TagDao";
 import Tuit2TagDao from "../daos/Tuit2TagDao";
+import Tuit2Tag from "../models/tags/Tuit2Tag";
+import Tag from "../models/tags/Tag";
 
 /**
  * @class TuitController Implements RESTful Web service API for tuits resource.
@@ -50,7 +52,7 @@ export default class TuitController implements TuitControllerI {
             app.post("/api/users/:uid/tuits", TuitController.tuitController.createTuitByUser);
             app.put('/api/tuits/:tid', TuitController.tuitController.updateTuit);
             app.delete('/api/tuits/:tid', TuitController.tuitController.deleteTuit);
-            //app.delete('/api/tuits/text/:text', TuitController.tuitController.deleteTuitByTuitText)
+            app.delete('/api/tuits', TuitController.tuitController.deleteTuitsByTuitText)
         }
         return TuitController.tuitController
     }
@@ -203,7 +205,6 @@ export default class TuitController implements TuitControllerI {
         }
     }
 
-
     /**
      * Updates a tuit document.
      * @param {Request} req Represents request from client, including path
@@ -217,15 +218,11 @@ export default class TuitController implements TuitControllerI {
 
         // Check if there's a tag/tuit row in Tuit2Tag
         const oldT2Ts = await TuitController.tuit2TagDao.findTuit2TagsByTuit(req.params.tid);
-        const oldTags = oldT2Ts.map((oldT2Ts: { tag: any; }) => oldT2Ts.tag); // Turn T2T array into tag array
-        console.log(oldT2Ts);
-        console.log(oldTags);
-
+        const oldTags = oldT2Ts.map((oldT2T: { tag: any; }) => oldT2T.tag); // Turn T2T array into tag array
+        const oldTagTexts = oldTags.map((oldTag) => oldTag.tag);
         // Check if the tag is no longer present in req.body
         for (let i = 0; i < oldTags.length; i++) {
-            console.log(oldTags[i]._id);
             if (tuitText.includes("#" + oldTags[i].tag) == 0) {
-                console.log("Inside for loop")
                 // If not, then remove the Tuit2Tag row
                 await TuitController.tuit2TagDao.deleteTuit2Tag(req.params.tid, oldTags[i]._id);
                 // If it was the last Tuit with that Tag,
@@ -256,7 +253,7 @@ export default class TuitController implements TuitControllerI {
                         "count": 1
                     }
                     // If the almost tag is a new one
-                    if (oldTags.includes(almostTag.tag) === false) {
+                    if (oldTagTexts.includes(almostTag.tag)===false) {
                         // Create the tag
                         await TuitController.tagDao.createTag(almostTag);
                         // Find the newly created Tag
@@ -284,7 +281,7 @@ export default class TuitController implements TuitControllerI {
         const potentialTags = oldT2Ts.map((oldT2Ts: { tag: any; }) => oldT2Ts.tag); // Turn T2T array into tag array
 
         // If at least 1 Tag is present in the Tuit
-        if (potentialTags) {
+        if (potentialTags && potentialTags[0] !== null) {
             for (let i = 0; i < potentialTags.length; i++) {
                 // and if this Tuit is the last one with the Tag
                 if (potentialTags[i].count === 1) {
@@ -304,40 +301,63 @@ export default class TuitController implements TuitControllerI {
     }
 
     /**
-     * (For testing) Removes a tuit documents with tuit text that matches the
-     * given text.
+     * (For testing) Removes tuit documents with tuit text that matches the
+     * given text. Also removes the tuits' corresponding tuit2tags.
      * @param {Request} req Represents request from client, including path
      * parameter text (text of the tuit(s) to be removed)
      * @param {Response} res Represents response to client, including
      * deletion status
      */
-    /*deleteTuitByTuitText = async (req: Request, res: Response) => {           // TODO Check if tag present & if it was the last tuit w/that tag
-        const tuit2BeDeleted = await TuitController.tuitDao.findTuitByText(req.params.tuitText);
-        console.log(tuit2BeDeleted);
-        const oldT2Ts = await TuitController.tuit2TagDao.findTuit2TagsByTuit(tuit2BeDeleted._id);
-        const potentialTags = oldT2Ts.map((oldT2Ts: { tag: any; }) => oldT2Ts.tag); // Turn T2T array into tag array
+    deleteTuitsByTuitText = async (req: Request, res: Response) => {
+        // Find all the tuits with the given text
+        const tuits2BeDeleted = await TuitController.tuitDao.findTuitsByText(req.body.tuit);
 
-        console.log(tuit2BeDeleted);
-        console.log(oldT2Ts);
-        console.log(potentialTags);
+        // If there are no tuits to delete, respond with empty deletion status
+        if (tuits2BeDeleted.length === 0) {
+            res.json({"deletedCount": 0});
+        } else {
+            let tuit2TagsToBeDeleted: Tuit2Tag[] = []; // initialize list of tuit2Tags to remove
+            let tuit2TagsForTuit: Tuit2Tag[] = [];   // initialize list of tuit2Tags for a tuit
 
-        // If at least 1 Tag is present in the Tuit
-        if (potentialTags) {
-            for (let i = 0; i < potentialTags.length; i++) {
-                // and if this Tuit is the last one with the Tag
-                if (potentialTags[i].count === 1) {
-                    // Then delete the Tag
-                    await TuitController.tagDao.deleteTag(potentialTags[i]._id)
-                } else {
-                    // Reduce count
-                    potentialTags[i].count--;
-                }
-                // and delete the Tuit2Tag row
-                await TuitController.tuit2TagDao.deleteTuit2Tag(tuit2BeDeleted._id, potentialTags[i]._id)
+            // For each tuit...
+            for (let i = 0; i < tuits2BeDeleted.length; i++) {
+                // Find tuit2Tags for tuit
+                tuit2TagsForTuit = await TuitController.tuit2TagDao
+                    .findTuit2TagsByTuit(tuits2BeDeleted[i]._id.toString());
+
+                // Add tuit2Tags for tuit to list of tuit2Tags to be removed
+                tuit2TagsForTuit.map(tuit2TagForTuit => tuit2TagsToBeDeleted.push(tuit2TagForTuit));
+
+                tuit2TagsForTuit = [];  // reset list of tags for next tuit
             }
+
+            // Get list of tags to be deleted from tuit2Tags
+            const tagsToBeDeleted = tuit2TagsToBeDeleted.map(tuit2Tag => tuit2Tag.tag);
+
+            // Delete tuit2Tags by each of their IDs
+            for (let i = 0; i < tuit2TagsToBeDeleted.length; i++) {
+                await TuitController.tuit2TagDao.deleteTuit2TagById(tuit2TagsToBeDeleted[i]._id.toString());
+            }
+
+            // Decrement count for tags or delete if count is down to 0
+            let updatedTag;
+            for (let i = 0; i < tagsToBeDeleted.length; i++) {
+                // Retrieve a fresh copy of the tag from the database
+                updatedTag = await TuitController.tagDao.findTagByText(tagsToBeDeleted[i].tag.toString());
+
+                updatedTag.count--; // Decrement tag count
+
+                // If
+                if (updatedTag._id && updatedTag.count === 0) {
+                    await TuitController.tagDao.deleteTag(updatedTag._id.toString());
+                } else {
+                    await TuitController.tagDao.updateTag(updatedTag);
+                }
+            }
+
+            // Delete tuits with given text
+            await TuitController.tuitDao.deleteTuitsByTuitText(req.body.tuit)
+                .then(status => res.json(status))
         }
-        // Delete tuit or tuits with given text
-        await TuitController.tuitDao.deleteTuitByTuitText(req.params.tuitText)
-            .then(status => res.json(status))
-    }*/
+    }
 }

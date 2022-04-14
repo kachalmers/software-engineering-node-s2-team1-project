@@ -64,8 +64,8 @@ export default class TuitDao implements TuitDaoI {
      * @param {string} tuitText Tuit text
      * @returns Promise To be notified when tuit is found from the database
      */
-    findTuitByText = async (tuitText: string): Promise<any> =>
-        TuitModel.findOne({tuit: tuitText});
+    findTuitsByText = async (tuitText: string): Promise<Tuit[]> =>
+        TuitModel.find({tuit: tuitText});
 
     /**
      * Inserts tuit document into the database.
@@ -112,10 +112,10 @@ export default class TuitDao implements TuitDaoI {
         TuitModel.deleteOne({_id: tid});
 
     /**
-     * Removes tuit document with given tuit text from the database.
+     * Removes tuit documents with given tuit text from the database.
      * @param {string} tuitText Tuit text
-     * @returns Promise To be notified when tuit is removed from the database
+     * @returns Promise To be notified when tuits are removed from the database
      */
-    deleteTuitByTuitText = async (tuitText: string): Promise<any> =>
+    deleteTuitsByTuitText = async (tuitText: string): Promise<any> =>
         TuitModel.deleteMany({tuit: tuitText})
 }
