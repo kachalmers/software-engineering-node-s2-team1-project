@@ -50,7 +50,7 @@ export default class TuitController implements TuitControllerI {
             app.post("/api/users/:uid/tuits", TuitController.tuitController.createTuitByUser);
             app.put('/api/tuits/:tid', TuitController.tuitController.updateTuit);
             app.delete('/api/tuits/:tid', TuitController.tuitController.deleteTuit);
-            //app.delete('/api/tuits/text/:text', TuitController.tuitController.deleteTuitByTuitText)
+            app.delete('/api/tuits/text/:text', TuitController.tuitController.deleteTuitByTuitText)
         }
         return TuitController.tuitController
     }
@@ -203,7 +203,6 @@ export default class TuitController implements TuitControllerI {
         }
     }
 
-
     /**
      * Updates a tuit document.
      * @param {Request} req Represents request from client, including path
@@ -217,15 +216,11 @@ export default class TuitController implements TuitControllerI {
 
         // Check if there's a tag/tuit row in Tuit2Tag
         const oldT2Ts = await TuitController.tuit2TagDao.findTuit2TagsByTuit(req.params.tid);
-        const oldTags = oldT2Ts.map((oldT2Ts: { tag: any; }) => oldT2Ts.tag); // Turn T2T array into tag array
-        console.log(oldT2Ts);
-        console.log(oldTags);
-
+        const oldTags = oldT2Ts.map((oldT2T: { tag: any; }) => oldT2T.tag); // Turn T2T array into tag array
+        const oldTagTexts = oldTags.map((oldTag) => oldTag.tag);
         // Check if the tag is no longer present in req.body
         for (let i = 0; i < oldTags.length; i++) {
-            console.log(oldTags[i]._id);
             if (tuitText.includes("#" + oldTags[i].tag) == 0) {
-                console.log("Inside for loop")
                 // If not, then remove the Tuit2Tag row
                 await TuitController.tuit2TagDao.deleteTuit2Tag(req.params.tid, oldTags[i]._id);
                 // If it was the last Tuit with that Tag,
@@ -256,7 +251,7 @@ export default class TuitController implements TuitControllerI {
                         "count": 1
                     }
                     // If the almost tag is a new one
-                    if (oldTags.includes(almostTag.tag) === false) {
+                    if (oldTagTexts.includes(almostTag.tag)===false) {
                         // Create the tag
                         await TuitController.tagDao.createTag(almostTag);
                         // Find the newly created Tag
@@ -305,21 +300,16 @@ export default class TuitController implements TuitControllerI {
 
     /**
      * (For testing) Removes a tuit documents with tuit text that matches the
-     * given text.
+     * given text. Also removes the tuit's corresponding tuit2tags.
      * @param {Request} req Represents request from client, including path
      * parameter text (text of the tuit(s) to be removed)
      * @param {Response} res Represents response to client, including
      * deletion status
      */
-    /*deleteTuitByTuitText = async (req: Request, res: Response) => {           // TODO Check if tag present & if it was the last tuit w/that tag
-        const tuit2BeDeleted = await TuitController.tuitDao.findTuitByText(req.params.tuitText);
-        console.log(tuit2BeDeleted);
+    deleteTuitByTuitText = async (req: Request, res: Response) => {
+        const tuit2BeDeleted = await TuitController.tuitDao.findTuitByText(req.params.text);
         const oldT2Ts = await TuitController.tuit2TagDao.findTuit2TagsByTuit(tuit2BeDeleted._id);
         const potentialTags = oldT2Ts.map((oldT2Ts: { tag: any; }) => oldT2Ts.tag); // Turn T2T array into tag array
-
-        console.log(tuit2BeDeleted);
-        console.log(oldT2Ts);
-        console.log(potentialTags);
 
         // If at least 1 Tag is present in the Tuit
         if (potentialTags) {
@@ -337,7 +327,7 @@ export default class TuitController implements TuitControllerI {
             }
         }
         // Delete tuit or tuits with given text
-        await TuitController.tuitDao.deleteTuitByTuitText(req.params.tuitText)
+        await TuitController.tuitDao.deleteTuitByTuitText(req.params.text)
             .then(status => res.json(status))
-    }*/
+    }
 }
