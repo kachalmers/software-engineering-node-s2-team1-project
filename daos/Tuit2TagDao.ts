@@ -9,6 +9,7 @@ import Tuit2Tag from "../models/tags/Tuit2Tag";
 import TagDao from "./TagDao";
 import Tuit from "../models/tuits/Tuit";
 import Tag from "../models/tags/Tag";
+import TuitModel from "../mongoose/tuits/TuitModel";
 
 export default class Tuit2TagDao implements Tuit2TagDaoI {
     private static tuit2tagDao: Tuit2TagDao | null = null;
@@ -50,6 +51,8 @@ export default class Tuit2TagDao implements Tuit2TagDaoI {
     deleteTuit2Tag = async (tuitID: string, tagID: string): Promise<any> =>
         Tuit2TagModel.deleteMany({tuit: tuitID, tag: tagID});
 
+    deleteTuit2TagById = async (t2tID: string): Promise<any> =>
+        Tuit2TagModel.deleteOne({_id: t2tID});
 
     /**
      * Returns an array of t2ts from the database where the given tuit

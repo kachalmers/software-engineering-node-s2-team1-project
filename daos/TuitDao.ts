@@ -64,7 +64,7 @@ export default class TuitDao implements TuitDaoI {
      * @param {string} tuitText Tuit text
      * @returns Promise To be notified when tuit is found from the database
      */
-    findTuitByText = async (tuitText: string): Promise<Tuit[]> =>
+    findTuitsByText = async (tuitText: string): Promise<Tuit[]> =>
         TuitModel.find({tuit: tuitText});
 
     /**
