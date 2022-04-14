@@ -173,18 +173,20 @@ export default class TuitService {
         // Decrement count for tags or delete if count is down to 0
         let updatedTag;
         for (let i = 0; i < tagsToBeDeleted.length; i++) {
-            // Retrieve a fresh copy of the tag from the database
-            updatedTag = await TuitService.tagDao.findTagByText(tagsToBeDeleted[i].tag.toString());
+            if (tagsToBeDeleted[i] !== null) {
+                // Retrieve a fresh copy of the tag from the database
+                updatedTag = await TuitService.tagDao.findTagByText(tagsToBeDeleted[i].tag.toString());
 
-            updatedTag.count--; // Decrement tag count
+                updatedTag.count--; // Decrement tag count
 
-            // If the tag exists and the number of tuits with the tag is 0...
-            if (updatedTag._id && updatedTag.count === 0) {
-                // Remove tag from database
-                await TuitService.tagDao.deleteTag(updatedTag._id.toString());
-            } else {
-                // Update the tag with the decremented count
-                await TuitService.tagDao.updateTag(updatedTag);
+                // If the tag exists and the number of tuits with the tag is 0...
+                if (updatedTag._id && updatedTag.count === 0) {
+                    // Remove tag from database
+                    await TuitService.tagDao.deleteTag(updatedTag._id.toString());
+                } else {
+                    // Update the tag with the decremented count
+                    await TuitService.tagDao.updateTag(updatedTag);
+                }
             }
         }
 
