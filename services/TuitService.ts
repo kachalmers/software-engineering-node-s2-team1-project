@@ -180,10 +180,10 @@ export default class TuitService {
 
             // If the tag exists and the number of tuits with the tag is 0...
             if (updatedTag._id && updatedTag.count === 0) {
-                // Update the tag with the decremented count
+                // Remove tag from database
                 await TuitService.tagDao.deleteTag(updatedTag._id.toString());
             } else {
-                // Remove tag from database
+                // Update the tag with the decremented count
                 await TuitService.tagDao.updateTag(updatedTag);
             }
         }
