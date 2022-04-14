@@ -52,7 +52,7 @@ export default class TuitController implements TuitControllerI {
             app.post("/api/users/:uid/tuits", TuitController.tuitController.createTuitByUser);
             app.put('/api/tuits/:tid', TuitController.tuitController.updateTuit);
             app.delete('/api/tuits/:tid', TuitController.tuitController.deleteTuit);
-            app.delete('/api/tuits', TuitController.tuitController.deleteTuitByTuitText)
+            app.delete('/api/tuits', TuitController.tuitController.deleteTuitsByTuitText)
         }
         return TuitController.tuitController
     }
@@ -301,14 +301,14 @@ export default class TuitController implements TuitControllerI {
     }
 
     /**
-     * (For testing) Removes a tuit documents with tuit text that matches the
-     * given text. Also removes the tuit's corresponding tuit2tags.
+     * (For testing) Removes tuit documents with tuit text that matches the
+     * given text. Also removes the tuits' corresponding tuit2tags.
      * @param {Request} req Represents request from client, including path
      * parameter text (text of the tuit(s) to be removed)
      * @param {Response} res Represents response to client, including
      * deletion status
      */
-    deleteTuitByTuitText = async (req: Request, res: Response) => {
+    deleteTuitsByTuitText = async (req: Request, res: Response) => {
         // Find all the tuits with the given text
         const tuits2BeDeleted = await TuitController.tuitDao.findTuitsByText(req.body.tuit);
 
@@ -356,53 +356,8 @@ export default class TuitController implements TuitControllerI {
             }
 
             // Delete tuits with given text
-            await TuitController.tuitDao.deleteTuitByTuitText(req.body.tuit)
+            await TuitController.tuitDao.deleteTuitsByTuitText(req.body.tuit)
                 .then(status => res.json(status))
         }
     }
-/*
-    deleteTuitByTuitText2 = async (req: Request, res: Response) => {
-        // Find all the tuits with the given text
-        const tuits2BeDeleted = await TuitController.tuitDao.findTuitsByText(req.body.tuit);
-        console.log("TUITS TO BE DELETED: "+tuits2BeDeleted);
-        console.log("tuits2BeDeleted[0]: "+tuits2BeDeleted[0]);
-        console.log("tuits2BeDeleted.length: "+tuits2BeDeleted.length);
-        let oldT2Ts, potentialTags;
-
-        // For each tuit to be deleted...
-        for (let i = 0; i < tuits2BeDeleted.length; i++) {
-            // Find all Tuit2Tags by tuit
-            oldT2Ts = await TuitController.tuit2TagDao.findTuit2TagsByTuit(tuits2BeDeleted[i]._id.toString());
-            console.log("OLD TUIT2TAGS: "+oldT2Ts);
-
-            const oldTags = oldT2Ts.map((oldT2T: { tag: any; }) => oldT2T.tag); // Turn T2T array into tag array
-            console.log("oldTags: "+oldTags);
-
-            // Turn array of Tuit2Tags into array of tags
-            potentialTags = oldT2Ts.map((oldT2Ts: { tag: any; }) => oldT2Ts.tag); // Turn T2T array into tag array
-            console.log("POTENTIAL TAGS: "+potentialTags);
-            console.log("POTENTIAL TAGS LENGTH: "+potentialTags.length);
-            console.log("POTENTIAL TAGS[0] NULL?: "+(potentialTags[0]===null));
-            // If at least 1 Tag is present in the Tuit
-            if (potentialTags && potentialTags[0] !== null) {
-                for (let j = 0; j < potentialTags.length; j++) {
-                    // and if this Tuit is the last one with the Tag
-                    if (potentialTags[j].count === 1) {
-                        // Then delete the Tag
-                        await TuitController.tagDao.deleteTag(potentialTags[j]._id)
-                    } else {
-                        // Reduce count
-                        potentialTags[j].count--;
-                    }
-                    // and delete the Tuit2Tag row
-                    console.log("tuits2BeDeleted[i] AT AWAIT: "+tuits2BeDeleted[i]);
-                    await TuitController.tuit2TagDao.deleteTuit2Tag(tuits2BeDeleted[i]._id.toString(), potentialTags[j]._id)
-                }
-            }
-            // Delete tuit or tuits with given text
-            await TuitController.tuitDao.deleteTuitByTuitText(req.body.tuit)
-                .then(status => res.json(status))
-        }
-    }
- */
 }
