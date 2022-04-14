@@ -342,8 +342,12 @@ export default class TuitController implements TuitControllerI {
             // Decrement count for tags or delete if count is down to 0
             let updatedTag;
             for (let i = 0; i < tagsToBeDeleted.length; i++) {
-                updatedTag = tagsToBeDeleted[i];
-                updatedTag.count--;
+                // Retrieve a fresh copy of the tag from the database
+                updatedTag = await TuitController.tagDao.findTagByText(tagsToBeDeleted[i].tag.toString());
+
+                updatedTag.count--; // Decrement tag count
+
+                // If
                 if (updatedTag._id && updatedTag.count === 0) {
                     await TuitController.tagDao.deleteTag(updatedTag._id.toString());
                 } else {
