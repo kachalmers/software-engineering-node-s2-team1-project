@@ -6,6 +6,7 @@ import DislikeDao from "../daos/DislikeDao";
 import TagDao from "../daos/TagDao";
 import Tuit2TagDao from "../daos/Tuit2TagDao";
 import Tuit from "../models/tuits/Tuit";
+import Tuit2Tag from "../models/tags/Tuit2Tag";
 
 /**
  * @class TuitService Implements Tuit service to help with tuit data
@@ -106,6 +107,7 @@ export default class TuitService {
         return markedTuits;
     }
 
+
     public createTagsAndTuit2TagsForTuit = async (newTuit: Tuit): Promise<any> => {
         const tuitText = newTuit.tuit;
         const newTuitId = newTuit._id.toString();
@@ -135,6 +137,57 @@ export default class TuitService {
                 }
             }
         }
+        return;
+    }
+
+    /**
+     * Removes Tuit2Tags and updates/removes Tags corresponding with the given tuits
+     * from the database.
+     * @param {Tuit[]} tuits2BeDeleted Array of tuits
+     */
+    public deleteTuit2TagsAndUpdateTagsByTuits = async (tuits2BeDeleted: Tuit[]): Promise<any> => {
+        let tuit2TagsToBeDeleted: Tuit2Tag[] = []; // initialize list of tuit2Tags to remove
+        let tuit2TagsForTuit: Tuit2Tag[] = [];   // initialize list of tuit2Tags for a tuit
+
+        // For each tuit...
+        for (let i = 0; i < tuits2BeDeleted.length; i++) {
+            // Find tuit2Tags for tuit
+            tuit2TagsForTuit = await TuitService.tuit2TagDao
+                .findTuit2TagsByTuit(tuits2BeDeleted[i]._id.toString());
+
+            // Add tuit2Tags for tuit to list of tuit2Tags to be removed
+            tuit2TagsForTuit.map(tuit2TagForTuit => tuit2TagsToBeDeleted.push(tuit2TagForTuit));
+
+            tuit2TagsForTuit = [];  // reset list of tags for next tuit
+        }
+
+        // Get list of tags to be deleted from tuit2Tags
+        const tagsToBeDeleted = tuit2TagsToBeDeleted.map(tuit2Tag => tuit2Tag.tag);
+
+        // For each of the tuit2tags related to the given tuits...
+        for (let i = 0; i < tuit2TagsToBeDeleted.length; i++) {
+            // Delete tuit2Tags by each of their IDs
+            await TuitService.tuit2TagDao.deleteTuit2TagById(tuit2TagsToBeDeleted[i]._id.toString());
+        }
+
+        // Decrement count for tags or delete if count is down to 0
+        let updatedTag;
+        for (let i = 0; i < tagsToBeDeleted.length; i++) {
+            // Retrieve a fresh copy of the tag from the database
+            updatedTag = await TuitService.tagDao.findTagByText(tagsToBeDeleted[i].tag.toString());
+
+            updatedTag.count--; // Decrement tag count
+
+            // If the tag exists and the number of tuits with the tag is 0...
+            if (updatedTag._id && updatedTag.count === 0) {
+                // Update the tag with the decremented count
+                await TuitService.tagDao.deleteTag(updatedTag._id.toString());
+            } else {
+                // Remove tag from database
+                await TuitService.tagDao.updateTag(updatedTag);
+            }
+        }
+
         return;
     }
 }
