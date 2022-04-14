@@ -5,6 +5,7 @@
 
 import Tuit from "../tuits/Tuit";
 import Tag from "./Tag";
+import {ObjectId} from "mongoose";
 
 /**
  * @typedef Tuit2Tag Represents the relationship between a single
@@ -13,6 +14,7 @@ import Tag from "./Tag";
  * @property {Tag} tag the tag linked with the tuit
  */
 export default interface Tuit2Tag {
+    _id: ObjectId,
     tuit: Tuit,
     tag: Tag
 }

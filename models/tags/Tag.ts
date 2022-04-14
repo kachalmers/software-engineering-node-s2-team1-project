@@ -3,6 +3,8 @@
  * marker which enables the sharing of a specific topic or theme.
  */
 
+import {ObjectId} from "mongoose";
+
 /**
  * @typedef Tag Represents a user-generated label for a topic or theme
  * @property {String} tag the name of the tag which corresponds to the topic
@@ -10,6 +12,7 @@
  * @property {Number} count the total number of uses of this tag in the system
  */
 export default interface Tag {
+    _id?: ObjectId,
     tag: String,
-    count: Number
+    count: number
 }
