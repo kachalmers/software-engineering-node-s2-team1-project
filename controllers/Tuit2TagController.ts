@@ -6,9 +6,9 @@ import {Request, Response, Express} from "express";
 import Tuit2TagDao from "../daos/Tuit2TagDao";
 import Tuit2TagControllerI from "../interfaces/Tuit2TagControllerI";
 import Tuit2Tag from "../models/tags/Tuit2Tag";
-import TagDao from "../daos/TagDao";
 import Tuit from "../models/tuits/Tuit";
-import User from "../models/users/User";
+import Tag from "../models/tags/Tag";
+import TuitService from "../services/TuitService";
 
 /**
  * @class Tuit2TagController Implements RESTful Web service API for the
@@ -28,8 +28,9 @@ import User from "../models/users/User";
 
 export default class Tuit2TagController implements Tuit2TagControllerI {
     private static tuit2tagDao: Tuit2TagDao = Tuit2TagDao.getInstance();
-    private static tagDao: TagDao = TagDao.getInstance();
+    private static tuitService: TuitService = TuitService.getInstance();
     private static tuit2tagController: Tuit2TagController | null = null;
+
     /**
      * Creates a singleton controller instance
      * @param {Express} app express instance to declare the RESTful API
@@ -40,9 +41,10 @@ export default class Tuit2TagController implements Tuit2TagControllerI {
             Tuit2TagController.tuit2tagController = new Tuit2TagController();
             app.post("/api/tuits/:tuitID/tags/:tagID", Tuit2TagController.tuit2tagController.createTuit2Tag);
             app.delete("/api/tuits/:tuitID/tags/:tagID", Tuit2TagController.tuit2tagController.deleteTuit2Tag);
-            app.get('/api/tuit2tags', Tuit2TagController.tuit2tagController.findAllTuit2Tags);
-            app.get("/api/tuits/:tuitID/tags", Tuit2TagController.tuit2tagController.findTuit2TagsByTuit);
-            //app.get("/api/tags/:tagText/tuits", Tuit2TagController.tuit2tagController.findTuitsByTagText);
+            app.get("/api/tags/:tagText/tuits", Tuit2TagController.tuit2tagController.findTuitsByTagText);
+            app.get("/api/tuits/:tuitID/tags", Tuit2TagController.tuit2tagController.findTagsByTuit);
+            app.get("/api/tuit2tags/tuits/:tuitID", Tuit2TagController.tuit2tagController.findTuit2TagsByTuit);
+            app.get("/api/tuit2tags",Tuit2TagController.tuit2tagController.findAllTuit2Tags);
         }
         return Tuit2TagController.tuit2tagController;
     }
@@ -75,49 +77,64 @@ export default class Tuit2TagController implements Tuit2TagControllerI {
             .then(status => res.send(status))
 
     /**
-     * Retrieves all Tuit2Tag documents from the database.
-     * @param {Request} req Represents request from client
-     * @param {Response} res Represents response to client, including the
-     * body formatted as JSON arrays containing the Tuit2Tag objects
+     * Retrieves all tuit2tag documents for a tuit with the given primary key.
+     * @param {Request} req Represents request from client, including the
+     * parameter of a primary key for the tuit for which tags are to be
+     * retrieved
+     * @param {Response} res Represents response to client
      */
-    findAllTuit2Tags = (req: Request, res: Response) =>
-        Tuit2TagController.tuit2tagDao.findAllTuit2Tags()
-            .then((tuit2tags: Tuit2Tag[]) => res.json(tuit2tags));
-
-    /**
-     * Finds a t2t document in the database based on its tuit component
-     * @param {Request} req the request from the client, including the
-     * parameter of a primary key for the tuit to be searched
-     * @param {Response} res the response to the client, including the
-     * array of desired tuit2tags
-     */
-    findTuit2TagsByTuit = (req: Request, res: Response) =>
+    findTuit2TagsByTuit = async (req: Request, res: Response) =>
         Tuit2TagController.tuit2tagDao.findTuit2TagsByTuit(req.params.tuitID)
             .then((tuit2tags: Tuit2Tag[]) => res.json(tuit2tags));
 
     /**
-     *
-     * @param req
-     * @param res
+     * Retrieves all tags in a tuit with the given primary key.
+     * @param {Request} req Represents request from client, including the
+     * parameter of a primary key for the tuit for which tags are to be
+     * retrieved
+     * @param {Response} res Represents response to client
      */
-    /*
-    findTuitsByTagText = async (req: Request, res: Response) => {
-        // Find tag by tag text
-        let tag = await Tuit2TagController.tagDao.findTagByText(req.params.tagText);
+    findTagsByTuit = async (req: Request, res: Response) =>
+        Tuit2TagController.tuit2tagDao.findTagsByTuit(req.params.tuitID)
+            .then((tags: Tag[]) => res.json(tags));
 
-        // Map all the returned tuit2tags (from DAO) to their corresponding tuits
-        Tuit2TagController.tuit2tagDao.findTuit2TagsByTag(tag._id)
-            // The mapping function maps the tuit2tags to the corresponding tuits
-            .then(tuit2tags => res.json(tuit2tags.map(tuit2tag => tuit2tag.tuit)));
-    }
+    /**
+     * Retrieves all tuits that have tags with a given tag text.
+     * @param {Request} req Represents request from client, including the
+     * parameter of tag text by which to retrieve tuits
+     * @param {Response} res Represents response to client
      */
-/*
     findTuitsByTagText = async (req: Request, res: Response) => {
-        Tuit2TagController.tuit2tagDao.findTuit2TagsByTagText(req.params.tagText)
-            .then((tuits: Tuit[]) => res.json(tuits));
+        // @ts-ignore
+        const profile = req.session['profile'];
+        if (profile) {
+            // @ts-ignore
+            const userId = profile._id;
+
+            // Find tuits tagged with given tag
+            Tuit2TagController.tuit2tagDao.findTuitsByTagText(req.params.tagText)
+                .then(async (tuits: Tuit[]) => {
+                    // Mark tuits for tuit ownership, likes, and dislikes
+                    const tuitsWithTag = await Tuit2TagController.tuitService
+                        .markTuitsForUserInvolvement(userId, tuits);
+
+                    res.json(tuitsWithTag); // Respond with list of tuits
+                })
+        } else {
+            // Find tuits tagged with given tag
+            Tuit2TagController.tuit2tagDao.findTuitsByTagText(req.params.tagText)
+                .then((tuits: Tuit[]) => res.json(tuits));
+        }
     }
 
- */
+    /**
+     * Retrieve all Tuit2Tag documents from the database.
+     * @param {Request} req Represents request from client
+     * @param {Response} res Represents response to client
+     */
+    findAllTuit2Tags = async (req: Request, res: Response) =>
+        Tuit2TagController.tuit2tagDao.findAllTuit2Tags()
+            .then((tuit2tags: Tuit2Tag[]) => res.json(tuit2tags));
 
 
 }

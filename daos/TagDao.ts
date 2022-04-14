@@ -6,7 +6,6 @@
 import TagDaoI from "../interfaces/TagDaoI";
 import TagModel from "../mongoose/tags/TagModel";
 import Tag from "../models/tags/Tag";
-import TuitModel from "../mongoose/tuits/TuitModel";
 
 export default class TagDao implements TagDaoI {
     private static tagDao: TagDao | null = null;
@@ -20,7 +19,7 @@ export default class TagDao implements TagDaoI {
 
     /**
      * Inserts tag document into the database.
-     * @param {Tag} Tag Tag to insert into database
+     * @param {Tag} tag Tag to insert into database
      * @returns Promise To be notified when tag is inserted into the database
      */
     createTag = async (tag: Tag): Promise<Tag> => {
@@ -59,14 +58,6 @@ export default class TagDao implements TagDaoI {
         TagModel.find()
             .sort({count: -1})
             .exec();
-
-    /**
-     * Retrieves tag with given primary key.
-     * @param {string} tagID Primary key of tag
-     * @returns Promise To be notified when the tag is retrieved from database
-     */
-    /*findTagById = async (tagID: string): Promise<any> =>
-        TagModel.findById(tagID).exec();*/
 
     /**
      * Retrieves tag documents with given tag text from the database.
