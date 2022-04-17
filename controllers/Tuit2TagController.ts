@@ -29,7 +29,7 @@ import TuitService from "../services/TuitService";
 export default class Tuit2TagController implements Tuit2TagControllerI {
     private static tuit2tagDao: Tuit2TagDao = Tuit2TagDao.getInstance();
     private static tuitService: TuitService = TuitService.getInstance();
-    private static tuit2tagController: Tuit2TagController | null = null;
+    static tuit2tagController: Tuit2TagController | null = null;
 
     /**
      * Creates a singleton controller instance
