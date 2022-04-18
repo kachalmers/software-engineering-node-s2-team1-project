@@ -8,8 +8,6 @@ import Tuit from "../models/tuits/Tuit";
 import TuitService from "../services/TuitService";
 import TagDao from "../daos/TagDao";
 import Tuit2TagDao from "../daos/Tuit2TagDao";
-import Tuit2Tag from "../models/tags/Tuit2Tag";
-import Tag from "../models/tags/Tag";
 
 /**
  * @class TuitController Implements RESTful Web service API for tuits resource.
@@ -214,59 +212,24 @@ export default class TuitController implements TuitControllerI {
      * status
      */
     updateTuit = async (req: Request, res: Response) => {
-        const tuitText = req.body.tuit;
+        // Retrieve a copy of the existing tuit to be updated from database
+        const tuitToBeUpdated = await TuitController.tuitDao.findTuitById(req.params.tid);
 
-        // Check if there's a tag/tuit row in Tuit2Tag
-        const oldT2Ts = await TuitController.tuit2TagDao.findTuit2TagsByTuit(req.params.tid);
-        const oldTags = oldT2Ts.map((oldT2T: { tag: any; }) => oldT2T.tag); // Turn T2T array into tag array
-        const oldTagTexts = oldTags.map((oldTag) => oldTag.tag);
-        // Check if the tag is no longer present in req.body
-        for (let i = 0; i < oldTags.length; i++) {
-            if (tuitText.includes("#" + oldTags[i].tag) == 0) {
-                // If not, then remove the Tuit2Tag row
-                await TuitController.tuit2TagDao.deleteTuit2Tag(req.params.tid, oldTags[i]._id);
-                // If it was the last Tuit with that Tag,
-                if (oldTags[i].count === 1) {
-                    // then delete the Tag
-                    await TuitController.tagDao.deleteTag(oldTags[i]._id)
-                } else {
-                    //Reduce count
-                    oldTags[i].count--;
-                }
-            }
-        }
+        // Turn tuit into array of one tuit to be given to helper function
+        const tuits2BeUpdated = [tuitToBeUpdated];
 
-        // Check if a new Tag is present
-        // Initialize variables
-        const splitTuit = tuitText.split(" ");
-        let almostTag, newTag;
+        // Remove old tuit2tags and tags corresponding to given tuit
+        await TuitController.tuitService.deleteTuit2TagsAndUpdateTagsByTuits(tuits2BeUpdated);
 
-        // Check if Tuit text contains a tag
-        if (tuitText.includes('#')) {
-            // Loop through words
-            for (let i = 0; i < splitTuit.length; i++) {
-                // If the first char is #
-                if (splitTuit[i].charAt(0) === '#') {
-                    // Prep a Tag (use the word w/o the #)
-                    almostTag = {
-                        "tag": splitTuit[i].slice(1),
-                        "count": 1
-                    }
-                    // If the almost tag is a new one
-                    if (oldTagTexts.includes(almostTag.tag)===false) {
-                        // Create the tag
-                        await TuitController.tagDao.createTag(almostTag);
-                        // Find the newly created Tag
-                        newTag = await TuitController.tagDao.findTagByText(almostTag.tag);
-                        // and make an entry in Tuit2Tag
-                        await TuitController.tuit2TagDao.createTuit2Tag(req.params.tid, newTag._id);
-                    }
-                }
-            }
-        }
-        // Always update the Tuit
-        TuitController.tuitDao.updateTuit(req.params.tid, req.body)
-            .then(status => res.json(status))
+        // Update the tuit
+        await TuitController.tuitDao.updateTuit(req.params.tid, req.body)
+            .then(status => res.json(status));
+
+        // Retrieve a copy of the updated tuit from database
+        const updatedTuit = await TuitController.tuitDao.findTuitById(req.params.tid);
+
+        // Add tuit2tags and tags for new tuit text
+        await TuitController.tuitService.createTagsAndTuit2TagsForTuit(updatedTuit);
     }
 
     /**
