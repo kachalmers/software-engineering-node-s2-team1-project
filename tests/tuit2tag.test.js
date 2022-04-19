@@ -9,12 +9,21 @@ const t2tDao = tuit2TagDao.getInstance();
 //TODO: add beforeEach and afterEach for all tests
 
 describe ('new t2t created successfully', () => {
-    test('createT2T', () => {
-        return t2tDao.createTuit2Tag('123', '456')
+    const myT2T = {
+        tuit: '123',
+        tag: '456'
+    }
+
+    test('createT2T', async () => {
+        await t2tDao.createTuit2Tag('123', '456')
         .then(t2t => {
-            expect(t2t.tuit).toBe('123')
-            expect(t2t.tag).toBe('456')
+            expect(t2t.tuit).toBe(myT2T.tuit)
+            expect(t2t.tag).toBe(myT2T.tag)
         })
+    })
+
+    afterAll(() => {
+        t2tDao.deleteTuit2Tag('123', '456');
     })
 });
 
