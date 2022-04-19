@@ -5,6 +5,7 @@ import {Express, Request, Response} from "express";
 import FollowDao from "../daos/FollowDao";
 import FollowControllerI from "../interfaces/FollowControllerI";
 import Follow from "../models/follows/Follow";
+import TuitDao from "../daos/TuitDao";
 
 /**
  * @class FollowController Implements RESTful Web service API for follows resource.
@@ -33,6 +34,7 @@ import Follow from "../models/follows/Follow";
 export default class FollowController implements FollowControllerI {
     private static followDao: FollowDao = FollowDao.getInstance();
     private static followController: FollowController | null = null;
+    private static tuitDao: TuitDao = TuitDao.getInstance();
 
     /**
      * Creates singleton controller instance.
@@ -41,7 +43,7 @@ export default class FollowController implements FollowControllerI {
      * @return {FollowController} FollowController
      */
     public static getInstance = (app: Express): FollowController => {
-        if(FollowController.followController === null) {
+        if (FollowController.followController === null) {
             FollowController.followController = new FollowController();
             app.post("/api/users/:uid/followees/:ouid", FollowController.followController.userFollowsUser);
             app.delete("/api/users/:uid/followees/:ouid", FollowController.followController.userUnfollowsUser);
@@ -51,6 +53,7 @@ export default class FollowController implements FollowControllerI {
             app.get("/api/users/:uid/followees/:ouid", FollowController.followController.findFollowByUsers);
             app.get("/api/follows/users/:uid/followees", FollowController.followController.findFollowsByFollower);
             app.get("/api/follows/users/:uid/followers", FollowController.followController.findFollowsByFollowee);
+            app.put('/api/users/:uid/followees/:ouid', FollowController.followController.userTogglesFollow);
         }
         return FollowController.followController;
     }
@@ -122,7 +125,7 @@ export default class FollowController implements FollowControllerI {
      */
     findFollowByUsers = (req: Request, res: Response) =>
         FollowController.followDao.findFollowByUsers(req.params.uid, req.params.ouid)
-            .then(follows => res.json(follows));
+            .then(follow => res.json(follow));
 
     /**
      * Creates a new follow instance.
@@ -148,4 +151,42 @@ export default class FollowController implements FollowControllerI {
     userUnfollowsUser = (req: Request, res: Response) =>
         FollowController.followDao.userUnfollowsUser(req.params.uid, req.params.ouid)
             .then(status => res.send(status));
+
+    /**
+     *
+     * @param req
+     * @param res
+     */
+    userTogglesFollow = async (req: Request, res: Response) => {
+        const uid = req.params.uid; // store user ID from request parameter
+        const ouid = req.params.ouid; // store tuit ID from request parameter
+        // @ts-ignore
+        const profile = req.session['profile']; // get logged in profile from session
+        const userId = uid === 'me' && profile ?    // if logged in, get ID from profile
+            profile._id : uid;  // otherwise, use parameter
+        try {
+            if (ouid === null || ouid === undefined) {
+                res.sendStatus(404);
+            } else {
+                // Store follow of tuit author, if it exists
+                const followOfUserByMe = await FollowController
+                    .followDao.findFollowByUsers(userId, ouid);
+
+                // If follow between users exists...
+                if (followOfUserByMe && followOfUserByMe.follower && followOfUserByMe.followee) {
+                    // Logged-in user unfollows other user
+                    await FollowController
+                        .followDao.userUnfollowsUser(userId, ouid);
+                } else {
+                    // Logged-in user follows other user
+                    await FollowController
+                        .followDao.userFollowsUser(userId, ouid);
+                }
+
+                res.sendStatus(200);    // respond with success
+            }
+        } catch (e) {
+            res.sendStatus(404);
+        }
+    }
 };

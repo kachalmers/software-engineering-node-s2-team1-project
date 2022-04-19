@@ -6,6 +6,8 @@ import DislikeDao from "../daos/DislikeDao";
 import TagDao from "../daos/TagDao";
 import Tuit2TagDao from "../daos/Tuit2TagDao";
 import Tuit from "../models/tuits/Tuit";
+import Tuit2Tag from "../models/tags/Tuit2Tag";
+import FollowDao from "../daos/FollowDao";
 
 /**
  * @class TuitService Implements Tuit service to help with tuit data
@@ -17,6 +19,7 @@ export default class TuitService {
     private static dislikeDao: DislikeDao = DislikeDao.getInstance();
     private static tagDao: TagDao = TagDao.getInstance();
     private static tuit2TagDao: Tuit2TagDao = Tuit2TagDao.getInstance();
+    private static followDao: FollowDao = FollowDao.getInstance();
 
     /**
      * Creates singleton TuitService instance.
@@ -53,14 +56,14 @@ export default class TuitService {
                 .findUserLikesTuit(userId, tuit._id);
 
             // Find dislike of tuit by user if it exists
-            let dislikesOfTuitByUser = TuitService.dislikeDao
+            let dislikeOfTuitByUser = TuitService.dislikeDao
                 .findUserDislikesTuit(userId, tuit._id);
 
             // Add likeOfTuitByUser to list of likes of tuits by user
             likesOfTuitsByUser.push(likeOfTuitByUser);
 
-            // Add dislikesOfTuitByUser to list of dislikes of tuits by user
-            dislikesOfTuitsByUser.push(dislikesOfTuitByUser);
+            // Add dislikeOfTuitByUser to list of dislikes of tuits by user
+            dislikesOfTuitsByUser.push(dislikeOfTuitByUser);
         })
 
         // Wait for all likes/dislikes by user to be found
@@ -83,6 +86,16 @@ export default class TuitService {
                 }
             })
 
+        // Find all users followed by 'me'
+        const usersFollowedByMe: any[] = await TuitService.followDao.findUsersFollowedByUser(userId);
+
+        const idsOfUsersFollowedByMe = usersFollowedByMe
+            .map((user) => {
+                if (user) {
+                    return user._id.toString();
+                }
+            })
+
         const markedTuits = tuits.map((tuit: any) => {
             let tuitCopy = tuit.toObject();
 
@@ -101,10 +114,19 @@ export default class TuitService {
                 // Marked the ownedByMe flag as true
                 tuitCopy = {...tuitCopy, ownedByMe: true};
             }
+
+            // If tuit's author is followed by me...
+            if (tuit.postedBy && tuit.postedBy._id &&
+                idsOfUsersFollowedByMe.indexOf(tuit.postedBy._id.toString()) >= 0) {
+                tuitCopy = {...tuitCopy, tuitAuthorFollowedByMe: true};
+            }
+
             return tuitCopy;
         })
+
         return markedTuits;
     }
+
 
     public createTagsAndTuit2TagsForTuit = async (newTuit: Tuit): Promise<any> => {
         const tuitText = newTuit.tuit;
@@ -135,6 +157,59 @@ export default class TuitService {
                 }
             }
         }
+        return;
+    }
+
+    /**
+     * Removes Tuit2Tags and updates/removes Tags corresponding with the given tuits
+     * from the database.
+     * @param {Tuit[]} tuits2BeDeleted Array of tuits
+     */
+    public deleteTuit2TagsAndUpdateTagsByTuits = async (tuits2BeDeleted: Tuit[]): Promise<any> => {
+        let tuit2TagsToBeDeleted: Tuit2Tag[] = []; // initialize list of tuit2Tags to remove
+        let tuit2TagsForTuit: Tuit2Tag[] = [];   // initialize list of tuit2Tags for a tuit
+
+        // For each tuit...
+        for (let i = 0; i < tuits2BeDeleted.length; i++) {
+            // Find tuit2Tags for tuit
+            tuit2TagsForTuit = await TuitService.tuit2TagDao
+                .findTuit2TagsByTuit(tuits2BeDeleted[i]._id.toString());
+
+            // Add tuit2Tags for tuit to list of tuit2Tags to be removed
+            tuit2TagsForTuit.map(tuit2TagForTuit => tuit2TagsToBeDeleted.push(tuit2TagForTuit));
+
+            tuit2TagsForTuit = [];  // reset list of tags for next tuit
+        }
+
+        // Get list of tags to be deleted from tuit2Tags
+        const tagsToBeDeleted = tuit2TagsToBeDeleted.map(tuit2Tag => tuit2Tag.tag);
+
+        // For each of the tuit2tags related to the given tuits...
+        for (let i = 0; i < tuit2TagsToBeDeleted.length; i++) {
+            // Delete tuit2Tags by each of their IDs
+            await TuitService.tuit2TagDao.deleteTuit2TagById(tuit2TagsToBeDeleted[i]._id.toString());
+        }
+
+        // Decrement count for tags or delete if count is down to 0
+        let updatedTag;
+        for (let i = 0; i < tagsToBeDeleted.length; i++) {
+            if (tagsToBeDeleted[i] !== null) {
+                // Retrieve a fresh copy of the tag from the database
+                updatedTag = await TuitService.tagDao.findTagByText(tagsToBeDeleted[i].tag.toString());
+
+                updatedTag.count--; // Decrement tag count
+
+                // If the tag exists and the number of tuits with the tag is 0...
+                if (updatedTag._id && updatedTag.count === 0) {
+                    // Remove tag from database
+                    await TuitService.tagDao.deleteTag(updatedTag._id.toString());
+                } else {
+                    // Update the tag with the decremented count
+                    await TuitService.tagDao.updateTag(updatedTag);
+                }
+            }
+        }
+
         return;
     }
 }
