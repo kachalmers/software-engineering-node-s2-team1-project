@@ -29,7 +29,9 @@ export default class Tuit2TagDao implements Tuit2TagDaoI {
      * Retrieves all Tuit2Tag documents from the database.
      */
     findAllTuit2Tags = async (): Promise<Tuit2Tag[]> =>
-        Tuit2TagModel.find().exec();
+        Tuit2TagModel.find()
+            .populate("tuit tag")
+            .exec();
 
     /**
      * Inserts a tuit2tag document into the database.
