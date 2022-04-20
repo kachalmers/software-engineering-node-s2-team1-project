@@ -102,7 +102,12 @@ export default class Tuit2TagDao implements Tuit2TagDaoI {
         if (tag !== null) {
             tuit2tags = await Tuit2TagModel
                 .find({tag: tag._id})
-                .populate("tuit")
+                .populate({
+                    path: "tuit",
+                    populate: {
+                        path: "postedBy"
+                    }
+                })
                 .exec();
         }
 
