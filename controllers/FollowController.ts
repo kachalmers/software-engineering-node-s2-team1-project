@@ -112,8 +112,8 @@ export default class FollowController implements FollowControllerI {
      * followed
      */
     findUsersFollowedByUser = (req: Request, res: Response) =>
-        FollowController.followDao.findFollowsByFollower(req.params.uid)
-            .then(follows => res.json(follows.map(follow => follow.followee)));
+        FollowController.followDao.findUsersFollowedByUser(req.params.uid)
+            .then(users => res.json(users));
 
     /**
      * Retrieves follow of user by a user from the database.
