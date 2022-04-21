@@ -26,6 +26,8 @@ import TuitDao from "../daos/TuitDao";
  *     followees by user</li>
  *     <li>GET /api/follows/users/:uid/followers to retrieve all follows of
  *     user by followers</li>
+ *     <li>PUT /api/users/:uid/followees/:ouid to toggle a follow between two
+ *     users</li>
  * </ul>
  * @property {FollowDao} followDao Singleton DAO implementing follows CRUD operations
  * @property {FollowController} FollowController Singleton controller implementing
@@ -153,9 +155,14 @@ export default class FollowController implements FollowControllerI {
             .then(status => res.send(status));
 
     /**
-     *
-     * @param req
-     * @param res
+     * Implements logic for user follows another user. If a user already
+     * follows the other user, removes the follow; otherwise insert this
+     * follow into the database.
+     * @param {Request} req Represents request from client, including the
+     * path parameters uid and ouid representing the user that is following
+     * the other user and the user to be followed/unfollowed
+     * @param {Response} res Represents response to client, including status
+     * on whether follow is successfully added to or removed from the database
      */
     userTogglesFollow = async (req: Request, res: Response) => {
         const uid = req.params.uid; // store user ID from request parameter
