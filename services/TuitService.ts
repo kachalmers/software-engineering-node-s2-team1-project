@@ -7,6 +7,7 @@ import TagDao from "../daos/TagDao";
 import Tuit2TagDao from "../daos/Tuit2TagDao";
 import Tuit from "../models/tuits/Tuit";
 import Tuit2Tag from "../models/tags/Tuit2Tag";
+import FollowDao from "../daos/FollowDao";
 
 /**
  * @class TuitService Implements Tuit service to help with tuit data
@@ -18,6 +19,7 @@ export default class TuitService {
     private static dislikeDao: DislikeDao = DislikeDao.getInstance();
     private static tagDao: TagDao = TagDao.getInstance();
     private static tuit2TagDao: Tuit2TagDao = Tuit2TagDao.getInstance();
+    private static followDao: FollowDao = FollowDao.getInstance();
 
     /**
      * Creates singleton TuitService instance.
@@ -54,14 +56,14 @@ export default class TuitService {
                 .findUserLikesTuit(userId, tuit._id);
 
             // Find dislike of tuit by user if it exists
-            let dislikesOfTuitByUser = TuitService.dislikeDao
+            let dislikeOfTuitByUser = TuitService.dislikeDao
                 .findUserDislikesTuit(userId, tuit._id);
 
             // Add likeOfTuitByUser to list of likes of tuits by user
             likesOfTuitsByUser.push(likeOfTuitByUser);
 
-            // Add dislikesOfTuitByUser to list of dislikes of tuits by user
-            dislikesOfTuitsByUser.push(dislikesOfTuitByUser);
+            // Add dislikeOfTuitByUser to list of dislikes of tuits by user
+            dislikesOfTuitsByUser.push(dislikeOfTuitByUser);
         })
 
         // Wait for all likes/dislikes by user to be found
@@ -84,6 +86,16 @@ export default class TuitService {
                 }
             })
 
+        // Find all users followed by 'me'
+        const usersFollowedByMe: any[] = await TuitService.followDao.findUsersFollowedByUser(userId);
+
+        const idsOfUsersFollowedByMe = usersFollowedByMe
+            .map((user) => {
+                if (user) {
+                    return user._id.toString();
+                }
+            })
+
         const markedTuits = tuits.map((tuit: any) => {
             let tuitCopy = tuit.toObject();
 
@@ -102,8 +114,16 @@ export default class TuitService {
                 // Marked the ownedByMe flag as true
                 tuitCopy = {...tuitCopy, ownedByMe: true};
             }
+
+            // If tuit's author is followed by me...
+            if (tuit.postedBy && tuit.postedBy._id &&
+                idsOfUsersFollowedByMe.indexOf(tuit.postedBy._id.toString()) >= 0) {
+                tuitCopy = {...tuitCopy, tuitAuthorFollowedByMe: true};
+            }
+
             return tuitCopy;
         })
+
         return markedTuits;
     }
 

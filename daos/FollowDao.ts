@@ -5,6 +5,9 @@
 import FollowDaoI from "../interfaces/FollowDaoI";
 import FollowModel from "../mongoose/follows/FollowModel";
 import Follow from "../models/follows/Follow";
+import User from "../models/users/User";
+import Tag from "../models/tags/Tag";
+import Tuit2TagModel from "../mongoose/tags/Tuit2TagModel";
 
 /**
  * @class FollowDao Implements Data Access Object managing data storage
@@ -48,6 +51,21 @@ export default class FollowDao implements FollowDaoI{
             .exec();
 
     /**
+     * Uses FollowModel to retrieve all users followed by a user (follower).
+     * @param {string} uid Primary key of user following other users
+     * @returns {Promise} Promise to be notified when the users being followed are
+     * retrieved from the database
+     */
+    findUsersFollowedByUser = async (uid: string): Promise<User[]> => {
+        let follows = await FollowModel
+            .find({follower: uid})
+            .populate("followee")
+            .exec();
+
+        return follows.map(follow => follow.followee);
+    }
+
+    /**
      * Uses FollowModel to retrieve all follows of a user (followee).
      * @param {string} uid Primary key of user followed by other users
      * @returns {Promise} Promise to be notified when the users following the given user
@@ -66,11 +84,10 @@ export default class FollowDao implements FollowDaoI{
      * @returns {Promise} Promise to be notified when the follow is retrieved from the
      * database
      */
-    findFollowByUsers = async (uid: string, ouid: string): Promise<Follow[]> =>
+    findFollowByUsers = async (uid: string, ouid: string): Promise<any> =>
         FollowModel
-            .find({follower: uid, followee: ouid})
-            .populate("follower")  // fill in information about follower
-            .populate("followee")   // fill in information about followee
+            .findOne({follower: uid, followee: ouid})
+            .populate("follower followee")  // fill in information about follower/ee
             .exec();
 
     /**
